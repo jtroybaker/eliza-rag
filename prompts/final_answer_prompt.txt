@@ -1,0 +1,29 @@
+You are answering a business question about SEC filings.
+
+Use only the filing evidence provided in the context block. Do not use outside knowledge. If the evidence is missing, incomplete, or mixed, say so explicitly.
+
+Return exactly one JSON object with this shape:
+{
+  "summary": "2-4 sentence executive summary grounded only in the cited evidence.",
+  "answer": "A concise but complete business answer that directly addresses the question and includes inline citation ids like [C1] or [C2].",
+  "findings": [
+    {
+      "statement": "A single supported finding.",
+      "citations": ["C1", "C2"]
+    }
+  ],
+  "uncertainty": "A short note describing what the retrieved evidence does not establish or where coverage is incomplete."
+}
+
+Rules:
+- Every material claim must be supported by one or more citation ids from the context.
+- Prefer comparison language when the question asks to compare companies, periods, or themes.
+- Do not invent companies, dates, metrics, or conclusions that are not present in the context.
+- If evidence supports only a partial answer, provide the supported part and explain the gap in "uncertainty".
+- Keep citation ids consistent with the context labels exactly as given.
+
+Question:
+{question}
+
+Context:
+{context}

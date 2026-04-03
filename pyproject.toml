@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "eliza-rag"
+version = "0.1.0"
+description = "Portable SEC filings RAG demo scaffold and ingestion foundation."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "chonkie>=1.0.0",
+  "huggingface-hub>=0.32.0",
+  "lancedb>=0.24.0",
+  "pylance>=0.38.0",
+  "python-dotenv>=1.1.0",
+  "sentence-transformers>=3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3.0",
+  "ruff>=0.11.0",
+]
+
+[project.scripts]
+eliza-rag-inspect-corpus = "eliza_rag.cli:main"
+eliza-rag-materialize-chunks = "eliza_rag.chunks_cli:materialize_main"
+eliza-rag-load-chunks = "eliza_rag.chunks_cli:load_main"
+eliza-rag-build-dense-index = "eliza_rag.dense_index_cli:main"
+eliza-rag-storage = "eliza_rag.storage_cli:main"
+eliza-rag-search = "eliza_rag.retrieval_cli:main"
+eliza-rag-answer = "eliza_rag.answer_cli:main"
+eliza-rag-local-llm = "eliza_rag.local_runtime_cli:main"
+
+[tool.uv]
+package = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
