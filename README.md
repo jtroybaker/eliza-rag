@@ -124,5 +124,3 @@ uv run eliza-rag-storage package-archive
 - `ARCHITECTURE.md`: compact pipeline walkthrough for live explanation
 - `eval/README.md`: saved eval artifacts, exact eval commands, and reporting outputs
 - `LIMITATIONS.md`: known caveats and interpretation constraints
-- `PHASE_10_FINAL_DEMO_LOCK_HANDOFF.md`: final documentation cleanup summary
-- `README_DEPRECATED.md`: preserved pre-Phase-10 README

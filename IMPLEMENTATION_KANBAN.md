@@ -49,7 +49,7 @@ Phase 10 deliverables:
 Current implementation state:
 
 - the top-level README is now reviewer-first and shorter
-- the prior top-level README was preserved as `README_DEPRECATED.md`
+- the prior top-level README was preserved under `.internal_docs/README_DEPRECATED.md`
 - `ARCHITECTURE.md` now explains the pipeline in plain language
 - the judged visualization is now framed as a discussion aid layered over saved raw evidence
 - supporting docs now separate:
@@ -122,7 +122,7 @@ Current implementation state:
   - the eval CLI surface now matches the retrieval and answer CLIs for reranker selection
   - answer backend typing now uses the shared `AnswerBackend` contract cleanly
   - the docs now distinguish the default Snowflake path from the current committed `hashed_v1` local artifact snapshot
-  - implementation handoff is captured in `PHASE_07_CLEANUP_HANDOFF.md`
+  - implementation handoff is captured in `.internal_docs/PHASE_07_CLEANUP_HANDOFF.md`
 - Phase 07A is complete:
   - committed golden eval set at `eval/golden_queries.json`
   - bounded eval runner available as `uv run eliza-rag-eval`
@@ -302,7 +302,7 @@ Completed deliverables:
 - eval CLI test coverage added for the alternate reranker selection
 - duplicate local answer-backend protocol removed in favor of the shared `AnswerBackend` contract
 - docs updated to distinguish the Snowflake code/config default from the currently committed local `hashed_v1` dense artifact snapshot
-- cleanup handoff recorded in `PHASE_07_CLEANUP_HANDOFF.md`
+- cleanup handoff recorded in `.internal_docs/PHASE_07_CLEANUP_HANDOFF.md`
 
 Important implementation note:
 
