@@ -6,11 +6,17 @@ import pytest
 
 from eliza_rag.config import Settings
 from eliza_rag.embeddings import (
+    BGE_M3_EMBEDDING_MODEL,
     DEFAULT_EMBEDDING_MODEL,
     DEFAULT_EXTERNAL_EMBEDDING_MODEL,
     DenseIndexMetadata,
+    HashedBaselineEmbedder,
+    SentenceTransformerEmbedder,
     build_dense_vectors,
     encode_text,
+    resolve_embedder_alias,
+    resolve_embedder_model,
+    resolve_embedder,
 )
 
 
@@ -74,6 +80,21 @@ def test_build_dense_vectors_supports_hashed_baseline(tmp_path: Path) -> None:
     assert all(len(vector) == 64 for vector in vectors)
 
 
+def test_resolve_embedder_uses_hashed_baseline_adapter(tmp_path: Path) -> None:
+    settings = _settings(
+        tmp_path,
+        dense_embedding_model=DEFAULT_EMBEDDING_MODEL,
+        dense_embedding_dim=32,
+    )
+
+    embedder = resolve_embedder(settings)
+    metadata, vectors = embedder.build_document_vectors(settings, ["apple risk"])
+
+    assert isinstance(embedder, HashedBaselineEmbedder)
+    assert metadata.model == DEFAULT_EMBEDDING_MODEL
+    assert len(vectors[0]) == 32
+
+
 def test_build_dense_vectors_uses_sentence_transformer_embeddings(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -91,6 +112,25 @@ def test_build_dense_vectors_uses_sentence_transformer_embeddings(
     assert metadata.dimension == 3
     assert metadata.document_frequency_by_bucket == []
     assert vectors == [[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]]
+
+
+def test_resolve_embedder_uses_sentence_transformer_adapter(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    settings = _settings(tmp_path)
+
+    monkeypatch.setattr(
+        "eliza_rag.embeddings._encode_texts_with_sentence_transformer",
+        lambda texts, model: [[0.1, 0.2, 0.3]],
+    )
+
+    embedder = resolve_embedder(settings)
+    metadata, vectors = embedder.build_document_vectors(settings, ["apple risk"])
+
+    assert isinstance(embedder, SentenceTransformerEmbedder)
+    assert metadata.model == DEFAULT_EXTERNAL_EMBEDDING_MODEL
+    assert vectors == [[0.1, 0.2, 0.3]]
 
 
 def test_encode_text_uses_sentence_transformer_for_query_embedding(
@@ -111,3 +151,76 @@ def test_encode_text_uses_sentence_transformer_for_query_embedding(
     vector = encode_text("apple risk", metadata)
 
     assert vector == [0.7, 0.8, 0.9]
+
+
+def test_resolve_embedder_model_supports_named_provider_aliases() -> None:
+    assert resolve_embedder_model("snowflake-arctic-embed-xs") == DEFAULT_EXTERNAL_EMBEDDING_MODEL
+    assert resolve_embedder_model("bge-m3") == BGE_M3_EMBEDDING_MODEL
+    assert resolve_embedder_model("hashed_v1") == DEFAULT_EMBEDDING_MODEL
+
+
+def test_resolve_embedder_alias_prefers_named_provider_aliases() -> None:
+    assert resolve_embedder_alias(DEFAULT_EXTERNAL_EMBEDDING_MODEL) == "snowflake-arctic-embed-xs"
+    assert resolve_embedder_alias(BGE_M3_EMBEDDING_MODEL) == "bge-m3"
+
+
+def test_encode_texts_with_sentence_transformer_batches_large_inputs(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FakeEmbeddingBatch:
+        def __init__(self, values: list[list[float]]) -> None:
+            self._values = values
+
+        def tolist(self) -> list[list[float]]:
+            return self._values
+
+    observed_batches: list[list[str]] = []
+
+    class FakeEncoder:
+        def encode(self, texts, **kwargs):
+            observed_batches.append(list(texts))
+            return FakeEmbeddingBatch([[float(index), float(index) + 0.5] for index, _ in enumerate(texts)])
+
+    monkeypatch.setattr("eliza_rag.embeddings._load_sentence_transformer", lambda model: FakeEncoder())
+
+    from eliza_rag.embeddings import _encode_texts_with_sentence_transformer
+
+    vectors = _encode_texts_with_sentence_transformer(
+        [f"text-{index}" for index in range(70)],
+        model=DEFAULT_EXTERNAL_EMBEDDING_MODEL,
+    )
+
+    assert len(observed_batches) == 3
+    assert len(observed_batches[0]) == 32
+    assert len(observed_batches[1]) == 32
+    assert len(observed_batches[2]) == 6
+    assert len(vectors) == 70
+
+
+def test_encode_texts_with_sentence_transformer_uses_smaller_batches_for_bge_m3(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FakeEmbeddingBatch:
+        def __init__(self, values: list[list[float]]) -> None:
+            self._values = values
+
+        def tolist(self) -> list[list[float]]:
+            return self._values
+
+    observed_batch_sizes: list[int] = []
+
+    class FakeEncoder:
+        def encode(self, texts, **kwargs):
+            observed_batch_sizes.append(len(texts))
+            return FakeEmbeddingBatch([[0.0, 1.0] for _ in texts])
+
+    monkeypatch.setattr("eliza_rag.embeddings._load_sentence_transformer", lambda model: FakeEncoder())
+
+    from eliza_rag.embeddings import _encode_texts_with_sentence_transformer
+
+    _encode_texts_with_sentence_transformer(
+        [f"text-{index}" for index in range(17)],
+        model=BGE_M3_EMBEDDING_MODEL,
+    )
+
+    assert observed_batch_sizes == [8, 8, 1]

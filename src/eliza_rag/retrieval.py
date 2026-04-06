@@ -12,7 +12,14 @@ import lancedb
 
 from .config import Settings
 from .corpus import inspect_corpus
-from .embeddings import encode_text, expand_query_terms, load_dense_index_metadata
+from .embeddings import (
+    encode_text,
+    expand_query_terms,
+    load_dense_index_metadata,
+    resolve_embedder,
+    warm_embedder_model,
+)
+from .interfaces import QueryAnalyzer, Reranker, Retriever
 from .models import RetrievalFilters, RetrievalRerankConfig, RetrievalResult, StructuredQuery
 from .storage import prepare_lancedb_artifacts
 
@@ -24,7 +31,9 @@ HYBRID_RETRIEVAL_MODE = "hybrid_rrf"
 TARGETED_HYBRID_RETRIEVAL_MODE = "targeted_hybrid_rrf"
 HEURISTIC_RERANKER = "heuristic"
 BGE_RERANKER_V2_M3 = "bge-reranker-v2-m3"
+BGE_RERANKER_BASE = "bge-reranker-base"
 _BGE_RERANKER_REPO_ID = "BAAI/bge-reranker-v2-m3"
+_BGE_RERANKER_BASE_REPO_ID = "BAAI/bge-reranker-base"
 TEXT_INDEX_NAME = "text_idx"
 VECTOR_INDEX_NAME = "vector_idx"
 FILTER_INDEX_COLUMNS = ("ticker", "form_type", "filing_date")
@@ -98,6 +107,184 @@ class LexicalIndexNotReadyError(RuntimeError):
     """Raised when lexical retrieval is requested before lexical artifacts exist."""
 
 
+class DeterministicQueryAnalyzer:
+    def analyze(
+        self,
+        query: str,
+        *,
+        filters: RetrievalFilters | None = None,
+        settings: Settings | None = None,
+    ) -> StructuredQuery:
+        expansion_terms = expand_query_terms(query)
+        years = sorted({match.group(1) for match in _YEAR_RE.finditer(query)})
+        filing_date_from = filters.filing_date_from if filters else None
+        filing_date_to = filters.filing_date_to if filters else None
+        detected_tickers, detected_company_names = detect_query_companies(query, settings=settings)
+        target_tickers = _combine_unique(filters.tickers if filters else None, detected_tickers)
+        is_multi_company = len(target_tickers) >= 2
+        is_comparison_query = detect_comparison_intent(query)
+
+        if not filing_date_from and years:
+            filing_date_from = f"{years[0]}-01-01"
+        if not filing_date_to and years:
+            filing_date_to = f"{years[-1]}-12-31"
+
+        lexical_query = query
+        dense_query = query
+        if expansion_terms:
+            dense_query = f"{query} {' '.join(expansion_terms)}"
+
+        return StructuredQuery(
+            raw_query=query,
+            retrieval_text=query,
+            lexical_query=lexical_query,
+            dense_query=dense_query,
+            expansion_terms=expansion_terms,
+            normalized_tickers=filters.tickers if filters else None,
+            detected_tickers=detected_tickers or None,
+            detected_company_names=detected_company_names or None,
+            target_tickers=target_tickers or None,
+            filing_date_from=filing_date_from,
+            filing_date_to=filing_date_to,
+            is_multi_company=is_multi_company,
+            is_comparison_query=is_comparison_query,
+            requires_entity_coverage=is_multi_company and (is_comparison_query or bool(detected_company_names)),
+        )
+
+
+class LexicalRetrieverAdapter:
+    mode = "lexical"
+
+    def retrieve(
+        self,
+        settings: Settings,
+        structured_query: StructuredQuery,
+        *,
+        top_k: int | None = None,
+        filters: RetrievalFilters | None = None,
+        phrase_query: bool = False,
+    ) -> list[RetrievalResult]:
+        return retrieve_lexical(
+            settings,
+            structured_query.lexical_query,
+            top_k=top_k,
+            filters=filters,
+            phrase_query=phrase_query,
+        )
+
+
+class DenseRetrieverAdapter:
+    mode = "dense"
+
+    def retrieve(
+        self,
+        settings: Settings,
+        structured_query: StructuredQuery,
+        *,
+        top_k: int | None = None,
+        filters: RetrievalFilters | None = None,
+        phrase_query: bool = False,
+    ) -> list[RetrievalResult]:
+        return retrieve_dense(
+            settings,
+            structured_query.dense_query,
+            top_k=top_k,
+            filters=filters,
+        )
+
+
+class HybridRetrieverAdapter:
+    mode = "hybrid"
+
+    def retrieve(
+        self,
+        settings: Settings,
+        structured_query: StructuredQuery,
+        *,
+        top_k: int | None = None,
+        filters: RetrievalFilters | None = None,
+        phrase_query: bool = False,
+    ) -> list[RetrievalResult]:
+        return retrieve_hybrid(
+            settings,
+            structured_query=structured_query,
+            top_k=top_k,
+            filters=filters,
+            phrase_query=phrase_query,
+        )
+
+
+class TargetedHybridRetrieverAdapter:
+    mode = "targeted_hybrid"
+
+    def retrieve(
+        self,
+        settings: Settings,
+        structured_query: StructuredQuery,
+        *,
+        top_k: int | None = None,
+        filters: RetrievalFilters | None = None,
+        phrase_query: bool = False,
+    ) -> list[RetrievalResult]:
+        return retrieve_targeted_hybrid(
+            settings,
+            structured_query=structured_query,
+            top_k=top_k,
+            filters=filters,
+            phrase_query=phrase_query,
+        )
+
+
+class HeuristicRerankerAdapter:
+    name = HEURISTIC_RERANKER
+
+    def score(
+        self,
+        structured_query: StructuredQuery,
+        results: list[RetrievalResult],
+    ) -> list[float]:
+        query_terms = _tokenize(_build_rerank_query_text(structured_query))
+        query_text = structured_query.raw_query.strip().lower()
+        return [
+            _score_result_for_rerank(
+                result,
+                query_terms=query_terms,
+                query_text=query_text,
+            )
+            for result in results
+        ]
+
+
+class BGERerankerAdapter:
+    name = BGE_RERANKER_V2_M3
+
+    def score(
+        self,
+        structured_query: StructuredQuery,
+        results: list[RetrievalResult],
+    ) -> list[float]:
+        return _score_with_transformer_reranker(
+            structured_query.raw_query,
+            results,
+            repo_id=_BGE_RERANKER_REPO_ID,
+        )
+
+
+class BGEBaseRerankerAdapter:
+    name = BGE_RERANKER_BASE
+
+    def score(
+        self,
+        structured_query: StructuredQuery,
+        results: list[RetrievalResult],
+    ) -> list[float]:
+        return _score_with_transformer_reranker(
+            structured_query.raw_query,
+            results,
+            repo_id=_BGE_RERANKER_BASE_REPO_ID,
+        )
+
+
 def open_chunk_table(settings: Settings) -> lancedb.table.Table:
     database = lancedb.connect(settings.lancedb_dir)
     return database.open_table(settings.lancedb_table_name)
@@ -114,41 +301,7 @@ def analyze_query(
     filters: RetrievalFilters | None = None,
     settings: Settings | None = None,
 ) -> StructuredQuery:
-    expansion_terms = expand_query_terms(query)
-    years = sorted({match.group(1) for match in _YEAR_RE.finditer(query)})
-    filing_date_from = filters.filing_date_from if filters else None
-    filing_date_to = filters.filing_date_to if filters else None
-    detected_tickers, detected_company_names = detect_query_companies(query, settings=settings)
-    target_tickers = _combine_unique(filters.tickers if filters else None, detected_tickers)
-    is_multi_company = len(target_tickers) >= 2
-    is_comparison_query = detect_comparison_intent(query)
-
-    if not filing_date_from and years:
-        filing_date_from = f"{years[0]}-01-01"
-    if not filing_date_to and years:
-        filing_date_to = f"{years[-1]}-12-31"
-
-    lexical_query = query
-    dense_query = query
-    if expansion_terms:
-        dense_query = f"{query} {' '.join(expansion_terms)}"
-
-    return StructuredQuery(
-        raw_query=query,
-        retrieval_text=query,
-        lexical_query=lexical_query,
-        dense_query=dense_query,
-        expansion_terms=expansion_terms,
-        normalized_tickers=filters.tickers if filters else None,
-        detected_tickers=detected_tickers or None,
-        detected_company_names=detected_company_names or None,
-        target_tickers=target_tickers or None,
-        filing_date_from=filing_date_from,
-        filing_date_to=filing_date_to,
-        is_multi_company=is_multi_company,
-        is_comparison_query=is_comparison_query,
-        requires_entity_coverage=is_multi_company and (is_comparison_query or bool(detected_company_names)),
-    )
+    return build_query_analyzer().analyze(query, filters=filters, settings=settings)
 
 
 def merge_query_filters(structured_query: StructuredQuery, filters: RetrievalFilters | None) -> RetrievalFilters | None:
@@ -261,7 +414,7 @@ def retrieve(
     reranker: str | None = None,
     rerank_candidate_pool: int | None = None,
 ) -> list[RetrievalResult]:
-    structured_query = analyze_query(query, filters=filters, settings=settings)
+    structured_query = build_query_analyzer().analyze(query, filters=filters, settings=settings)
     merged_filters = merge_query_filters(structured_query, filters)
     limit = top_k or settings.retrieval_top_k
     rerank_config = resolve_rerank_config(
@@ -272,43 +425,14 @@ def retrieve(
         rerank_candidate_pool=rerank_candidate_pool,
     )
     candidate_limit = rerank_config.candidate_pool if rerank_config else limit
-
-    if mode == "lexical":
-        results = retrieve_lexical(
-            settings,
-            structured_query.lexical_query,
-            top_k=candidate_limit,
-            filters=merged_filters,
-            phrase_query=phrase_query,
-        )
-        return rerank_results(structured_query, results, top_k=limit, rerank_config=rerank_config)
-    if mode == "dense":
-        results = retrieve_dense(
-            settings,
-            structured_query.dense_query,
-            top_k=candidate_limit,
-            filters=merged_filters,
-        )
-        return rerank_results(structured_query, results, top_k=limit, rerank_config=rerank_config)
-    if mode == "hybrid":
-        results = retrieve_hybrid(
-            settings,
-            structured_query=structured_query,
-            top_k=candidate_limit,
-            filters=merged_filters,
-            phrase_query=phrase_query,
-        )
-        return rerank_results(structured_query, results, top_k=limit, rerank_config=rerank_config)
-    if mode == "targeted_hybrid":
-        results = retrieve_targeted_hybrid(
-            settings,
-            structured_query=structured_query,
-            top_k=candidate_limit,
-            filters=merged_filters,
-            phrase_query=phrase_query,
-        )
-        return rerank_results(structured_query, results, top_k=limit, rerank_config=rerank_config)
-    raise ValueError(f"Unsupported retrieval mode: {mode}")
+    results = build_retriever(mode).retrieve(
+        settings,
+        structured_query,
+        top_k=candidate_limit,
+        filters=merged_filters,
+        phrase_query=phrase_query,
+    )
+    return rerank_results(structured_query, results, top_k=limit, rerank_config=rerank_config)
 
 
 def retrieve_lexical(
@@ -481,10 +605,10 @@ def resolve_rerank_config(
         return None
 
     reranker_type = (reranker or settings.reranker_type).strip().lower()
-    if reranker_type not in {HEURISTIC_RERANKER, BGE_RERANKER_V2_M3}:
+    if reranker_type not in {HEURISTIC_RERANKER, BGE_RERANKER_V2_M3, BGE_RERANKER_BASE}:
         raise ValueError(
             f"Unsupported reranker: {reranker_type}. Expected one of "
-            f"`{HEURISTIC_RERANKER}`, `{BGE_RERANKER_V2_M3}`."
+            f"`{HEURISTIC_RERANKER}`, `{BGE_RERANKER_V2_M3}`, `{BGE_RERANKER_BASE}`."
         )
 
     candidate_pool = rerank_candidate_pool or settings.rerank_candidate_pool
@@ -535,24 +659,7 @@ def rerank_results(
     if len(results) <= 1:
         return results[:top_k]
     candidate_results = results[: rerank_config.candidate_pool]
-    if rerank_config.reranker_type == HEURISTIC_RERANKER:
-        query_terms = _tokenize(_build_rerank_query_text(structured_query))
-        query_text = structured_query.raw_query.strip().lower()
-        scores = [
-            _score_result_for_rerank(
-                result,
-                query_terms=query_terms,
-                query_text=query_text,
-            )
-            for result in candidate_results
-        ]
-    elif rerank_config.reranker_type == BGE_RERANKER_V2_M3:
-        scores = _score_with_bge_reranker(structured_query.raw_query, candidate_results)
-    else:
-        raise ValueError(
-            f"Unsupported reranker: {rerank_config.reranker_type}. Expected one of "
-            f"`{HEURISTIC_RERANKER}`, `{BGE_RERANKER_V2_M3}`."
-        )
+    scores = build_reranker(rerank_config.reranker_type).score(structured_query, candidate_results)
 
     ranked_pairs = list(zip(scores, candidate_results, strict=True))
     reranked = sorted(
@@ -570,6 +677,62 @@ def rerank_results(
         )
         for rank, (score, result) in enumerate(reranked, start=1)
     ]
+
+
+def build_query_analyzer() -> QueryAnalyzer:
+    return DeterministicQueryAnalyzer()
+
+
+def build_retriever(mode: RetrievalMode) -> Retriever:
+    if mode == "lexical":
+        return LexicalRetrieverAdapter()
+    if mode == "dense":
+        return DenseRetrieverAdapter()
+    if mode == "hybrid":
+        return HybridRetrieverAdapter()
+    if mode == "targeted_hybrid":
+        return TargetedHybridRetrieverAdapter()
+    raise ValueError(f"Unsupported retrieval mode: {mode}")
+
+
+def build_reranker(reranker_type: str) -> Reranker:
+    normalized = reranker_type.strip().lower()
+    if normalized == HEURISTIC_RERANKER:
+        return HeuristicRerankerAdapter()
+    if normalized == BGE_RERANKER_V2_M3:
+        return BGERerankerAdapter()
+    if normalized == BGE_RERANKER_BASE:
+        return BGEBaseRerankerAdapter()
+    raise ValueError(
+        f"Unsupported reranker: {normalized}. Expected one of "
+        f"`{HEURISTIC_RERANKER}`, `{BGE_RERANKER_V2_M3}`, `{BGE_RERANKER_BASE}`."
+    )
+
+
+def warm_retrieval_models(
+    settings: Settings,
+    *,
+    warm_reranker: bool = True,
+) -> dict[str, str | None]:
+    dense_model = settings.dense_embedding_model
+    if settings.dense_index_artifact_path.exists():
+        dense_model = load_dense_index_metadata(settings).model
+
+    warmed_dense_model = warm_embedder_model(dense_model)
+
+    warmed_reranker: str | None = None
+    reranker_type = settings.reranker_type.strip().lower()
+    if warm_reranker and reranker_type == BGE_RERANKER_V2_M3:
+        _load_transformer_reranker(_BGE_RERANKER_REPO_ID)
+        warmed_reranker = reranker_type
+    elif warm_reranker and reranker_type == BGE_RERANKER_BASE:
+        _load_transformer_reranker(_BGE_RERANKER_BASE_REPO_ID)
+        warmed_reranker = reranker_type
+
+    return {
+        "dense_query_model": warmed_dense_model,
+        "reranker": warmed_reranker,
+    }
 
 
 @lru_cache(maxsize=8)
@@ -863,7 +1026,16 @@ def _ordered_tokens(text: str) -> list[str]:
 
 
 def _score_with_bge_reranker(query: str, results: list[RetrievalResult]) -> list[float]:
-    tokenizer, model, device = _load_bge_reranker()
+    return _score_with_transformer_reranker(query, results, repo_id=_BGE_RERANKER_REPO_ID)
+
+
+def _score_with_transformer_reranker(
+    query: str,
+    results: list[RetrievalResult],
+    *,
+    repo_id: str,
+) -> list[float]:
+    tokenizer, model, device = _load_transformer_reranker(repo_id)
     pairs = [(query, result.text) for result in results]
     batch_size = 8
     scores: list[float] = []
@@ -891,8 +1063,8 @@ def _score_with_bge_reranker(query: str, results: list[RetrievalResult]) -> list
     return scores
 
 
-@lru_cache(maxsize=1)
-def _load_bge_reranker():
+@lru_cache(maxsize=4)
+def _load_transformer_reranker(repo_id: str):
     try:
         import torch
         from transformers import AutoModelForSequenceClassification, AutoTokenizer
@@ -903,8 +1075,8 @@ def _load_bge_reranker():
         ) from exc
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    tokenizer = AutoTokenizer.from_pretrained(_BGE_RERANKER_REPO_ID)
-    model = AutoModelForSequenceClassification.from_pretrained(_BGE_RERANKER_REPO_ID)
+    tokenizer = AutoTokenizer.from_pretrained(repo_id)
+    model = AutoModelForSequenceClassification.from_pretrained(repo_id)
     model.eval()
     model.to(device)
     return tokenizer, model, device

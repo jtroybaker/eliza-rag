@@ -1,0 +1,1558 @@
+{
+  "eval_version": 4,
+  "golden_eval_set": "eval/golden_queries.json",
+  "build_manifest_path": "artifacts/build_manifest.provider_snowflake_bge_reranker_base_answer.json",
+  "run_metadata": {
+    "command": "uv run eliza-rag-eval --mode targeted_hybrid --rerank --reranker bge-reranker-base --include-answer --manifest-output artifacts/build_manifest.provider_snowflake_bge_reranker_base_answer.json --output eval/provider_snowflake_bge_reranker_base_answer.json",
+    "output_path": "eval/provider_snowflake_bge_reranker_base_answer.json",
+    "manifest_output_path": "artifacts/build_manifest.provider_snowflake_bge_reranker_base_answer.json"
+  },
+  "config": {
+    "retrieval_mode": "targeted_hybrid",
+    "top_k": 8,
+    "phrase_query": false,
+    "include_answer": true,
+    "reranking": {
+      "enabled": true,
+      "reranker": "bge-reranker-base",
+      "candidate_pool": 12
+    },
+    "answer_judging": {
+      "method": "llm_judge_openrouter_quantitative",
+      "judge_assisted": true,
+      "provider": "openrouter",
+      "model": "google/gemini-2.5-flash-lite",
+      "rubric_version": "phase_10_llm_judge_v2",
+      "rubric_path": "eval/answer_judging_rubric.md",
+      "prompt_path": "prompts/eval_judge_prompt.txt",
+      "score_range": {
+        "min": 0,
+        "max": 5
+      },
+      "aggregation": {
+        "type": "weighted_average",
+        "weights": {
+          "groundedness": 0.3,
+          "citation_quality": 0.25,
+          "usefulness": 0.25,
+          "comparison_completeness": 0.15,
+          "uncertainty_handling": 0.05
+        }
+      }
+    }
+  },
+  "scoring_status": {
+    "implemented": true,
+    "note": "Pass, partial_pass, and fail are assigned from explicit retrieval outcomes plus OpenRouter-backed quantitative answer judging when answers are included."
+  },
+  "entries": [
+    {
+      "query_id": "compare_aapl_tsla_jpm_risk_factors",
+      "prompt": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+      "expected_tickers": [
+        "AAPL",
+        "TSLA",
+        "JPM"
+      ],
+      "requires_comparison": true,
+      "contamination_notes": "Multi-company comparison should preserve coverage for all named entities rather than collapsing onto a single issuer.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "retrieval_text": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "lexical_query": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "dense_query": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "AAPL",
+          "JPM",
+          "TSLA"
+        ],
+        "detected_company_names": [
+          "Apple Inc",
+          "JPMorgan Chase & Co",
+          "Tesla Inc"
+        ],
+        "target_tickers": [
+          "AAPL",
+          "JPM",
+          "TSLA"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": true,
+        "is_comparison_query": true,
+        "requires_entity_coverage": true
+      },
+      "retrieved_tickers": [
+        "AAPL",
+        "TSLA",
+        "JPM"
+      ],
+      "retrieved_chunk_ids": [
+        "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+        "AAPL_10K_2022Q3_2022-10-28_full::chunk-0014",
+        "TSLA_10K_2026-01-29_full::chunk-0014",
+        "JPM_10K_2026-02-13_full::chunk-0031",
+        "TSLA_10K_2022Q4_2023-01-31_full::chunk-0013",
+        "AAPL_10K_2025-10-31_full::chunk-0024",
+        "JPM_10K_2026-02-13_full::chunk-0036",
+        "TSLA_10K_2024Q4_2025-01-30_full::chunk-0014"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "Apple, Tesla, and JPMorgan all grapple with substantial business risks that can impact their operations, reputation, and financial performance. Apple encounters stock price volatility and tax rate fluctuations, posing challenges to growth and investor confidence. Tesla faces production delays for new product launches and ramping processes, while JPMorganChase is beset by operational risks due to its extensive network of businesses and the handling of personal information. [C1] [C2] [C3] [C4] [C5] [C6]",
+      "answer_summary": "Apple, Tesla, and JPMorgan all face significant risks related to their core operations such as production delays and supply chain disruptions, technological innovation challenges, cybersecurity threats, and legal actions. Apple struggles with stock volatility and effective tax rates, while Tesla faces delays in launching new products and production ramps. JPMorgan has numerous operational and compliance risks associated with its financial services.",
+      "answer_findings": [
+        {
+          "statement": "Apple Inc., Tesla Inc., and JPMorgan Chase & Co. all experience significant business challenges including production delays, supply chain issues, technological innovation struggles, cybersecurity threats, legal actions, operational risks, and compliance concerns with personal data.",
+          "citations": [
+            "C1",
+            "C2",
+            "C3",
+            "C4",
+            "C5",
+            "C6"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+          "filing_id": "AAPL_10Q_2023Q3_2023-08-04_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2023-08-04",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2023Q3_2023-08-04_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "AAPL_10K_2022Q3_2022-10-28_full::chunk-0014",
+          "filing_id": "AAPL_10K_2022Q3_2022-10-28_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-K",
+          "filing_date": "2022-10-28",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10K_2022Q3_2022-10-28_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "TSLA_10K_2026-01-29_full::chunk-0014",
+          "filing_id": "TSLA_10K_2026-01-29_full",
+          "ticker": "TSLA",
+          "company_name": "Tesla Inc",
+          "form_type": "10-K",
+          "filing_date": "2026-01-29",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/TSLA_10K_2026-01-29_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "JPM_10K_2026-02-13_full::chunk-0031",
+          "filing_id": "JPM_10K_2026-02-13_full",
+          "ticker": "JPM",
+          "company_name": "JPMorgan Chase & Co",
+          "form_type": "10-K",
+          "filing_date": "2026-02-13",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/JPM_10K_2026-02-13_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "TSLA_10K_2022Q4_2023-01-31_full::chunk-0013",
+          "filing_id": "TSLA_10K_2022Q4_2023-01-31_full",
+          "ticker": "TSLA",
+          "company_name": "Tesla Inc",
+          "form_type": "10-K",
+          "filing_date": "2023-01-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/TSLA_10K_2022Q4_2023-01-31_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "AAPL_10K_2025-10-31_full::chunk-0024",
+          "filing_id": "AAPL_10K_2025-10-31_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-K",
+          "filing_date": "2025-10-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10K_2025-10-31_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The evidence does not provide a direct comparison of specific risk factors between the companies or detailed information on how these risks compare in terms of their impact and likelihood.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": true,
+          "comparison_behavior_observed": true,
+          "contamination_observed": false,
+          "contamination_tickers": [],
+          "contamination_severity": "none"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "google/gemini-2.5-flash-lite",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer broadly summarizes risks faced by each company and is supported by the provided citations. The claims made align with the general themes of the cited chunks, although specific comparative nuances are missing."
+          },
+          "citation_quality": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The citations cover all three companies (Apple, Tesla, JPMorgan) and provide a range of risk factors for each. The citations seem to support the general statements made about each company's risks."
+          },
+          "usefulness": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "The answer provides a high-level overview of risk factors for each company, which is a good starting point. However, it lacks specific details and a direct comparison, making it only partially useful for a reviewer expecting a comprehensive comparison."
+          },
+          "comparison_completeness": {
+            "score": 2,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "The prompt explicitly asks for a comparison, and while the answer lists risks for each company, it does not meaningfully compare them. It states that the \"evidence does not provide a direct comparison of specific risk factors between the companies or detailed information on how these risks compare in terms of their impact and likelihood,\" which is accurate given the answer's structure. It identifies risks but doesn't analyze their relative significance or interrelationships."
+          },
+          "uncertainty_handling": {
+            "score": 5,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer correctly identifies and articulates the limitation that the provided evidence does not contain a direct comparison of the risk factors or their impact and likelihood, which is a crucial aspect of the prompt."
+          },
+          "overall": "partial_pass",
+          "overall_score": 3.5,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "comparison_completeness": 0.15,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "The answer identifies general business risks for Apple, Tesla, and JPMorgan, such as stock price volatility, production delays, and operational risks. While it cites supporting evidence for each company's risks, it explicitly notes the lack of direct comparative analysis of these risks."
+          ],
+          "judge_result": {
+            "summary": "The answer identifies general business risks for Apple, Tesla, and JPMorgan, such as stock price volatility, production delays, and operational risks. While it cites supporting evidence for each company's risks, it explicitly notes the lack of direct comparative analysis of these risks.",
+            "raw_response": "```json\n{\n  \"groundedness\": {\n    \"score\": 4,\n    \"rationale\": \"The answer broadly summarizes risks faced by each company and is supported by the provided citations. The claims made align with the general themes of the cited chunks, although specific comparative nuances are missing.\"\n  },\n  \"citation_quality\": {\n    \"score\": 4,\n    \"rationale\": \"The citations cover all three companies (Apple, Tesla, JPMorgan) and provide a range of risk factors for each. The citations seem to support the general statements made about each company's risks.\"\n  },\n  \"usefulness\": {\n    \"score\": 3,\n    \"rationale\": \"The answer provides a high-level overview of risk factors for each company, which is a good starting point. However, it lacks specific details and a direct comparison, making it only partially useful for a reviewer expecting a comprehensive comparison.\"\n  },\n  \"comparison_completeness\": {\n    \"score\": 2,\n    \"rationale\": \"The prompt explicitly asks for a comparison, and while the answer lists risks for each company, it does not meaningfully compare them. It states that the \\\"evidence does not provide a direct comparison of specific risk factors between the companies or detailed information on how these risks compare in terms of their impact and likelihood,\\\" which is accurate given the answer's structure. It identifies risks but doesn't analyze their relative significance or interrelationships.\"\n  },\n  \"uncertainty_handling\": {\n    \"score\": 5,\n    \"rationale\": \"The answer correctly identifies and articulates the limitation that the provided evidence does not contain a direct comparison of the risk factors or their impact and likelihood, which is a crucial aspect of the prompt.\"\n  },\n  \"summary\": \"The answer identifies general business risks for Apple, Tesla, and JPMorgan, such as stock price volatility, production delays, and operational risks. While it cites supporting evidence for each company's risks, it explicitly notes the lack of direct comparative analysis of these risks.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": true,
+        "comparison_behavior_observed": true,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "score": 4,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The citations cover all three companies (Apple, Tesla, JPMorgan) and provide a range of risk factors for each. The citations seem to support the general statements made about each company's risks."
+        },
+        "answer_usefulness": {
+          "score": 3,
+          "score_max": 5,
+          "status": "partial_pass",
+          "notes": "The answer provides a high-level overview of risk factors for each company, which is a good starting point. However, it lacks specific details and a direct comparison, making it only partially useful for a reviewer expecting a comprehensive comparison."
+        },
+        "outcome": "partial_pass",
+        "pass": false,
+        "notes": null
+      }
+    },
+    {
+      "query_id": "compare_aapl_tsla_risk_factors",
+      "prompt": "Compare the main risk factors facing Apple and Tesla.",
+      "expected_tickers": [
+        "AAPL",
+        "TSLA"
+      ],
+      "requires_comparison": true,
+      "contamination_notes": "Avoid contamination from unrelated mega-cap tech names when both Apple and Tesla are explicitly requested.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "Compare the main risk factors facing Apple and Tesla.",
+        "retrieval_text": "Compare the main risk factors facing Apple and Tesla.",
+        "lexical_query": "Compare the main risk factors facing Apple and Tesla.",
+        "dense_query": "Compare the main risk factors facing Apple and Tesla.",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "AAPL",
+          "TSLA"
+        ],
+        "detected_company_names": [
+          "Apple Inc",
+          "Tesla Inc"
+        ],
+        "target_tickers": [
+          "AAPL",
+          "TSLA"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": true,
+        "is_comparison_query": true,
+        "requires_entity_coverage": true
+      },
+      "retrieved_tickers": [
+        "AAPL",
+        "TSLA"
+      ],
+      "retrieved_chunk_ids": [
+        "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+        "TSLA_10K_2026-01-29_full::chunk-0014",
+        "TSLA_10K_2022Q4_2023-01-31_full::chunk-0013",
+        "AAPL_10K_2025-10-31_full::chunk-0024",
+        "AAPL_10Q_2022Q1_2022-04-29_full::chunk-0014",
+        "AAPL_10K_2022Q3_2022-10-28_full::chunk-0003",
+        "TSLA_10K_2024Q4_2025-01-30_full::chunk-0014",
+        "TSLA_10K_2026-01-29_full::chunk-0023"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "Comparing the main risk factors facing Apple and Tesla, both companies are vulnerable to significant disruptions that can impact their operations and financial performance. For Apple, key risks include technological advancement challenges such as increasing production costs for new products and services, while also being susceptible to shifts in effective tax rates. Conversely, Tesla faces multiple supply chain issues related to geopolitical influences, component shortages affecting the ramp-up of production processes, and increased manufacturing cost control pressures due to the development of new features and services. [C1] [C5] [C2] [C3] [C4]",
+      "answer_summary": "Apple and Tesla both face significant risks related to their product development, supply chain management, regulatory compliance, and external macroeconomic conditions. Apple mainly encounters technological challenges and potential changes in effective tax rates, while Tesla faces issues with production delays, component shortages due to geopolitical factors, and manufacturing cost control.",
+      "answer_findings": [
+        {
+          "statement": "Apple Inc. may face challenges from changes in effective tax rates or technological advancement pressures, as evidenced by the filing [C1] and [C5].",
+          "citations": [
+            "C1",
+            "C5"
+          ]
+        },
+        {
+          "statement": "Tesla Inc. could encounter difficulties with supply chain constraints due to geopolitical factors and production delays related to ramping up new features and services, as indicated in filings [C2], [C3] and [C4].",
+          "citations": [
+            "C2",
+            "C3",
+            "C4"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+          "filing_id": "AAPL_10Q_2023Q3_2023-08-04_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2023-08-04",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2023Q3_2023-08-04_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "TSLA_10K_2026-01-29_full::chunk-0014",
+          "filing_id": "TSLA_10K_2026-01-29_full",
+          "ticker": "TSLA",
+          "company_name": "Tesla Inc",
+          "form_type": "10-K",
+          "filing_date": "2026-01-29",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/TSLA_10K_2026-01-29_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "TSLA_10K_2022Q4_2023-01-31_full::chunk-0013",
+          "filing_id": "TSLA_10K_2022Q4_2023-01-31_full",
+          "ticker": "TSLA",
+          "company_name": "Tesla Inc",
+          "form_type": "10-K",
+          "filing_date": "2023-01-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/TSLA_10K_2022Q4_2023-01-31_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "AAPL_10K_2025-10-31_full::chunk-0024",
+          "filing_id": "AAPL_10K_2025-10-31_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-K",
+          "filing_date": "2025-10-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10K_2025-10-31_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "AAPL_10Q_2022Q1_2022-04-29_full::chunk-0014",
+          "filing_id": "AAPL_10Q_2022Q1_2022-04-29_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2022-04-29",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2022Q1_2022-04-29_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "AAPL_10K_2022Q3_2022-10-28_full::chunk-0003",
+          "filing_id": "AAPL_10K_2022Q3_2022-10-28_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-K",
+          "filing_date": "2022-10-28",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10K_2022Q3_2022-10-28_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The evidence does not provide information on the specific risks facing Apple related to cybersecurity or government investigations. Similarly, Tesla's external regulatory environment (e.g., trade policies) is not specifically detailed in the provided filings.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": true,
+          "comparison_behavior_observed": true,
+          "contamination_observed": false,
+          "contamination_tickers": [],
+          "contamination_severity": "none"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "google/gemini-2.5-flash-lite",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer generally stays tied to the supplied citations. While some statements are broad, they are supported by the content of the cited chunks. No clearly unsupported claims were found."
+          },
+          "citation_quality": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The cited chunks cover the specific risk factors mentioned for both Apple (technological advancement, tax rates) and Tesla (supply chain, geopolitical influences, production costs). The citations are appropriately mapped to the statements they support."
+          },
+          "usefulness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer provides a clear comparison of the main risk factors for both companies. It is specific enough to be useful for a reviewer and addresses the core of the prompt effectively."
+          },
+          "comparison_completeness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer directly compares the risk factors for Apple and Tesla, addressing both sides of the comparison requested by the prompt. It highlights distinct risks for each company, fulfilling the comparison requirement."
+          },
+          "uncertainty_handling": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer explicitly states what information is *not* provided in the evidence regarding cybersecurity, government investigations for Apple, and specific regulatory/trade policies for Tesla. This demonstrates good handling of limitations in the source material."
+          },
+          "overall": "pass",
+          "overall_score": 4.0,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "comparison_completeness": 0.15,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "Both Apple and Tesla face significant risks, though they differ in nature. Apple's primary risks involve technological advancement challenges and potential changes in effective tax rates. Tesla's risks are more pronounced in supply chain disruptions influenced by geopolitics, component shortages impacting production ramp-ups, and increased manufacturing costs associated with new features and services. The provided evidence does not detail cybersecurity or government investigation risks for Apple, nor specific external regulatory or trade policy risks for Tesla."
+          ],
+          "judge_result": {
+            "summary": "Both Apple and Tesla face significant risks, though they differ in nature. Apple's primary risks involve technological advancement challenges and potential changes in effective tax rates. Tesla's risks are more pronounced in supply chain disruptions influenced by geopolitics, component shortages impacting production ramp-ups, and increased manufacturing costs associated with new features and services. The provided evidence does not detail cybersecurity or government investigation risks for Apple, nor specific external regulatory or trade policy risks for Tesla.",
+            "raw_response": "```json\n{\n  \"groundedness\": {\n    \"score\": 4,\n    \"rationale\": \"The answer generally stays tied to the supplied citations. While some statements are broad, they are supported by the content of the cited chunks. No clearly unsupported claims were found.\"\n  },\n  \"citation_quality\": {\n    \"score\": 4,\n    \"rationale\": \"The cited chunks cover the specific risk factors mentioned for both Apple (technological advancement, tax rates) and Tesla (supply chain, geopolitical influences, production costs). The citations are appropriately mapped to the statements they support.\"\n  },\n  \"usefulness\": {\n    \"score\": 4,\n    \"rationale\": \"The answer provides a clear comparison of the main risk factors for both companies. It is specific enough to be useful for a reviewer and addresses the core of the prompt effectively.\"\n  },\n  \"comparison_completeness\": {\n    \"score\": 4,\n    \"rationale\": \"The answer directly compares the risk factors for Apple and Tesla, addressing both sides of the comparison requested by the prompt. It highlights distinct risks for each company, fulfilling the comparison requirement.\"\n  },\n  \"uncertainty_handling\": {\n    \"score\": 4,\n    \"rationale\": \"The answer explicitly states what information is *not* provided in the evidence regarding cybersecurity, government investigations for Apple, and specific regulatory/trade policies for Tesla. This demonstrates good handling of limitations in the source material.\"\n  },\n  \"summary\": \"Both Apple and Tesla face significant risks, though they differ in nature. Apple's primary risks involve technological advancement challenges and potential changes in effective tax rates. Tesla's risks are more pronounced in supply chain disruptions influenced by geopolitics, component shortages impacting production ramp-ups, and increased manufacturing costs associated with new features and services. The provided evidence does not detail cybersecurity or government investigation risks for Apple, nor specific external regulatory or trade policy risks for Tesla.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": true,
+        "comparison_behavior_observed": true,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "score": 4,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The cited chunks cover the specific risk factors mentioned for both Apple (technological advancement, tax rates) and Tesla (supply chain, geopolitical influences, production costs). The citations are appropriately mapped to the statements they support."
+        },
+        "answer_usefulness": {
+          "score": 4,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The answer provides a clear comparison of the main risk factors for both companies. It is specific enough to be useful for a reviewer and addresses the core of the prompt effectively."
+        },
+        "outcome": "pass",
+        "pass": true,
+        "notes": null
+      }
+    },
+    {
+      "query_id": "compare_jpm_bac_risk_factors",
+      "prompt": "How do JPMorgan and Bank of America compare on their main risk factors?",
+      "expected_tickers": [
+        "JPM",
+        "BAC"
+      ],
+      "requires_comparison": true,
+      "contamination_notes": "Financial-sector overlap is expected, but named-bank coverage must remain explicit.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "retrieval_text": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "lexical_query": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "dense_query": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "BAC",
+          "JPM"
+        ],
+        "detected_company_names": [
+          "Bank of America Corporation",
+          "JPMorgan Chase & Co"
+        ],
+        "target_tickers": [
+          "BAC",
+          "JPM"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": true,
+        "is_comparison_query": true,
+        "requires_entity_coverage": true
+      },
+      "retrieved_tickers": [
+        "JPM",
+        "BAC"
+      ],
+      "retrieved_chunk_ids": [
+        "JPM_10K_2026-02-13_full::chunk-0014",
+        "BAC_10Q_2025Q2_2025-07-31_full::chunk-0050",
+        "BAC_10Q_2025Q3_2025-10-31_full::chunk-0048",
+        "BAC_10Q_2025Q1_2025-04-30_full::chunk-0042",
+        "BAC_10Q_2025Q1_2025-04-30_full::chunk-0076",
+        "BAC_10Q_2025Q2_2025-07-31_full::chunk-0084",
+        "JPM_10K_2026-02-13_full::chunk-0053",
+        "JPM_10K_2026-02-13_full::chunk-0036"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "Bank of America and JPMorgan Chase both deal with similar types of financial risks such as legal and regulatory risks, market risks, credit risks, liquidity risks, capital risks, operational risks, strategic risks, conduct risks, reputation risks, and country risks. However, the specific risk factors they face can vary slightly based on their respective business operations and geographic presence. [C1] [C2]",
+      "answer_summary": "Bank of America and JPMorgan Chase both face various risk factors such as legal and regulatory risks, market risks, credit risks, liquidity risks, capital risks, operational risks, strategic risks, conduct risks, reputation risks, and country risks. Their respective risk factors include detailed breakdowns provided in their annual reports.",
+      "answer_findings": [
+        {
+          "statement": "Both JPMorgan Chase and Bank of America discuss legal and regulatory risks, market risks, credit risks, liquidity risks, capital risks, operational risks, strategic risks, conduct risks, reputation risks, and country risks in their risk factor discussions.",
+          "citations": [
+            "C1",
+            "C2"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "JPM_10K_2026-02-13_full::chunk-0014",
+          "filing_id": "JPM_10K_2026-02-13_full",
+          "ticker": "JPM",
+          "company_name": "JPMorgan Chase & Co",
+          "form_type": "10-K",
+          "filing_date": "2026-02-13",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/JPM_10K_2026-02-13_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "BAC_10Q_2025Q2_2025-07-31_full::chunk-0050",
+          "filing_id": "BAC_10Q_2025Q2_2025-07-31_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-07-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q2_2025-07-31_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "BAC_10Q_2025Q3_2025-10-31_full::chunk-0048",
+          "filing_id": "BAC_10Q_2025Q3_2025-10-31_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-10-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q3_2025-10-31_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "BAC_10Q_2025Q1_2025-04-30_full::chunk-0042",
+          "filing_id": "BAC_10Q_2025Q1_2025-04-30_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-04-30",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q1_2025-04-30_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "BAC_10Q_2025Q1_2025-04-30_full::chunk-0076",
+          "filing_id": "BAC_10Q_2025Q1_2025-04-30_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-04-30",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q1_2025-04-30_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "BAC_10Q_2025Q2_2025-07-31_full::chunk-0084",
+          "filing_id": "BAC_10Q_2025Q2_2025-07-31_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-07-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q2_2025-07-31_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The evidence does not provide a direct comparison of specific risk factors between JPMorgan Chase and Bank of America for different periods or themes.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": true,
+          "comparison_behavior_observed": true,
+          "contamination_observed": false,
+          "contamination_tickers": [],
+          "contamination_severity": "none"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "google/gemini-2.5-flash-lite",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 5,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer directly summarizes the common risk factors mentioned in the provided citations, and the 'answer_findings' explicitly link these statements to the cited chunks."
+          },
+          "citation_quality": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer correctly identifies a comprehensive list of common risk factors (legal and regulatory, market, credit, liquidity, capital, operational, strategic, conduct, reputation, and country risks) and cites chunks that cover these for both JPM and BAC. However, the citations provided primarily focus on listing these risks rather than delving into specific comparative details as implied by the prompt."
+          },
+          "usefulness": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "The answer is useful in that it identifies a broad range of common risk factors faced by both institutions. However, it lacks the specific comparative details that would allow for a deep understanding of how these risks differ or are emphasized differently by each company, which is a key aspect of a 'compare' prompt."
+          },
+          "comparison_completeness": {
+            "score": 2,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "The prompt requires a comparison, but the answer only lists common risk factors. While it states that specific factors can vary, it does not provide any concrete examples or details of these variations or differences between JPMorgan and Bank of America, making the comparison superficial."
+          },
+          "uncertainty_handling": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The 'answer_uncertainty' section correctly identifies that the provided evidence doesn't offer a direct comparison of specific risk factors between the two companies for different periods or themes. This is a good acknowledgment of the limitations of the source material in fulfilling the comparative aspect of the prompt."
+          },
+          "overall": "partial_pass",
+          "overall_score": 3.75,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "comparison_completeness": 0.15,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "JPMorgan Chase and Bank of America both face similar major risk categories, including legal and regulatory, market, credit, liquidity, capital, operational, strategic, conduct, reputation, and country risks. While these categories are common, the specific nuances of these risks can differ between the two institutions based on their unique business operations and geographical reach."
+          ],
+          "judge_result": {
+            "summary": "JPMorgan Chase and Bank of America both face similar major risk categories, including legal and regulatory, market, credit, liquidity, capital, operational, strategic, conduct, reputation, and country risks. While these categories are common, the specific nuances of these risks can differ between the two institutions based on their unique business operations and geographical reach.",
+            "raw_response": "```json\n{\n  \"groundedness\": {\n    \"score\": 5,\n    \"rationale\": \"The answer directly summarizes the common risk factors mentioned in the provided citations, and the 'answer_findings' explicitly link these statements to the cited chunks.\"\n  },\n  \"citation_quality\": {\n    \"score\": 4,\n    \"rationale\": \"The answer correctly identifies a comprehensive list of common risk factors (legal and regulatory, market, credit, liquidity, capital, operational, strategic, conduct, reputation, and country risks) and cites chunks that cover these for both JPM and BAC. However, the citations provided primarily focus on listing these risks rather than delving into specific comparative details as implied by the prompt.\"\n  },\n  \"usefulness\": {\n    \"score\": 3,\n    \"rationale\": \"The answer is useful in that it identifies a broad range of common risk factors faced by both institutions. However, it lacks the specific comparative details that would allow for a deep understanding of how these risks differ or are emphasized differently by each company, which is a key aspect of a 'compare' prompt.\"\n  },\n  \"comparison_completeness\": {\n    \"score\": 2,\n    \"rationale\": \"The prompt requires a comparison, but the answer only lists common risk factors. While it states that specific factors can vary, it does not provide any concrete examples or details of these variations or differences between JPMorgan and Bank of America, making the comparison superficial.\"\n  },\n  \"uncertainty_handling\": {\n    \"score\": 4,\n    \"rationale\": \"The 'answer_uncertainty' section correctly identifies that the provided evidence doesn't offer a direct comparison of specific risk factors between the two companies for different periods or themes. This is a good acknowledgment of the limitations of the source material in fulfilling the comparative aspect of the prompt.\"\n  },\n  \"summary\": \"JPMorgan Chase and Bank of America both face similar major risk categories, including legal and regulatory, market, credit, liquidity, capital, operational, strategic, conduct, reputation, and country risks. While these categories are common, the specific nuances of these risks can differ between the two institutions based on their unique business operations and geographical reach.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": true,
+        "comparison_behavior_observed": true,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "score": 4,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The answer correctly identifies a comprehensive list of common risk factors (legal and regulatory, market, credit, liquidity, capital, operational, strategic, conduct, reputation, and country risks) and cites chunks that cover these for both JPM and BAC. However, the citations provided primarily focus on listing these risks rather than delving into specific comparative details as implied by the prompt."
+        },
+        "answer_usefulness": {
+          "score": 3,
+          "score_max": 5,
+          "status": "partial_pass",
+          "notes": "The answer is useful in that it identifies a broad range of common risk factors faced by both institutions. However, it lacks the specific comparative details that would allow for a deep understanding of how these risks differ or are emphasized differently by each company, which is a key aspect of a 'compare' prompt."
+        },
+        "outcome": "partial_pass",
+        "pass": false,
+        "notes": null
+      }
+    },
+    {
+      "query_id": "single_company_aapl_risk_factors",
+      "prompt": "What risk factors does Apple highlight in its latest annual filing?",
+      "expected_tickers": [
+        "AAPL"
+      ],
+      "requires_comparison": false,
+      "contamination_notes": "Single-company retrieval should not drift into generic consumer-tech discussions.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "What risk factors does Apple highlight in its latest annual filing?",
+        "retrieval_text": "What risk factors does Apple highlight in its latest annual filing?",
+        "lexical_query": "What risk factors does Apple highlight in its latest annual filing?",
+        "dense_query": "What risk factors does Apple highlight in its latest annual filing?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "AAPL"
+        ],
+        "detected_company_names": [
+          "Apple Inc"
+        ],
+        "target_tickers": [
+          "AAPL"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": false,
+        "is_comparison_query": false,
+        "requires_entity_coverage": false
+      },
+      "retrieved_tickers": [
+        "AAPL",
+        "NVDA",
+        "META",
+        "GOOG"
+      ],
+      "retrieved_chunk_ids": [
+        "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+        "AAPL_10Q_2025Q2_2025-08-01_full::chunk-0012",
+        "AAPL_10Q_2025Q4_2026-01-30_full::chunk-0012",
+        "AAPL_10Q_2025Q1_2025-05-02_full::chunk-0012",
+        "NVDA_10K_2022Q1_2022-03-18_full::chunk-0016",
+        "META_10K_2024Q4_2025-01-30_full::chunk-0065",
+        "GOOG_10K_2022Q4_2023-02-03_full::chunk-0005",
+        "META_10K_2026-01-29_full::chunk-0062"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "Apple Inc. outlines several significant risks in its SEC filings that could affect its business performance, including shifts in market needs, changes in industry standards, potential product obsolescence due to technological advancements, and the adverse impacts of macroeconomic conditions such as inflation and tariffs on sales and operations [C1; C2]. [C1] [C2]",
+      "answer_summary": "Apple Inc. highlights various risk factors such as product and market changes, macroeconomic conditions, tariffs and trade measures, currency fluctuations, and the need to adapt to evolving customer demands in their SEC filings. These risks can significantly impact financial results and stock prices.",
+      "answer_findings": [
+        {
+          "statement": "Apple Inc. highlights risks related to market shifts, customer demands, new entrants in the industry, technological obsolescence, and changes in regulatory environments as critical factors affecting its business performance.",
+          "citations": [
+            "C1",
+            "C2"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+          "filing_id": "AAPL_10Q_2023Q3_2023-08-04_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2023-08-04",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2023Q3_2023-08-04_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "AAPL_10Q_2025Q2_2025-08-01_full::chunk-0012",
+          "filing_id": "AAPL_10Q_2025Q2_2025-08-01_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2025-08-01",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2025Q2_2025-08-01_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "AAPL_10Q_2025Q4_2026-01-30_full::chunk-0012",
+          "filing_id": "AAPL_10Q_2025Q4_2026-01-30_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2026-01-30",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2025Q4_2026-01-30_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "AAPL_10Q_2025Q1_2025-05-02_full::chunk-0012",
+          "filing_id": "AAPL_10Q_2025Q1_2025-05-02_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2025-05-02",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2025Q1_2025-05-02_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "NVDA_10K_2022Q1_2022-03-18_full::chunk-0016",
+          "filing_id": "NVDA_10K_2022Q1_2022-03-18_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-K",
+          "filing_date": "2022-03-18",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10K_2022Q1_2022-03-18_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "META_10K_2024Q4_2025-01-30_full::chunk-0065",
+          "filing_id": "META_10K_2024Q4_2025-01-30_full",
+          "ticker": "META",
+          "company_name": "Meta Platforms Inc",
+          "form_type": "10-K",
+          "filing_date": "2025-01-30",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/META_10K_2024Q4_2025-01-30_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The evidence does not establish specific impacts on different product lines or geographic regions for each identified risk factor.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": false,
+          "comparison_behavior_observed": null,
+          "contamination_observed": true,
+          "contamination_tickers": [
+            "NVDA",
+            "META",
+            "GOOG"
+          ],
+          "contamination_severity": "high"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "google/gemini-2.5-flash-lite",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 5,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer accurately reflects the information presented in the cited chunks, focusing on the risk factors highlighted by Apple Inc. It does not introduce any unsupported claims."
+          },
+          "citation_quality": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer is well-supported by citations C1 and C2, which are correctly identified as pertaining to Apple Inc. The cited chunks cover the main risk factors mentioned in the answer, such as market shifts, technological obsolescence, and macroeconomic conditions. The answer could be improved by utilizing more of the available Apple citations if they offered additional distinct risk factors."
+          },
+          "usefulness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer provides a concise yet informative overview of key risk factors Apple highlights. It is specific enough to be useful for a reviewer understanding potential challenges for the company. However, it could be more useful if it provided more detail on the specific impacts of each risk factor, as noted in the uncertainty handling."
+          },
+          "comparison_completeness": {
+            "score": null,
+            "score_max": 5,
+            "status": "not_applicable",
+            "notes": "The prompt did not require a comparison."
+          },
+          "uncertainty_handling": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "The answer acknowledges its limitations by stating that the evidence does not establish specific impacts on different product lines or geographic regions for each risk factor. This is appropriate, but a higher score could be achieved if the answer proactively avoided making overly generalized statements about impacts where specific details are not provided."
+          },
+          "overall": "pass",
+          "overall_score": 4.29,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "Apple Inc. discloses significant risks in its SEC filings, including market shifts, evolving customer demands, technological obsolescence, and macroeconomic factors like inflation and tariffs. The answer accurately reflects these risks based on the provided citations but notes a lack of specific detail regarding the impact on different product lines or regions."
+          ],
+          "judge_result": {
+            "summary": "Apple Inc. discloses significant risks in its SEC filings, including market shifts, evolving customer demands, technological obsolescence, and macroeconomic factors like inflation and tariffs. The answer accurately reflects these risks based on the provided citations but notes a lack of specific detail regarding the impact on different product lines or regions.",
+            "raw_response": "```json\n{\n  \"groundedness\": {\n    \"score\": 5,\n    \"rationale\": \"The answer accurately reflects the information presented in the cited chunks, focusing on the risk factors highlighted by Apple Inc. It does not introduce any unsupported claims.\"\n  },\n  \"citation_quality\": {\n    \"score\": 4,\n    \"rationale\": \"The answer is well-supported by citations C1 and C2, which are correctly identified as pertaining to Apple Inc. The cited chunks cover the main risk factors mentioned in the answer, such as market shifts, technological obsolescence, and macroeconomic conditions. The answer could be improved by utilizing more of the available Apple citations if they offered additional distinct risk factors.\"\n  },\n  \"usefulness\": {\n    \"score\": 4,\n    \"rationale\": \"The answer provides a concise yet informative overview of key risk factors Apple highlights. It is specific enough to be useful for a reviewer understanding potential challenges for the company. However, it could be more useful if it provided more detail on the specific impacts of each risk factor, as noted in the uncertainty handling.\"\n  },\n  \"comparison_completeness\": {\n    \"score\": null,\n    \"rationale\": \"The prompt did not require a comparison.\"\n  },\n  \"uncertainty_handling\": {\n    \"score\": 3,\n    \"rationale\": \"The answer acknowledges its limitations by stating that the evidence does not establish specific impacts on different product lines or geographic regions for each risk factor. This is appropriate, but a higher score could be achieved if the answer proactively avoided making overly generalized statements about impacts where specific details are not provided.\"\n  },\n  \"summary\": \"Apple Inc. discloses significant risks in its SEC filings, including market shifts, evolving customer demands, technological obsolescence, and macroeconomic factors like inflation and tariffs. The answer accurately reflects these risks based on the provided citations but notes a lack of specific detail regarding the impact on different product lines or regions.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": false,
+        "comparison_behavior_observed": null,
+        "contamination_observed": true,
+        "contamination_tickers": [
+          "NVDA",
+          "META",
+          "GOOG"
+        ],
+        "contamination_severity": "high",
+        "citation_quality": {
+          "score": 4,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The answer is well-supported by citations C1 and C2, which are correctly identified as pertaining to Apple Inc. The cited chunks cover the main risk factors mentioned in the answer, such as market shifts, technological obsolescence, and macroeconomic conditions. The answer could be improved by utilizing more of the available Apple citations if they offered additional distinct risk factors."
+        },
+        "answer_usefulness": {
+          "score": 4,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The answer provides a concise yet informative overview of key risk factors Apple highlights. It is specific enough to be useful for a reviewer understanding potential challenges for the company. However, it could be more useful if it provided more detail on the specific impacts of each risk factor, as noted in the uncertainty handling."
+        },
+        "outcome": "partial_pass",
+        "pass": false,
+        "notes": [
+          "Unexpected retrieved tickers: NVDA, META, GOOG."
+        ]
+      }
+    },
+    {
+      "query_id": "time_bounded_nvda_revenue_growth",
+      "prompt": "How has NVIDIA's revenue growth changed over the last two years?",
+      "expected_tickers": [
+        "NVDA"
+      ],
+      "requires_comparison": false,
+      "contamination_notes": "Time-bounded growth queries should retain year-sensitive filing coverage rather than only broad product commentary.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "How has NVIDIA's revenue growth changed over the last two years?",
+        "retrieval_text": "How has NVIDIA's revenue growth changed over the last two years?",
+        "lexical_query": "How has NVIDIA's revenue growth changed over the last two years?",
+        "dense_query": "How has NVIDIA's revenue growth changed over the last two years?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "NVDA"
+        ],
+        "detected_company_names": [
+          "NVIDIA Corporation"
+        ],
+        "target_tickers": [
+          "NVDA"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": false,
+        "is_comparison_query": false,
+        "requires_entity_coverage": false
+      },
+      "retrieved_tickers": [
+        "NVDA"
+      ],
+      "retrieved_chunk_ids": [
+        "NVDA_10Q_2022Q3_2022-08-31_full::chunk-0028",
+        "NVDA_10K_2022Q1_2022-03-18_full::chunk-0004",
+        "NVDA_10Q_2023Q2_2023-05-26_full::chunk-0024",
+        "NVDA_10K_2025-02-26_full::chunk-0049",
+        "NVDA_10Q_2023Q3_2023-08-28_full::chunk-0020",
+        "NVDA_10K_2023Q1_2023-02-24_full::chunk-0044",
+        "NVDA_10Q_2022Q2_2022-05-27_full::chunk-0022",
+        "NVDA_10K_2023Q1_2023-02-24_full::chunk-0042"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "NVIDIA's revenue growth has exhibited variability over the last two years. Specifically, from fiscal year 2021Q3/2022Q3 to fiscal year 2023Q3/2024Q3, there was a notable decrease in overall revenue due primarily to the need for inventory adjustments and macroeconomic conditions affecting gaming demand. The Gaming segment bore the brunt of this decline, showing a substantial drop attributed to channel partners reducing inventory levels, despite efforts like pricing programs and undershipping. [C1] [C2] [C5]",
+      "answer_summary": "NVIDIA's revenue growth has shown fluctuations over the last two years, with a decline from fiscal year 2021Q3/2022Q3 to fiscal year 2023Q3/2024Q3, attributed mainly to external factors like macroeconomic slowdown and inventory adjustments. The Company reported a significant drop in Gaming revenue due to channel inventory management and reduced demand from partners.",
+      "answer_findings": [
+        {
+          "statement": "NVIDIA's revenue growth has fluctuated over the last two years with a decrease from fiscal year 2021Q3/2022Q3 to fiscal year 2023Q3/2024Q3, driven largely by inventory adjustments and macroeconomic factors.",
+          "citations": [
+            "C1",
+            "C2",
+            "C5"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "NVDA_10Q_2022Q3_2022-08-31_full::chunk-0028",
+          "filing_id": "NVDA_10Q_2022Q3_2022-08-31_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2022-08-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10Q_2022Q3_2022-08-31_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "NVDA_10K_2022Q1_2022-03-18_full::chunk-0004",
+          "filing_id": "NVDA_10K_2022Q1_2022-03-18_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-K",
+          "filing_date": "2022-03-18",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10K_2022Q1_2022-03-18_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "NVDA_10Q_2023Q2_2023-05-26_full::chunk-0024",
+          "filing_id": "NVDA_10Q_2023Q2_2023-05-26_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2023-05-26",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10Q_2023Q2_2023-05-26_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "NVDA_10K_2025-02-26_full::chunk-0049",
+          "filing_id": "NVDA_10K_2025-02-26_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-K",
+          "filing_date": "2025-02-26",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10K_2025-02-26_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "NVDA_10Q_2023Q3_2023-08-28_full::chunk-0020",
+          "filing_id": "NVDA_10Q_2023Q3_2023-08-28_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2023-08-28",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10Q_2023Q3_2023-08-28_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "NVDA_10K_2023Q1_2023-02-24_full::chunk-0044",
+          "filing_id": "NVDA_10K_2023Q1_2023-02-24_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-K",
+          "filing_date": "2023-02-24",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10K_2023Q1_2023-02-24_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The evidence does not establish any specific revenue growth trend within the two-year period excluding Gaming. The impact of external factors on other segments (like Compute & Networking) is not detailed in the provided context.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": false,
+          "comparison_behavior_observed": null,
+          "contamination_observed": false,
+          "contamination_tickers": [],
+          "contamination_severity": "none"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "google/gemini-2.5-flash-lite",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 5,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer directly uses information from the provided citations to explain NVIDIA's revenue growth changes, focusing on the Gaming segment's decline due to inventory adjustments and macroeconomic conditions."
+          },
+          "citation_quality": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The cited chunks (C1, C2, C5) adequately support the answer's claims about revenue fluctuations and the reasons behind them, particularly for the Gaming segment. However, the answer refers to a broader revenue decrease and then specifies the Gaming segment, while the citations seem to focus more on the Gaming segment's issues. This slight ambiguity could be improved with more direct quotes or better integration of citations for the overall revenue trend."
+          },
+          "usefulness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer provides a qualitative overview of NVIDIA's revenue growth changes over the last two years, highlighting key factors like inventory adjustments and macroeconomic conditions affecting the Gaming segment. It is specific enough to be useful for understanding the general trend, though it lacks precise figures for revenue growth percentages."
+          },
+          "comparison_completeness": {
+            "score": null,
+            "score_max": 5,
+            "status": "not_applicable",
+            "notes": "The prompt did not require a comparison."
+          },
+          "uncertainty_handling": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer correctly identifies limitations in the provided evidence, noting that specific revenue growth trends outside of the Gaming segment and the impact on other segments are not detailed. This appropriately communicates the boundaries of the information."
+          },
+          "overall": "pass",
+          "overall_score": 4.35,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "NVIDIA's revenue growth has shown variability over the last two years, with a decrease from fiscal year 2021Q3/2022Q3 to 2023Q3/2024Q3. This decline was primarily driven by inventory adjustments and macroeconomic factors impacting gaming demand, leading to a substantial drop in the Gaming segment due to channel partners managing inventory levels."
+          ],
+          "judge_result": {
+            "summary": "NVIDIA's revenue growth has shown variability over the last two years, with a decrease from fiscal year 2021Q3/2022Q3 to 2023Q3/2024Q3. This decline was primarily driven by inventory adjustments and macroeconomic factors impacting gaming demand, leading to a substantial drop in the Gaming segment due to channel partners managing inventory levels.",
+            "raw_response": "```json\n{\n  \"groundedness\": {\n    \"score\": 5,\n    \"rationale\": \"The answer directly uses information from the provided citations to explain NVIDIA's revenue growth changes, focusing on the Gaming segment's decline due to inventory adjustments and macroeconomic conditions.\"\n  },\n  \"citation_quality\": {\n    \"score\": 4,\n    \"rationale\": \"The cited chunks (C1, C2, C5) adequately support the answer's claims about revenue fluctuations and the reasons behind them, particularly for the Gaming segment. However, the answer refers to a broader revenue decrease and then specifies the Gaming segment, while the citations seem to focus more on the Gaming segment's issues. This slight ambiguity could be improved with more direct quotes or better integration of citations for the overall revenue trend.\"\n  },\n  \"usefulness\": {\n    \"score\": 4,\n    \"rationale\": \"The answer provides a qualitative overview of NVIDIA's revenue growth changes over the last two years, highlighting key factors like inventory adjustments and macroeconomic conditions affecting the Gaming segment. It is specific enough to be useful for understanding the general trend, though it lacks precise figures for revenue growth percentages.\"\n  },\n  \"comparison_completeness\": {\n    \"score\": null,\n    \"rationale\": \"The prompt did not require a comparison.\"\n  },\n  \"uncertainty_handling\": {\n    \"score\": 4,\n    \"rationale\": \"The answer correctly identifies limitations in the provided evidence, noting that specific revenue growth trends outside of the Gaming segment and the impact on other segments are not detailed. This appropriately communicates the boundaries of the information.\"\n  },\n  \"summary\": \"NVIDIA's revenue growth has shown variability over the last two years, with a decrease from fiscal year 2021Q3/2022Q3 to 2023Q3/2024Q3. This decline was primarily driven by inventory adjustments and macroeconomic factors impacting gaming demand, leading to a substantial drop in the Gaming segment due to channel partners managing inventory levels.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": false,
+        "comparison_behavior_observed": null,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "score": 4,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The cited chunks (C1, C2, C5) adequately support the answer's claims about revenue fluctuations and the reasons behind them, particularly for the Gaming segment. However, the answer refers to a broader revenue decrease and then specifies the Gaming segment, while the citations seem to focus more on the Gaming segment's issues. This slight ambiguity could be improved with more direct quotes or better integration of citations for the overall revenue trend."
+        },
+        "answer_usefulness": {
+          "score": 4,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The answer provides a qualitative overview of NVIDIA's revenue growth changes over the last two years, highlighting key factors like inventory adjustments and macroeconomic conditions affecting the Gaming segment. It is specific enough to be useful for understanding the general trend, though it lacks precise figures for revenue growth percentages."
+        },
+        "outcome": "pass",
+        "pass": true,
+        "notes": null
+      }
+    },
+    {
+      "query_id": "sector_regulatory_banks_capital",
+      "prompt": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+      "expected_tickers": [
+        "JPM",
+        "BAC"
+      ],
+      "requires_comparison": false,
+      "contamination_notes": "Sector query may retrieve multiple banks, but should stay within relevant banking and regulatory context.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "retrieval_text": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "lexical_query": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "dense_query": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": null,
+        "detected_company_names": null,
+        "target_tickers": null,
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": false,
+        "is_comparison_query": false,
+        "requires_entity_coverage": false
+      },
+      "retrieved_tickers": [
+        "BAC",
+        "MS",
+        "GS"
+      ],
+      "retrieved_chunk_ids": [
+        "BAC_10Q_2025Q3_2025-10-31_full::chunk-0036",
+        "BAC_10Q_2025Q2_2025-07-31_full::chunk-0038",
+        "BAC_10Q_2025Q1_2025-04-30_full::chunk-0031",
+        "MS_10K_2026-02-19_full::chunk-0009",
+        "GS_10K_2025-02-27_full::chunk-0019",
+        "MS_10K_2026-02-19_full::chunk-0028",
+        "BAC_10K_2025-02-25_full::chunk-0008",
+        "MS_10K_2026-02-19_full::chunk-0010"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "Large U.S. banks in their recent filings have discussed various regulatory and capital-related risks. Notably, Bank of America and Morgan Stanley highlight constraints imposed by the Volcker Rule that restrict certain proprietary trading activities, which can impact their revenue streams. Additionally, they mention limitations on dividend payments due to Federal Reserve regulations such as the Source of Strength requirement under Dodd-Frank Act, which mandates them to maintain sufficient capital for their U.S. bank subsidiaries. Furthermore, they note proposals by the Federal Reserve to reform the stress test framework in 2025 with reduced volatility and enhanced model transparency, further influencing their operations and capital planning strategies. [C1] [C2] [C3] [C4] [C5] [C6]",
+      "answer_summary": "In recent filings, large U.S. banks like Bank of America and Morgan Stanley discuss regulatory and capital-related risks, including restrictions on proprietary trading (Volcker Rule) and limitations on dividend payments. They also mention significant changes to stress test frameworks proposed by the Federal Reserve.",
+      "answer_findings": [
+        {
+          "statement": "Large U.S. banks like Bank of America and Morgan Stanley have been discussing regulatory risks such as restrictions on proprietary trading activities under the Volcker Rule, which could impact their revenue streams.",
+          "citations": [
+            "C1",
+            "C2",
+            "C3",
+            "C4",
+            "C5",
+            "C6"
+          ]
+        },
+        {
+          "statement": "Banks like Bank of America and Morgan Stanley have highlighted limitations on dividend payments imposed by Federal Reserve regulations under the Source of Strength requirement, mandating them to maintain sufficient capital for their U.S. bank subsidiaries.",
+          "citations": [
+            "C4",
+            "C5",
+            "C6"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "BAC_10Q_2025Q3_2025-10-31_full::chunk-0036",
+          "filing_id": "BAC_10Q_2025Q3_2025-10-31_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-10-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q3_2025-10-31_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "BAC_10Q_2025Q2_2025-07-31_full::chunk-0038",
+          "filing_id": "BAC_10Q_2025Q2_2025-07-31_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-07-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q2_2025-07-31_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "BAC_10Q_2025Q1_2025-04-30_full::chunk-0031",
+          "filing_id": "BAC_10Q_2025Q1_2025-04-30_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-04-30",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q1_2025-04-30_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "MS_10K_2026-02-19_full::chunk-0009",
+          "filing_id": "MS_10K_2026-02-19_full",
+          "ticker": "MS",
+          "company_name": "Morgan Stanley",
+          "form_type": "10-K",
+          "filing_date": "2026-02-19",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/MS_10K_2026-02-19_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "GS_10K_2025-02-27_full::chunk-0019",
+          "filing_id": "GS_10K_2025-02-27_full",
+          "ticker": "GS",
+          "company_name": "Goldman Sachs Group Inc",
+          "form_type": "10-K",
+          "filing_date": "2025-02-27",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/GS_10K_2025-02-27_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "MS_10K_2026-02-19_full::chunk-0028",
+          "filing_id": "MS_10K_2026-02-19_full",
+          "ticker": "MS",
+          "company_name": "Morgan Stanley",
+          "form_type": "10-K",
+          "filing_date": "2026-02-19",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/MS_10K_2026-02-19_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The evidence does not provide specific details about other U.S. banks' discussions on these regulatory and capital-related risks or the exact magnitude of proposed stress test reforms.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": false,
+          "comparison_behavior_required": false,
+          "comparison_behavior_observed": null,
+          "contamination_observed": true,
+          "contamination_tickers": [
+            "MS",
+            "GS"
+          ],
+          "contamination_severity": "high"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "google/gemini-2.5-flash-lite",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 5,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer directly addresses the prompt by discussing regulatory and capital-related risks mentioned in bank filings. The statements made are supported by the provided citations, which include specific details about the Volcker Rule, dividend payment limitations, and stress test reforms. There are no unsupported claims."
+          },
+          "citation_quality": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The citations cover the key entities mentioned in the answer: Bank of America and Morgan Stanley. They also support the specific risks identified, such as the Volcker Rule and stress test reforms. However, the prompt mentioned 'large U.S. banks,' and while BAC and MS are covered, the retrieval included MS and GS, but the answer focused primarily on BAC and MS. The inclusion of GS in citations but not in the main body of the answer might be a minor point of improvement, but the core information is well-supported by the cited chunks."
+          },
+          "usefulness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer is practically useful, providing specific examples of regulatory and capital-related risks that large U.S. banks are discussing. It mentions the Volcker Rule, dividend payment limitations, and upcoming stress test reforms. This information is actionable and informative for someone interested in the topic."
+          },
+          "comparison_completeness": {
+            "score": null,
+            "score_max": 5,
+            "status": "not_applicable",
+            "notes": "The prompt did not require a comparison."
+          },
+          "uncertainty_handling": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer appropriately handles uncertainty by acknowledging that the evidence does not provide specific details about *other* U.S. banks' discussions or the exact magnitude of proposed stress test reforms beyond what is presented. This demonstrates an awareness of the limitations of the retrieved information."
+          },
+          "overall": "pass",
+          "overall_score": 4.35,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "Large U.S. banks, particularly Bank of America and Morgan Stanley, are discussing regulatory and capital-related risks in their recent filings. These include constraints from the Volcker Rule on proprietary trading, limitations on dividend payments due to Federal Reserve regulations like the Source of Strength requirement, and proposed reforms to the 2025 stress test framework by the Federal Reserve. The answer acknowledges that detailed information on other banks or the precise scope of stress test reforms is not fully available in the provided evidence."
+          ],
+          "judge_result": {
+            "summary": "Large U.S. banks, particularly Bank of America and Morgan Stanley, are discussing regulatory and capital-related risks in their recent filings. These include constraints from the Volcker Rule on proprietary trading, limitations on dividend payments due to Federal Reserve regulations like the Source of Strength requirement, and proposed reforms to the 2025 stress test framework by the Federal Reserve. The answer acknowledges that detailed information on other banks or the precise scope of stress test reforms is not fully available in the provided evidence.",
+            "raw_response": "```json\n{\n  \"groundedness\": {\n    \"score\": 5,\n    \"rationale\": \"The answer directly addresses the prompt by discussing regulatory and capital-related risks mentioned in bank filings. The statements made are supported by the provided citations, which include specific details about the Volcker Rule, dividend payment limitations, and stress test reforms. There are no unsupported claims.\"\n  },\n  \"citation_quality\": {\n    \"score\": 4,\n    \"rationale\": \"The citations cover the key entities mentioned in the answer: Bank of America and Morgan Stanley. They also support the specific risks identified, such as the Volcker Rule and stress test reforms. However, the prompt mentioned 'large U.S. banks,' and while BAC and MS are covered, the retrieval included MS and GS, but the answer focused primarily on BAC and MS. The inclusion of GS in citations but not in the main body of the answer might be a minor point of improvement, but the core information is well-supported by the cited chunks.\"\n  },\n  \"usefulness\": {\n    \"score\": 4,\n    \"rationale\": \"The answer is practically useful, providing specific examples of regulatory and capital-related risks that large U.S. banks are discussing. It mentions the Volcker Rule, dividend payment limitations, and upcoming stress test reforms. This information is actionable and informative for someone interested in the topic.\"\n  },\n  \"comparison_completeness\": {\n    \"score\": null,\n    \"rationale\": \"The prompt did not require a comparison.\"\n  },\n  \"uncertainty_handling\": {\n    \"score\": 4,\n    \"rationale\": \"The answer appropriately handles uncertainty by acknowledging that the evidence does not provide specific details about *other* U.S. banks' discussions or the exact magnitude of proposed stress test reforms beyond what is presented. This demonstrates an awareness of the limitations of the retrieved information.\"\n  },\n  \"summary\": \"Large U.S. banks, particularly Bank of America and Morgan Stanley, are discussing regulatory and capital-related risks in their recent filings. These include constraints from the Volcker Rule on proprietary trading, limitations on dividend payments due to Federal Reserve regulations like the Source of Strength requirement, and proposed reforms to the 2025 stress test framework by the Federal Reserve. The answer acknowledges that detailed information on other banks or the precise scope of stress test reforms is not fully available in the provided evidence.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": false,
+        "comparison_behavior_required": false,
+        "comparison_behavior_observed": null,
+        "contamination_observed": true,
+        "contamination_tickers": [
+          "MS",
+          "GS"
+        ],
+        "contamination_severity": "high",
+        "citation_quality": {
+          "score": 4,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The citations cover the key entities mentioned in the answer: Bank of America and Morgan Stanley. They also support the specific risks identified, such as the Volcker Rule and stress test reforms. However, the prompt mentioned 'large U.S. banks,' and while BAC and MS are covered, the retrieval included MS and GS, but the answer focused primarily on BAC and MS. The inclusion of GS in citations but not in the main body of the answer might be a minor point of improvement, but the core information is well-supported by the cited chunks."
+        },
+        "answer_usefulness": {
+          "score": 4,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The answer is practically useful, providing specific examples of regulatory and capital-related risks that large U.S. banks are discussing. It mentions the Volcker Rule, dividend payment limitations, and upcoming stress test reforms. This information is actionable and informative for someone interested in the topic."
+        },
+        "outcome": "fail",
+        "pass": false,
+        "notes": [
+          "Unexpected retrieved tickers: MS, GS."
+        ]
+      }
+    }
+  ],
+  "build_manifest": {
+    "manifest_version": 1,
+    "chunking": {
+      "chunk_size_tokens": 800,
+      "chunk_overlap_tokens": 100
+    },
+    "tables": {
+      "lexical": "filing_chunks",
+      "dense": "filing_chunks_dense_snowflake_eval"
+    },
+    "dense_index": {
+      "embedding_model": "Snowflake/snowflake-arctic-embed-xs",
+      "embedding_dimension": 384,
+      "metric": "cosine"
+    },
+    "reranker": {
+      "default": "bge-reranker-v2-m3",
+      "candidate_pool": 12,
+      "enabled_by_default": false
+    },
+    "artifacts": {
+      "corpus_manifest": "edgar_corpus/manifest.json",
+      "chunk_records": "artifacts/chunk_records.jsonl",
+      "dense_index_metadata": "artifacts/dense_index_metadata.snowflake_eval.json",
+      "golden_eval_set": "eval/golden_queries.json",
+      "final_prompt_template": "prompts/final_answer_prompt.txt"
+    }
+  },
+  "summary": {
+    "pass": 2,
+    "partial_pass": 3,
+    "fail": 1
+  },
+  "judge_run_metadata": {
+    "input_path": "eval/provider_snowflake_bge_reranker_base_answer.json",
+    "output_path": "eval/provider_snowflake_bge_reranker_base_answer_judged.json",
+    "command": "uv run eliza-rag-eval-judge eval/provider_snowflake_bge_reranker_base_answer.json --output eval/provider_snowflake_bge_reranker_base_answer_judged.json"
+  }
+}

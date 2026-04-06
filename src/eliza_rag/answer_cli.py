@@ -7,7 +7,13 @@ import sys
 from .answer_generation import AnswerGenerationError, generate_answer
 from .config import get_settings
 from .models import RetrievalFilters
-from .retrieval import DenseIndexNotReadyError, LexicalIndexNotReadyError
+from .retrieval import (
+    BGE_RERANKER_BASE,
+    BGE_RERANKER_V2_M3,
+    DenseIndexNotReadyError,
+    HEURISTIC_RERANKER,
+    LexicalIndexNotReadyError,
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -18,8 +24,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--mode",
         choices=("lexical", "dense", "hybrid", "targeted_hybrid"),
-        default="hybrid",
-        help="Retrieval mode to use before the final answer call.",
+        default="targeted_hybrid",
+        help="Retrieval mode to use before the final answer call. The default matches the recommended demo path.",
     )
     parser.add_argument(
         "--top-k",
@@ -56,14 +62,20 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Wrap the lexical query as a phrase query when full-text search is used.",
     )
-    parser.add_argument(
+    rerank_group = parser.add_mutually_exclusive_group()
+    rerank_group.add_argument(
         "--rerank",
         action="store_true",
         help="Apply the configured reranker over the retrieved candidate pool before the final answer call.",
     )
+    rerank_group.add_argument(
+        "--no-rerank",
+        action="store_true",
+        help="Disable reranking, even though the recommended demo path enables it by default.",
+    )
     parser.add_argument(
         "--reranker",
-        choices=("bge-reranker-v2-m3", "heuristic"),
+        choices=(BGE_RERANKER_V2_M3, BGE_RERANKER_BASE, HEURISTIC_RERANKER),
         default=None,
         help="Override the reranker implementation.",
     )
@@ -96,12 +108,12 @@ def main() -> None:
         filing_date_from=args.filing_date_from,
         filing_date_to=args.filing_date_to,
     )
-    enable_rerank = (
-        args.rerank
-        or args.reranker is not None
-        or args.rerank_candidate_pool is not None
-        or getattr(settings, "enable_rerank", False)
-    )
+    if args.no_rerank:
+        enable_rerank = False
+    elif args.rerank or args.reranker is not None or args.rerank_candidate_pool is not None:
+        enable_rerank = True
+    else:
+        enable_rerank = True
 
     try:
         response = generate_answer(

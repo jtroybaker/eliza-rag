@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -49,11 +51,15 @@ class Settings:
     llm_base_url: str
     llm_api_key: str | None
     llm_model: str
-    local_llm_runtime: str
-    local_llm_runtime_command: str
-    local_llm_base_url: str
-    local_llm_model: str
-    local_llm_start_timeout_seconds: int
+    judge_provider: str = "openrouter"
+    judge_base_url: str = "https://openrouter.ai/api/v1"
+    judge_api_key: str | None = None
+    judge_model: str = "qwen/qwen3.6-plus:free"
+    local_llm_runtime: str = "ollama"
+    local_llm_runtime_command: str = "ollama"
+    local_llm_base_url: str = "http://127.0.0.1:11434/v1"
+    local_llm_model: str = "qwen2.5:3b-instruct"
+    local_llm_start_timeout_seconds: int = 45
 
     @property
     def manifest_path(self) -> Path:
@@ -71,10 +77,28 @@ class Settings:
     def final_prompt_template_path(self) -> Path:
         return self.prompts_dir / "final_answer_prompt.txt"
 
+    @property
+    def eval_judge_prompt_template_path(self) -> Path:
+        return self.prompts_dir / "eval_judge_prompt.txt"
+
+    @property
+    def eval_dir(self) -> Path:
+        return self.repo_root / "eval"
+
+    @property
+    def golden_eval_artifact_path(self) -> Path:
+        return self.eval_dir / "golden_queries.json"
+
+    @property
+    def build_manifest_output_path(self) -> Path:
+        return self.artifacts_dir / "build_manifest.json"
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     repo_root = _repo_root()
+    load_dotenv(repo_root / ".env")
+    load_dotenv(repo_root / ".env.local", override=True)
     data_dir = _env_path("ELIZA_RAG_DATA_DIR", repo_root / "data")
     artifacts_dir = _env_path("ELIZA_RAG_ARTIFACTS_DIR", repo_root / "artifacts")
     prompts_dir = repo_root / "prompts"
@@ -82,6 +106,7 @@ def get_settings() -> Settings:
     corpus_zip_path = _env_path("ELIZA_RAG_CORPUS_ZIP", repo_root / "edgar_corpus.zip")
     lancedb_dir = _env_path("ELIZA_RAG_LANCEDB_DIR", data_dir / "lancedb")
     llm_provider = os.getenv("ELIZA_RAG_LLM_PROVIDER", "openai").strip().lower()
+    judge_provider = os.getenv("ELIZA_RAG_JUDGE_PROVIDER", "openrouter").strip().lower()
     enable_rerank = os.getenv("ELIZA_RAG_ENABLE_RERANK", "false").strip().lower() in {
         "1",
         "true",
@@ -119,6 +144,11 @@ def get_settings() -> Settings:
             else default_models.get(llm_provider, os.getenv("OPENAI_MODEL", "gpt-5-mini"))
         )
     )
+    judge_base_url = (
+        os.getenv("ELIZA_RAG_JUDGE_BASE_URL")
+        or default_base_urls.get(judge_provider, default_base_urls["openrouter"])
+    )
+    judge_model = os.getenv("ELIZA_RAG_JUDGE_MODEL", "qwen/qwen3.6-plus:free")
 
     return Settings(
         repo_root=repo_root,
@@ -178,6 +208,15 @@ def get_settings() -> Settings:
         llm_base_url=llm_base_url,
         llm_api_key=os.getenv("ELIZA_RAG_LLM_API_KEY") or os.getenv("OPENAI_API_KEY"),
         llm_model=llm_model,
+        judge_provider=judge_provider,
+        judge_base_url=judge_base_url,
+        judge_api_key=(
+            os.getenv("ELIZA_RAG_JUDGE_API_KEY")
+            or os.getenv("OPENROUTER_API_KEY")
+            or os.getenv("ELIZA_RAG_LLM_API_KEY")
+            or os.getenv("OPENAI_API_KEY")
+        ),
+        judge_model=judge_model,
         local_llm_runtime=os.getenv("ELIZA_RAG_LOCAL_LLM_RUNTIME", "ollama").strip().lower(),
         local_llm_runtime_command=os.getenv("ELIZA_RAG_LOCAL_LLM_RUNTIME_COMMAND", "ollama"),
         local_llm_base_url=local_base_url_alias or "http://127.0.0.1:11434/v1",

@@ -12,7 +12,13 @@ import pyarrow as pa
 import lancedb
 
 from .config import Settings
-from .embeddings import DenseIndexMetadata, build_dense_vectors, write_dense_index_metadata
+from .embeddings import (
+    DenseIndexMetadata,
+    build_dense_vectors,
+    resolve_embedder_alias,
+    resolve_embedder_model,
+    write_dense_index_metadata,
+)
 from .models import ChunkRecord
 
 
@@ -110,7 +116,8 @@ def build_dense_index(settings: Settings) -> dict[str, object]:
         "table_name": settings.dense_lancedb_table_name,
         "row_count": dense_table.count_rows(),
         "schema": dense_table.schema.names,
-        "embedding_model": settings.dense_embedding_model,
+        "embedder": resolve_embedder_alias(settings.dense_embedding_model),
+        "embedding_model": resolve_embedder_model(settings.dense_embedding_model),
         "embedding_dimension": metadata.dimension,
         "index_metric": settings.dense_index_metric,
         "metadata_path": str(metadata_path),
@@ -250,7 +257,8 @@ def ensure_dense_metadata_artifact(settings: Settings) -> dict[str, object] | No
             "created": False,
         }
 
-    if settings.dense_embedding_model == "hashed_v1":
+    resolved_embedding_model = resolve_embedder_model(settings.dense_embedding_model)
+    if resolved_embedding_model == "hashed_v1":
         return None
 
     if not _table_exists(settings.lancedb_dir, settings.dense_lancedb_table_name):
@@ -264,7 +272,7 @@ def ensure_dense_metadata_artifact(settings: Settings) -> dict[str, object] | No
         raise ValueError("Dense vector column is not a fixed-size list; cannot infer embedding dimension.")
 
     metadata = DenseIndexMetadata(
-        model=settings.dense_embedding_model,
+        model=resolved_embedding_model,
         dimension=int(dimension),
         document_count=table.count_rows(),
         document_frequency_by_bucket=[],

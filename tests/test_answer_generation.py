@@ -6,7 +6,6 @@ from urllib import error
 import pytest
 
 from eliza_rag.answer_generation import (
-    AnswerBackendClient,
     AnswerGenerationError,
     LocalOllamaGenerateClient,
     OpenAICompatibleResponsesClient,
@@ -17,11 +16,12 @@ from eliza_rag.answer_generation import (
     resolve_provider_config,
 )
 from eliza_rag.config import Settings
+from eliza_rag.interfaces import AnswerBackend
 from eliza_rag.local_runtime import LocalRuntimeError
 from eliza_rag.models import RetrievalResult
 
 
-class FakeClient(AnswerBackendClient):
+class FakeClient(AnswerBackend):
     def __init__(self, response_text: str) -> None:
         self._response_text = response_text
         self._model_name = "fake-model"

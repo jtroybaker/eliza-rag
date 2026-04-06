@@ -7,12 +7,22 @@ import re
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from .config import Settings
+
+if TYPE_CHECKING:
+    from .interfaces import Embedder
 
 TOKEN_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9&.\-]{1,}")
 DEFAULT_EMBEDDING_MODEL = "hashed_v1"
 DEFAULT_EXTERNAL_EMBEDDING_MODEL = "Snowflake/snowflake-arctic-embed-xs"
+BGE_M3_EMBEDDING_MODEL = "BAAI/bge-m3"
+EMBEDDER_ALIASES = {
+    "hashed_v1": DEFAULT_EMBEDDING_MODEL,
+    "snowflake-arctic-embed-xs": DEFAULT_EXTERNAL_EMBEDDING_MODEL,
+    "bge-m3": BGE_M3_EMBEDDING_MODEL,
+}
 _SYNONYM_MAP = {
     "danger": ("risk",),
     "hazard": ("risk",),
@@ -43,6 +53,93 @@ class DenseIndexMetadata:
 
 class EmbeddingError(RuntimeError):
     """Raised when dense embedding generation fails."""
+
+
+def available_embedder_choices() -> tuple[str, ...]:
+    return tuple(EMBEDDER_ALIASES)
+
+
+def resolve_embedder_model(selection: str) -> str:
+    normalized = selection.strip()
+    return EMBEDDER_ALIASES.get(normalized.lower(), normalized)
+
+
+def resolve_embedder_alias(selection: str) -> str:
+    resolved_model = resolve_embedder_model(selection)
+    for alias, model in EMBEDDER_ALIASES.items():
+        if model == resolved_model:
+            return alias
+    return selection.strip()
+
+
+class HashedBaselineEmbedder:
+    def build_document_vectors(
+        self,
+        settings: Settings,
+        texts: list[str],
+    ) -> tuple[DenseIndexMetadata, list[list[float]]]:
+        metadata = build_dense_index_metadata(
+            texts,
+            dimension=settings.dense_embedding_dim,
+            model=DEFAULT_EMBEDDING_MODEL,
+        )
+        return metadata, [self.encode_query(text, metadata) for text in texts]
+
+    def encode_query(self, text: str, metadata: DenseIndexMetadata) -> list[float]:
+        buckets = [0.0] * metadata.dimension
+        term_frequency: dict[str, int] = {}
+
+        for feature in _iter_features(text):
+            term_frequency[feature] = term_frequency.get(feature, 0) + 1
+
+        if not term_frequency:
+            return buckets
+
+        for feature, frequency in term_frequency.items():
+            bucket, sign = _feature_bucket_and_sign(feature, metadata.dimension)
+            document_frequency = metadata.document_frequency_by_bucket[bucket]
+            inverse_document_frequency = math.log((metadata.document_count + 1) / (document_frequency + 1)) + 1.0
+            buckets[bucket] += sign * float(frequency) * inverse_document_frequency
+
+        norm = math.sqrt(sum(value * value for value in buckets))
+        if norm == 0.0:
+            return buckets
+
+        return [value / norm for value in buckets]
+
+
+class SentenceTransformerEmbedder:
+    def __init__(self, *, model: str) -> None:
+        self._model = model
+
+    def build_document_vectors(
+        self,
+        settings: Settings,
+        texts: list[str],
+    ) -> tuple[DenseIndexMetadata, list[list[float]]]:
+        vectors = _encode_texts_with_sentence_transformer(texts, model=self._model)
+        if not vectors:
+            raise EmbeddingError(f"Embedding model `{self._model}` returned no vectors.")
+
+        metadata = DenseIndexMetadata(
+            model=self._model,
+            dimension=len(vectors[0]),
+            document_count=len(texts),
+            document_frequency_by_bucket=[],
+        )
+        return metadata, vectors
+
+    def encode_query(self, text: str, metadata: DenseIndexMetadata) -> list[float]:
+        vectors = _encode_texts_with_sentence_transformer([text], model=metadata.model)
+        if not vectors:
+            raise EmbeddingError(f"Embedding model `{metadata.model}` returned no query vector.")
+        vector = vectors[0]
+        if len(vector) != metadata.dimension:
+            raise EmbeddingError(
+                f"Embedding dimension mismatch for `{metadata.model}`: "
+                f"index expects {metadata.dimension}, query returned {len(vector)}."
+            )
+        return vector
 
 
 def tokenize(text: str) -> list[str]:
@@ -86,28 +183,8 @@ def build_dense_index_metadata(
 
 def encode_text(text: str, metadata: DenseIndexMetadata) -> list[float]:
     if metadata.model != DEFAULT_EMBEDDING_MODEL:
-        return _encode_text_with_sentence_transformer(text, metadata)
-
-    buckets = [0.0] * metadata.dimension
-    term_frequency: dict[str, int] = {}
-
-    for feature in _iter_features(text):
-        term_frequency[feature] = term_frequency.get(feature, 0) + 1
-
-    if not term_frequency:
-        return buckets
-
-    for feature, frequency in term_frequency.items():
-        bucket, sign = _feature_bucket_and_sign(feature, metadata.dimension)
-        document_frequency = metadata.document_frequency_by_bucket[bucket]
-        inverse_document_frequency = math.log((metadata.document_count + 1) / (document_frequency + 1)) + 1.0
-        buckets[bucket] += sign * float(frequency) * inverse_document_frequency
-
-    norm = math.sqrt(sum(value * value for value in buckets))
-    if norm == 0.0:
-        return buckets
-
-    return [value / norm for value in buckets]
+        return SentenceTransformerEmbedder(model=metadata.model).encode_query(text, metadata)
+    return HashedBaselineEmbedder().encode_query(text, metadata)
 
 
 def write_dense_index_metadata(path: Path, metadata: DenseIndexMetadata) -> Path:
@@ -131,26 +208,26 @@ def load_dense_index_metadata(settings: Settings) -> DenseIndexMetadata:
 
 
 def build_dense_vectors(settings: Settings, texts: list[str]) -> tuple[DenseIndexMetadata, list[list[float]]]:
-    model = settings.dense_embedding_model
+    return resolve_embedder(settings).build_document_vectors(settings, texts)
+
+
+def resolve_embedder(settings: Settings) -> Embedder:
+    return resolve_embedder_for_model(settings.dense_embedding_model)
+
+
+def resolve_embedder_for_model(selection: str) -> Embedder:
+    model = resolve_embedder_model(selection)
     if model == DEFAULT_EMBEDDING_MODEL:
-        metadata = build_dense_index_metadata(
-            texts,
-            dimension=settings.dense_embedding_dim,
-            model=model,
-        )
-        return metadata, [encode_text(text, metadata) for text in texts]
+        return HashedBaselineEmbedder()
+    return SentenceTransformerEmbedder(model=model)
 
-    vectors = _encode_texts_with_sentence_transformer(texts, model=model)
-    if not vectors:
-        raise EmbeddingError(f"Embedding model `{model}` returned no vectors.")
 
-    metadata = DenseIndexMetadata(
-        model=model,
-        dimension=len(vectors[0]),
-        document_count=len(texts),
-        document_frequency_by_bucket=[],
-    )
-    return metadata, vectors
+def warm_embedder_model(selection: str) -> str | None:
+    model = resolve_embedder_model(selection)
+    if model == DEFAULT_EMBEDDING_MODEL:
+        return None
+    _load_sentence_transformer(model)
+    return model
 
 
 def _iter_features(text: str) -> list[str]:
@@ -179,30 +256,23 @@ def _feature_bucket_and_sign(feature: str, dimension: int) -> tuple[int, float]:
     return bucket, sign
 
 
-def _encode_text_with_sentence_transformer(text: str, metadata: DenseIndexMetadata) -> list[float]:
-    vectors = _encode_texts_with_sentence_transformer([text], model=metadata.model)
-    if not vectors:
-        raise EmbeddingError(f"Embedding model `{metadata.model}` returned no query vector.")
-    vector = vectors[0]
-    if len(vector) != metadata.dimension:
-        raise EmbeddingError(
-            f"Embedding dimension mismatch for `{metadata.model}`: "
-            f"index expects {metadata.dimension}, query returned {len(vector)}."
-        )
-    return vector
-
-
 def _encode_texts_with_sentence_transformer(texts: list[str], *, model: str) -> list[list[float]]:
     if not texts:
         return []
     try:
         encoder = _load_sentence_transformer(model)
-        embeddings = encoder.encode(
-            texts,
-            normalize_embeddings=True,
-            convert_to_numpy=True,
-            show_progress_bar=False,
-        )
+        vectors: list[list[float]] = []
+        batch_size = min(_preferred_sentence_transformer_batch_size(model), len(texts))
+        for start in range(0, len(texts), batch_size):
+            batch = texts[start : start + batch_size]
+            embeddings = encoder.encode(
+                batch,
+                normalize_embeddings=True,
+                convert_to_numpy=True,
+                show_progress_bar=False,
+                batch_size=batch_size,
+            )
+            vectors.extend([[float(value) for value in row] for row in embeddings.tolist()])
     except EmbeddingError:
         raise
     except Exception as exc:
@@ -210,7 +280,14 @@ def _encode_texts_with_sentence_transformer(texts: list[str], *, model: str) -> 
             f"Failed to encode text with Hugging Face model repo `{model}`."
         ) from exc
 
-    return [[float(value) for value in row] for row in embeddings.tolist()]
+    return vectors
+
+
+def _preferred_sentence_transformer_batch_size(model: str) -> int:
+    normalized = resolve_embedder_model(model)
+    if normalized == BGE_M3_EMBEDDING_MODEL:
+        return 8
+    return 32
 
 
 @lru_cache(maxsize=2)

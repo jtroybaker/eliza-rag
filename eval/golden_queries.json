@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "query_id": "compare_aapl_tsla_jpm_risk_factors",
+      "prompt": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+      "expected_tickers": ["AAPL", "TSLA", "JPM"],
+      "requires_comparison": true,
+      "contamination_notes": "Multi-company comparison should preserve coverage for all named entities rather than collapsing onto a single issuer."
+    },
+    {
+      "query_id": "compare_aapl_tsla_risk_factors",
+      "prompt": "Compare the main risk factors facing Apple and Tesla.",
+      "expected_tickers": ["AAPL", "TSLA"],
+      "requires_comparison": true,
+      "contamination_notes": "Avoid contamination from unrelated mega-cap tech names when both Apple and Tesla are explicitly requested."
+    },
+    {
+      "query_id": "compare_jpm_bac_risk_factors",
+      "prompt": "How do JPMorgan and Bank of America compare on their main risk factors?",
+      "expected_tickers": ["JPM", "BAC"],
+      "requires_comparison": true,
+      "contamination_notes": "Financial-sector overlap is expected, but named-bank coverage must remain explicit."
+    },
+    {
+      "query_id": "single_company_aapl_risk_factors",
+      "prompt": "What risk factors does Apple highlight in its latest annual filing?",
+      "expected_tickers": ["AAPL"],
+      "requires_comparison": false,
+      "contamination_notes": "Single-company retrieval should not drift into generic consumer-tech discussions."
+    },
+    {
+      "query_id": "time_bounded_nvda_revenue_growth",
+      "prompt": "How has NVIDIA's revenue growth changed over the last two years?",
+      "expected_tickers": ["NVDA"],
+      "requires_comparison": false,
+      "contamination_notes": "Time-bounded growth queries should retain year-sensitive filing coverage rather than only broad product commentary."
+    },
+    {
+      "query_id": "sector_regulatory_banks_capital",
+      "prompt": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+      "expected_tickers": ["JPM", "BAC"],
+      "requires_comparison": false,
+      "contamination_notes": "Sector query may retrieve multiple banks, but should stay within relevant banking and regulatory context."
+    }
+  ]
+}

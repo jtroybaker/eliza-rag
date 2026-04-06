@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import json
 import re
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 from urllib import error, request
 from urllib.parse import urlsplit
 
 from .config import Settings
+from .interfaces import AnswerBackend
 from .local_runtime import LocalRuntimeError, build_local_runtime_manager
 from .models import AnswerCitation, AnswerFinding, AnswerResponse, RetrievalFilters, RetrievalResult
 from .retrieval import (
@@ -35,18 +35,7 @@ BRACKETED_CITATION_GROUP_PATTERN = re.compile(r"\[(C\d+(?:\s*,\s*C\d+)+)\]")
 PARENTHETICAL_CITATION_GROUP_PATTERN = re.compile(r"\((C\d+(?:\s*,\s*C\d+)*)\)")
 
 
-class AnswerBackendClient(ABC):
-    @property
-    @abstractmethod
-    def model(self) -> str:
-        raise NotImplementedError
-
-    @abstractmethod
-    def generate(self, prompt: str) -> str:
-        raise NotImplementedError
-
-
-class OpenAICompatibleResponsesClient(AnswerBackendClient):
+class OpenAICompatibleResponsesClient:
     """Minimal OpenAI-compatible Responses API client for the final single-call answer path."""
 
     def __init__(
@@ -112,7 +101,7 @@ class OpenAICompatibleResponsesClient(AnswerBackendClient):
         return headers
 
 
-class LocalOllamaGenerateClient(AnswerBackendClient):
+class LocalOllamaGenerateClient:
     """Native Ollama client for local runs, using explicit JSON mode."""
 
     def __init__(self, *, model: str, base_url: str) -> None:
@@ -254,7 +243,7 @@ def resolve_provider_config(settings: Settings) -> ProviderConfig:
     )
 
 
-def build_answer_backend_client(settings: Settings) -> AnswerBackendClient:
+def build_answer_backend_client(settings: Settings) -> AnswerBackend:
     provider_config = resolve_provider_config(settings)
     if provider_config.requires_api_key and not settings.llm_api_key:
         raise AnswerGenerationError(
@@ -289,7 +278,7 @@ def generate_answer(
     enable_rerank: bool | None = None,
     reranker: str | None = None,
     rerank_candidate_pool: int | None = None,
-    client: AnswerBackendClient | None = None,
+    client: AnswerBackend | None = None,
 ) -> AnswerResponse:
     try:
         retrieval_results = retrieve(

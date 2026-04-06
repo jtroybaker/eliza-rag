@@ -7,7 +7,10 @@ import sys
 from .config import get_settings
 from .models import RetrievalFilters
 from .retrieval import (
+    BGE_RERANKER_BASE,
+    BGE_RERANKER_V2_M3,
     DenseIndexNotReadyError,
+    HEURISTIC_RERANKER,
     LexicalIndexNotReadyError,
     analyze_query,
     index_status,
@@ -66,7 +69,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--reranker",
-        choices=("bge-reranker-v2-m3", "heuristic"),
+        choices=(BGE_RERANKER_V2_M3, BGE_RERANKER_BASE, HEURISTIC_RERANKER),
         default=None,
         help="Override the reranker implementation.",
     )
@@ -118,7 +121,7 @@ def main() -> None:
         "filters": filters.to_dict(),
         "reranking": {
             "enabled": enable_rerank,
-            "reranker": args.reranker,
+            "reranker": args.reranker or (settings.reranker_type if enable_rerank else None),
             "candidate_pool": args.rerank_candidate_pool,
         },
         "structured_query": structured_query.to_dict(),

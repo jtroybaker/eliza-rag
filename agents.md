@@ -19,6 +19,8 @@ Build a working demo that answers business questions over SEC filings using retr
 - one final LLM API call for answer generation
 - strong grounding and citation behavior
 - evaluation across chunking, retrieval, and reranking options
+- a reviewer-safe release-archive restore flow
+- a stabilization-first path toward modular provider interfaces
 
 ## Core Decisions Already Made
 
@@ -34,6 +36,9 @@ Build a working demo that answers business questions over SEC filings using retr
 - Use `chonkie` as the chunking experiment driver, not as a single chunking strategy.
 - Prefer lightweight deterministic query expansion before trying more complex rewrite flows.
 - The final user-facing answer must come from one LLM API call.
+- Freeze a small golden evaluation set before broad modularization or provider swaps.
+- Prefer one-at-a-time provider experiments behind explicit interfaces.
+- Keep provider defaults stable until a saved eval artifact justifies a recommendation change.
 
 ## How To Work
 
@@ -41,6 +46,11 @@ Build a working demo that answers business questions over SEC filings using retr
    - `DECISIONS.md`
    - `LIMITATIONS.md`
    - `IMPLEMENTATION_KANBAN.md`
+   - `eval/README.md` and `eval/baseline_targeted_hybrid_retrieval.json` if the task could affect retrieval quality or artifact contracts
+   - `PHASE_09_SESSION_HANDOFF.md` first if it exists for the current session-manager phase
+   - otherwise the most relevant current phase handoff file
+   - `PHASE_08_PROVIDER_EVALUATION_AND_SCORING_HANDOFF.md` if the task touches saved provider evidence
+   - `PHASE_09_ANSWER_EVAL_AND_VISUALIZATION_KICKOFF.md` if the task touches answer-level judging or artifact-driven visualization
    - only the relevant sections of `HIGH_LEVEL_PLAN.md`
 2. Pick one bounded task or one closely related task group.
 3. Implement that task fully.
@@ -95,6 +105,13 @@ Good task boundaries:
 - answer prompt and single-call generation
 - eval dataset creation
 - eval harness implementation
+- build manifest generation
+- embedder interface extraction
+- reranker interface extraction
+- embedder comparison runs
+- reranker comparison runs
+- query analyzer interface extraction
+- answer backend interface extraction
 - README and submission artifacts
 
 Avoid combining too many of these into one session unless they are tightly coupled.

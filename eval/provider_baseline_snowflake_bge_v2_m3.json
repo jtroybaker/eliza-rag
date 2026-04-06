@@ -1,0 +1,546 @@
+{
+  "eval_version": 2,
+  "golden_eval_set": "eval/golden_queries.json",
+  "build_manifest_path": "artifacts/build_manifest.provider_baseline_snowflake_bge_v2_m3.json",
+  "config": {
+    "retrieval_mode": "targeted_hybrid",
+    "top_k": 8,
+    "phrase_query": false,
+    "include_answer": false,
+    "reranking": {
+      "enabled": true,
+      "reranker": "bge-reranker-v2-m3",
+      "candidate_pool": 12
+    }
+  },
+  "scoring_status": {
+    "implemented": true,
+    "note": "Pass, partial_pass, and fail are now assigned from ticker coverage, comparison behavior, contamination observations, and optional answer-level checks when answers are included."
+  },
+  "entries": [
+    {
+      "query_id": "compare_aapl_tsla_jpm_risk_factors",
+      "prompt": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+      "expected_tickers": [
+        "AAPL",
+        "TSLA",
+        "JPM"
+      ],
+      "requires_comparison": true,
+      "contamination_notes": "Multi-company comparison should preserve coverage for all named entities rather than collapsing onto a single issuer.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "retrieval_text": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "lexical_query": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "dense_query": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "AAPL",
+          "JPM",
+          "TSLA"
+        ],
+        "detected_company_names": [
+          "Apple Inc",
+          "JPMorgan Chase & Co",
+          "Tesla Inc"
+        ],
+        "target_tickers": [
+          "AAPL",
+          "JPM",
+          "TSLA"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": true,
+        "is_comparison_query": true,
+        "requires_entity_coverage": true
+      },
+      "retrieved_tickers": [
+        "TSLA",
+        "AAPL",
+        "JPM"
+      ],
+      "retrieved_chunk_ids": [
+        "TSLA_10K_2022Q4_2023-01-31_full::chunk-0013",
+        "TSLA_10K_2026-01-29_full::chunk-0014",
+        "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+        "JPM_10K_2026-02-13_full::chunk-0031",
+        "JPM_10K_2026-02-13_full::chunk-0036",
+        "AAPL_10K_2025-10-31_full::chunk-0024",
+        "JPM_10K_2026-02-13_full::chunk-0172",
+        "TSLA_10K_2024Q4_2025-01-30_full::chunk-0014"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": null,
+      "answer_summary": null,
+      "answer_findings": null,
+      "answer_citations": null,
+      "answer_uncertainty": null,
+      "answer_model": null,
+      "answer_error": null,
+      "scoring": {
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": true,
+        "comparison_behavior_observed": true,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "status": "not_evaluated",
+          "observed_citation_ids": [],
+          "observed_tickers": [],
+          "notes": "Answer generation was not included for this eval run."
+        },
+        "answer_usefulness": {
+          "status": "not_evaluated",
+          "notes": "Answer generation was not included for this eval run."
+        },
+        "outcome": "pass",
+        "pass": true,
+        "notes": [
+          "Citation quality was not evaluated because answers were not included.",
+          "Answer usefulness was not evaluated because answers were not included."
+        ]
+      }
+    },
+    {
+      "query_id": "compare_aapl_tsla_risk_factors",
+      "prompt": "Compare the main risk factors facing Apple and Tesla.",
+      "expected_tickers": [
+        "AAPL",
+        "TSLA"
+      ],
+      "requires_comparison": true,
+      "contamination_notes": "Avoid contamination from unrelated mega-cap tech names when both Apple and Tesla are explicitly requested.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "Compare the main risk factors facing Apple and Tesla.",
+        "retrieval_text": "Compare the main risk factors facing Apple and Tesla.",
+        "lexical_query": "Compare the main risk factors facing Apple and Tesla.",
+        "dense_query": "Compare the main risk factors facing Apple and Tesla.",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "AAPL",
+          "TSLA"
+        ],
+        "detected_company_names": [
+          "Apple Inc",
+          "Tesla Inc"
+        ],
+        "target_tickers": [
+          "AAPL",
+          "TSLA"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": true,
+        "is_comparison_query": true,
+        "requires_entity_coverage": true
+      },
+      "retrieved_tickers": [
+        "TSLA",
+        "AAPL"
+      ],
+      "retrieved_chunk_ids": [
+        "TSLA_10K_2022Q4_2023-01-31_full::chunk-0013",
+        "TSLA_10K_2026-01-29_full::chunk-0014",
+        "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+        "AAPL_10K_2022Q3_2022-10-28_full::chunk-0003",
+        "TSLA_10K_2026-01-29_full::chunk-0023",
+        "AAPL_10Q_2022Q1_2022-04-29_full::chunk-0014",
+        "AAPL_10K_2025-10-31_full::chunk-0024",
+        "AAPL_10K_2022Q3_2022-10-28_full::chunk-0004"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": null,
+      "answer_summary": null,
+      "answer_findings": null,
+      "answer_citations": null,
+      "answer_uncertainty": null,
+      "answer_model": null,
+      "answer_error": null,
+      "scoring": {
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": true,
+        "comparison_behavior_observed": true,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "status": "not_evaluated",
+          "observed_citation_ids": [],
+          "observed_tickers": [],
+          "notes": "Answer generation was not included for this eval run."
+        },
+        "answer_usefulness": {
+          "status": "not_evaluated",
+          "notes": "Answer generation was not included for this eval run."
+        },
+        "outcome": "pass",
+        "pass": true,
+        "notes": [
+          "Citation quality was not evaluated because answers were not included.",
+          "Answer usefulness was not evaluated because answers were not included."
+        ]
+      }
+    },
+    {
+      "query_id": "compare_jpm_bac_risk_factors",
+      "prompt": "How do JPMorgan and Bank of America compare on their main risk factors?",
+      "expected_tickers": [
+        "JPM",
+        "BAC"
+      ],
+      "requires_comparison": true,
+      "contamination_notes": "Financial-sector overlap is expected, but named-bank coverage must remain explicit.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "retrieval_text": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "lexical_query": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "dense_query": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "BAC",
+          "JPM"
+        ],
+        "detected_company_names": [
+          "Bank of America Corporation",
+          "JPMorgan Chase & Co"
+        ],
+        "target_tickers": [
+          "BAC",
+          "JPM"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": true,
+        "is_comparison_query": true,
+        "requires_entity_coverage": true
+      },
+      "retrieved_tickers": [
+        "JPM",
+        "BAC"
+      ],
+      "retrieved_chunk_ids": [
+        "JPM_10K_2026-02-13_full::chunk-0014",
+        "BAC_10Q_2025Q1_2025-04-30_full::chunk-0042",
+        "BAC_10Q_2025Q2_2025-07-31_full::chunk-0050",
+        "BAC_10Q_2025Q3_2025-10-31_full::chunk-0048",
+        "JPM_10K_2026-02-13_full::chunk-0053",
+        "JPM_10Q_2025Q2_2025-08-05_full::chunk-0073",
+        "JPM_10K_2026-02-13_full::chunk-0036",
+        "JPM_10K_2026-02-13_full::chunk-0026"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": null,
+      "answer_summary": null,
+      "answer_findings": null,
+      "answer_citations": null,
+      "answer_uncertainty": null,
+      "answer_model": null,
+      "answer_error": null,
+      "scoring": {
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": true,
+        "comparison_behavior_observed": true,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "status": "not_evaluated",
+          "observed_citation_ids": [],
+          "observed_tickers": [],
+          "notes": "Answer generation was not included for this eval run."
+        },
+        "answer_usefulness": {
+          "status": "not_evaluated",
+          "notes": "Answer generation was not included for this eval run."
+        },
+        "outcome": "pass",
+        "pass": true,
+        "notes": [
+          "Citation quality was not evaluated because answers were not included.",
+          "Answer usefulness was not evaluated because answers were not included."
+        ]
+      }
+    },
+    {
+      "query_id": "single_company_aapl_risk_factors",
+      "prompt": "What risk factors does Apple highlight in its latest annual filing?",
+      "expected_tickers": [
+        "AAPL"
+      ],
+      "requires_comparison": false,
+      "contamination_notes": "Single-company retrieval should not drift into generic consumer-tech discussions.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "What risk factors does Apple highlight in its latest annual filing?",
+        "retrieval_text": "What risk factors does Apple highlight in its latest annual filing?",
+        "lexical_query": "What risk factors does Apple highlight in its latest annual filing?",
+        "dense_query": "What risk factors does Apple highlight in its latest annual filing?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "AAPL"
+        ],
+        "detected_company_names": [
+          "Apple Inc"
+        ],
+        "target_tickers": [
+          "AAPL"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": false,
+        "is_comparison_query": false,
+        "requires_entity_coverage": false
+      },
+      "retrieved_tickers": [
+        "AAPL",
+        "META",
+        "GOOG"
+      ],
+      "retrieved_chunk_ids": [
+        "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+        "AAPL_10Q_2025Q1_2025-05-02_full::chunk-0012",
+        "AAPL_10Q_2025Q2_2025-08-01_full::chunk-0012",
+        "AAPL_10Q_2025Q4_2026-01-30_full::chunk-0012",
+        "META_10K_2024Q4_2025-01-30_full::chunk-0065",
+        "META_10K_2026-01-29_full::chunk-0062",
+        "GOOG_10K_2022Q4_2023-02-03_full::chunk-0005",
+        "GOOG_10K_2023Q4_2024-01-31_full::chunk-0005"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": null,
+      "answer_summary": null,
+      "answer_findings": null,
+      "answer_citations": null,
+      "answer_uncertainty": null,
+      "answer_model": null,
+      "answer_error": null,
+      "scoring": {
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": false,
+        "comparison_behavior_observed": null,
+        "contamination_observed": true,
+        "contamination_tickers": [
+          "META",
+          "GOOG"
+        ],
+        "contamination_severity": "high",
+        "citation_quality": {
+          "status": "not_evaluated",
+          "observed_citation_ids": [],
+          "observed_tickers": [],
+          "notes": "Answer generation was not included for this eval run."
+        },
+        "answer_usefulness": {
+          "status": "not_evaluated",
+          "notes": "Answer generation was not included for this eval run."
+        },
+        "outcome": "partial_pass",
+        "pass": false,
+        "notes": [
+          "Unexpected retrieved tickers: META, GOOG.",
+          "Citation quality was not evaluated because answers were not included.",
+          "Answer usefulness was not evaluated because answers were not included."
+        ]
+      }
+    },
+    {
+      "query_id": "time_bounded_nvda_revenue_growth",
+      "prompt": "How has NVIDIA's revenue growth changed over the last two years?",
+      "expected_tickers": [
+        "NVDA"
+      ],
+      "requires_comparison": false,
+      "contamination_notes": "Time-bounded growth queries should retain year-sensitive filing coverage rather than only broad product commentary.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "How has NVIDIA's revenue growth changed over the last two years?",
+        "retrieval_text": "How has NVIDIA's revenue growth changed over the last two years?",
+        "lexical_query": "How has NVIDIA's revenue growth changed over the last two years?",
+        "dense_query": "How has NVIDIA's revenue growth changed over the last two years?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "NVDA"
+        ],
+        "detected_company_names": [
+          "NVIDIA Corporation"
+        ],
+        "target_tickers": [
+          "NVDA"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": false,
+        "is_comparison_query": false,
+        "requires_entity_coverage": false
+      },
+      "retrieved_tickers": [
+        "NVDA"
+      ],
+      "retrieved_chunk_ids": [
+        "NVDA_10K_2025-02-26_full::chunk-0049",
+        "NVDA_10K_2023Q1_2023-02-24_full::chunk-0044",
+        "NVDA_10K_2023Q1_2023-02-24_full::chunk-0042",
+        "NVDA_10Q_2023Q3_2023-08-28_full::chunk-0020",
+        "NVDA_10K_2022Q1_2022-03-18_full::chunk-0039",
+        "NVDA_10Q_2022Q2_2022-05-27_full::chunk-0022",
+        "NVDA_10Q_2023Q3_2023-08-28_full::chunk-0019",
+        "NVDA_10Q_2023Q4_2023-11-21_full::chunk-0021"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": null,
+      "answer_summary": null,
+      "answer_findings": null,
+      "answer_citations": null,
+      "answer_uncertainty": null,
+      "answer_model": null,
+      "answer_error": null,
+      "scoring": {
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": false,
+        "comparison_behavior_observed": null,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "status": "not_evaluated",
+          "observed_citation_ids": [],
+          "observed_tickers": [],
+          "notes": "Answer generation was not included for this eval run."
+        },
+        "answer_usefulness": {
+          "status": "not_evaluated",
+          "notes": "Answer generation was not included for this eval run."
+        },
+        "outcome": "pass",
+        "pass": true,
+        "notes": [
+          "Citation quality was not evaluated because answers were not included.",
+          "Answer usefulness was not evaluated because answers were not included."
+        ]
+      }
+    },
+    {
+      "query_id": "sector_regulatory_banks_capital",
+      "prompt": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+      "expected_tickers": [
+        "JPM",
+        "BAC"
+      ],
+      "requires_comparison": false,
+      "contamination_notes": "Sector query may retrieve multiple banks, but should stay within relevant banking and regulatory context.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "retrieval_text": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "lexical_query": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "dense_query": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": null,
+        "detected_company_names": null,
+        "target_tickers": null,
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": false,
+        "is_comparison_query": false,
+        "requires_entity_coverage": false
+      },
+      "retrieved_tickers": [
+        "GS",
+        "MS",
+        "BAC",
+        "AXP"
+      ],
+      "retrieved_chunk_ids": [
+        "GS_10K_2025-02-27_full::chunk-0019",
+        "MS_10K_2026-02-19_full::chunk-0010",
+        "BAC_10K_2025-02-25_full::chunk-0008",
+        "MS_10K_2026-02-19_full::chunk-0009",
+        "AXP_10K_2026-02-06_full::chunk-0013",
+        "GS_10K_2025-02-27_full::chunk-0018",
+        "MS_10K_2026-02-19_full::chunk-0028",
+        "BAC_10Q_2025Q3_2025-10-31_full::chunk-0036"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": null,
+      "answer_summary": null,
+      "answer_findings": null,
+      "answer_citations": null,
+      "answer_uncertainty": null,
+      "answer_model": null,
+      "answer_error": null,
+      "scoring": {
+        "expected_ticker_coverage": false,
+        "comparison_behavior_required": false,
+        "comparison_behavior_observed": null,
+        "contamination_observed": true,
+        "contamination_tickers": [
+          "GS",
+          "MS",
+          "AXP"
+        ],
+        "contamination_severity": "high",
+        "citation_quality": {
+          "status": "not_evaluated",
+          "observed_citation_ids": [],
+          "observed_tickers": [],
+          "notes": "Answer generation was not included for this eval run."
+        },
+        "answer_usefulness": {
+          "status": "not_evaluated",
+          "notes": "Answer generation was not included for this eval run."
+        },
+        "outcome": "fail",
+        "pass": false,
+        "notes": [
+          "Unexpected retrieved tickers: GS, MS, AXP.",
+          "Citation quality was not evaluated because answers were not included.",
+          "Answer usefulness was not evaluated because answers were not included."
+        ]
+      }
+    }
+  ],
+  "build_manifest": {
+    "manifest_version": 1,
+    "chunking": {
+      "chunk_size_tokens": 800,
+      "chunk_overlap_tokens": 100
+    },
+    "tables": {
+      "lexical": "filing_chunks",
+      "dense": "filing_chunks_dense_snowflake_eval"
+    },
+    "dense_index": {
+      "embedding_model": "Snowflake/snowflake-arctic-embed-xs",
+      "embedding_dimension": 384,
+      "metric": "cosine"
+    },
+    "reranker": {
+      "default": "bge-reranker-v2-m3",
+      "candidate_pool": 12,
+      "enabled_by_default": false
+    },
+    "artifacts": {
+      "corpus_manifest": "edgar_corpus/manifest.json",
+      "chunk_records": "artifacts/chunk_records.jsonl",
+      "dense_index_metadata": "artifacts/dense_index_metadata.snowflake_eval.json",
+      "golden_eval_set": "eval/golden_queries.json",
+      "final_prompt_template": "prompts/final_answer_prompt.txt"
+    }
+  },
+  "summary": {
+    "pass": 4,
+    "partial_pass": 1,
+    "fail": 1
+  }
+}

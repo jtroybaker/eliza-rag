@@ -6,6 +6,8 @@ import sys
 from dataclasses import replace
 
 from .config import get_settings
+from .embeddings import available_embedder_choices
+from .evals import emit_build_manifest
 from .storage import build_dense_index
 
 
@@ -14,9 +16,15 @@ def build_parser() -> argparse.ArgumentParser:
         description="Build or refresh the dense retrieval table from the lexical chunk table."
     )
     parser.add_argument(
+        "--embedder",
+        choices=available_embedder_choices(),
+        default=None,
+        help="Select a named embedder adapter, for example `snowflake-arctic-embed-xs` or `bge-m3`.",
+    )
+    parser.add_argument(
         "--embedding-model",
         default=None,
-        help="Override the dense embedding model for this build, for example `Snowflake/snowflake-arctic-embed-xs`.",
+        help="Override the dense embedding model repo id directly, for example `Snowflake/snowflake-arctic-embed-xs`.",
     )
     parser.add_argument(
         "--dense-table-name",
@@ -34,10 +42,10 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = build_parser().parse_args()
     settings = get_settings()
-    if args.embedding_model or args.dense_table_name or args.metadata_artifact_name:
+    if args.embedder or args.embedding_model or args.dense_table_name or args.metadata_artifact_name:
         settings = replace(
             settings,
-            dense_embedding_model=args.embedding_model or settings.dense_embedding_model,
+            dense_embedding_model=args.embedding_model or args.embedder or settings.dense_embedding_model,
             dense_lancedb_table_name=args.dense_table_name or settings.dense_lancedb_table_name,
             dense_index_artifact_name=args.metadata_artifact_name or settings.dense_index_artifact_name,
         )
@@ -50,4 +58,5 @@ def main() -> None:
         )
         print(message, file=sys.stderr)
         raise SystemExit(2) from exc
+    payload["build_manifest"] = emit_build_manifest(settings)
     print(json.dumps(payload, indent=2))

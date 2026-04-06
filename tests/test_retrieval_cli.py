@@ -21,7 +21,9 @@ def test_retrieval_cli_forwards_rerank_arguments(
     monkeypatch.setattr("eliza_rag.retrieval_cli.index_status", lambda _settings: {})
     monkeypatch.setattr(
         "eliza_rag.retrieval_cli.analyze_query",
-        lambda query, filters=None: type("Q", (), {"to_dict": lambda self: {"raw_query": query}})(),
+        lambda query, filters=None, settings=None: type(
+            "Q", (), {"to_dict": lambda self: {"raw_query": query}}
+        )(),
     )
     monkeypatch.setattr("eliza_rag.retrieval_cli.retrieve", _fake_retrieve)
     monkeypatch.setattr(

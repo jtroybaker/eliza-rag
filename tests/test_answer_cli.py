@@ -134,6 +134,26 @@ def test_answer_cli_json_output_is_unchanged(
     assert payload["answer"] == response.answer
 
 
+def test_answer_cli_defaults_to_recommended_demo_path(monkeypatch: pytest.MonkeyPatch) -> None:
+    observed: dict[str, object] = {}
+
+    def _fake_generate_answer(*args, **kwargs):
+        observed.update(kwargs)
+        return _response()
+
+    monkeypatch.setattr("eliza_rag.answer_cli.get_settings", lambda: object())
+    monkeypatch.setattr("eliza_rag.answer_cli.generate_answer", _fake_generate_answer)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["eliza-rag-answer", "What risk factors does Apple describe?"],
+    )
+
+    main()
+
+    assert observed["mode"] == "targeted_hybrid"
+    assert observed["enable_rerank"] is True
+
+
 def test_answer_cli_forwards_rerank_arguments(monkeypatch: pytest.MonkeyPatch) -> None:
     observed: dict[str, object] = {}
 
@@ -161,3 +181,22 @@ def test_answer_cli_forwards_rerank_arguments(monkeypatch: pytest.MonkeyPatch) -
     assert observed["enable_rerank"] is True
     assert observed["reranker"] == "heuristic"
     assert observed["rerank_candidate_pool"] == 9
+
+
+def test_answer_cli_can_disable_reranking(monkeypatch: pytest.MonkeyPatch) -> None:
+    observed: dict[str, object] = {}
+
+    def _fake_generate_answer(*args, **kwargs):
+        observed.update(kwargs)
+        return _response()
+
+    monkeypatch.setattr("eliza_rag.answer_cli.get_settings", lambda: object())
+    monkeypatch.setattr("eliza_rag.answer_cli.generate_answer", _fake_generate_answer)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["eliza-rag-answer", "What risk factors does Apple describe?", "--no-rerank"],
+    )
+
+    main()
+
+    assert observed["enable_rerank"] is False

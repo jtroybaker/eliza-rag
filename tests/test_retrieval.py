@@ -7,7 +7,9 @@ import pytest
 
 from eliza_rag.config import Settings, get_settings
 from eliza_rag.models import ChunkRecord, RetrievalFilters, RetrievalResult
+from eliza_rag.embeddings import DenseIndexMetadata
 from eliza_rag.retrieval import (
+    BGE_RERANKER_BASE,
     BGE_RERANKER_V2_M3,
     CompanyCatalogEntry,
     DENSE_RETRIEVAL_MODE,
@@ -18,6 +20,9 @@ from eliza_rag.retrieval import (
     LexicalIndexNotReadyError,
     TARGETED_HYBRID_RETRIEVAL_MODE,
     analyze_query,
+    build_query_analyzer,
+    build_reranker,
+    build_retriever,
     build_filter_sql,
     detect_comparison_intent,
     detect_query_companies,
@@ -148,6 +153,15 @@ def test_analyze_query_adds_dense_expansion_and_year_bounds() -> None:
     assert structured.filing_date_to == "2024-12-31"
 
 
+def test_build_query_analyzer_preserves_deterministic_default() -> None:
+    analyzer = build_query_analyzer()
+
+    structured = analyzer.analyze("AAPL revenue risk 2024")
+
+    assert structured.lexical_query == "AAPL revenue risk 2024"
+    assert structured.filing_date_from == "2024-01-01"
+
+
 def test_analyze_query_detects_companies_and_comparison_intent(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         "eliza_rag.retrieval._load_company_catalog",
@@ -243,6 +257,62 @@ def test_detect_query_companies_avoids_generic_single_word_overmatch(monkeypatch
 
 def test_detect_comparison_intent_is_false_for_single_company_lookup() -> None:
     assert detect_comparison_intent("What risk factors does Apple describe?") is False
+
+
+def test_retrieve_dense_uses_metadata_model_for_query_encoding(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    settings = _settings(tmp_path, dense_embedding_model="Snowflake/snowflake-arctic-embed-xs")
+    observed: dict[str, object] = {}
+
+    monkeypatch.setattr("eliza_rag.retrieval.ensure_dense_retrieval_ready", lambda settings: None)
+    monkeypatch.setattr(
+        "eliza_rag.retrieval.ensure_dense_indices",
+        lambda settings: {"table_name": settings.dense_lancedb_table_name},
+    )
+    monkeypatch.setattr(
+        "eliza_rag.retrieval.load_dense_index_metadata",
+        lambda settings: DenseIndexMetadata(
+            model="hashed_v1",
+            dimension=3,
+            document_count=10,
+            document_frequency_by_bucket=[1, 1, 1],
+        ),
+    )
+    monkeypatch.setattr(
+        "eliza_rag.retrieval.encode_text",
+        lambda query, metadata: observed.update(
+            {"query": query, "metadata_model": metadata.model}
+        )
+        or [0.1, 0.2, 0.3],
+    )
+
+    class _Search:
+        def metric(self, metric: str):
+            observed["metric"] = metric
+            return self
+
+        def limit(self, limit: int):
+            observed["limit"] = limit
+            return self
+
+        def to_list(self):
+            return []
+
+    class _Table:
+        def search(self, query_vector, vector_column_name: str):
+            observed["query_vector"] = query_vector
+            observed["vector_column_name"] = vector_column_name
+            return _Search()
+
+    monkeypatch.setattr("eliza_rag.retrieval.open_dense_chunk_table", lambda settings: _Table())
+
+    retrieve_dense(settings, "Apple risk factors", top_k=4)
+
+    assert observed["metadata_model"] == "hashed_v1"
+    assert observed["vector_column_name"] == "vector"
+    assert observed["limit"] == 4
 
 
 def test_retrieve_dense_raises_clear_error_when_dense_index_is_missing(tmp_path: Path) -> None:
@@ -359,6 +429,13 @@ def test_retrieve_hybrid_compares_modes_under_one_interface(dense_index_ready: N
     assert all(result.retrieval_mode == HYBRID_RETRIEVAL_MODE for result in hybrid_results)
     assert [result.rank for result in hybrid_results] == [1, 2, 3]
     assert all(result.ticker == "GOOG" for result in hybrid_results)
+
+
+def test_build_retriever_exposes_all_default_modes() -> None:
+    assert build_retriever("lexical").mode == "lexical"
+    assert build_retriever("dense").mode == "dense"
+    assert build_retriever("hybrid").mode == "hybrid"
+    assert build_retriever("targeted_hybrid").mode == "targeted_hybrid"
 
 
 def test_retrieve_can_rerank_candidates(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -483,6 +560,64 @@ def test_retrieve_can_still_use_heuristic_reranker(monkeypatch: pytest.MonkeyPat
 
     assert [result.chunk_id for result in reranked] == ["AAPL::chunk-0002", "GENERIC::chunk-0001"]
     assert reranked[0].retrieval_mode == "lexical_heuristic_rerank"
+
+
+def test_retrieve_can_use_alternate_transformer_reranker(monkeypatch: pytest.MonkeyPatch) -> None:
+    settings = get_settings()
+    normalized_results = [
+        RetrievalResult(
+            chunk_id="GENERIC::chunk-0001",
+            filing_id="GENERIC_10K_2025",
+            ticker="GENERIC",
+            form_type="10-K",
+            filing_date="2025-01-01",
+            section="Overview",
+            section_path="Item 1",
+            text="General business overview.",
+            raw_score=1.0,
+            retrieval_mode=LEXICAL_RETRIEVAL_MODE,
+            rank=1,
+            company_name="Generic Corp",
+        ),
+        RetrievalResult(
+            chunk_id="AAPL::chunk-0002",
+            filing_id="AAPL_10K_2025",
+            ticker="AAPL",
+            form_type="10-K",
+            filing_date="2025-01-31",
+            section="Risk Factors",
+            section_path="Item 1A",
+            text="Apple risk factors.",
+            raw_score=1.0,
+            retrieval_mode=LEXICAL_RETRIEVAL_MODE,
+            rank=2,
+            company_name="Apple Inc.",
+        ),
+    ]
+
+    monkeypatch.setattr("eliza_rag.retrieval.retrieve_lexical", lambda *args, **kwargs: normalized_results)
+    monkeypatch.setattr(
+        "eliza_rag.retrieval._score_with_transformer_reranker",
+        lambda query, results, repo_id: [0.2, 0.8],
+    )
+
+    reranked = retrieve(
+        settings,
+        "Apple risk factors",
+        mode="lexical",
+        top_k=2,
+        enable_rerank=True,
+        reranker=BGE_RERANKER_BASE,
+        rerank_candidate_pool=2,
+    )
+
+    assert [result.chunk_id for result in reranked] == ["AAPL::chunk-0002", "GENERIC::chunk-0001"]
+    assert reranked[0].retrieval_mode == "lexical_bge-reranker-base_rerank"
+
+
+def test_build_reranker_exposes_current_default_adapters() -> None:
+    assert build_reranker(HEURISTIC_RERANKER).name == HEURISTIC_RERANKER
+    assert build_reranker(BGE_RERANKER_V2_M3).name == BGE_RERANKER_V2_M3
 
 
 def test_retrieve_uses_configured_rerank_candidate_pool(monkeypatch: pytest.MonkeyPatch) -> None:

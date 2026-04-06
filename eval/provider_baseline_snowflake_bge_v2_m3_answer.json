@@ -1,0 +1,1564 @@
+{
+  "eval_version": 3,
+  "golden_eval_set": "eval/golden_queries.json",
+  "build_manifest_path": "artifacts/build_manifest.provider_baseline_snowflake_bge_v2_m3_answer.json",
+  "run_metadata": {
+    "command": "uv run eliza-rag-eval --mode targeted_hybrid --rerank --reranker bge-reranker-v2-m3 --include-answer --manifest-output artifacts/build_manifest.provider_baseline_snowflake_bge_v2_m3_answer.json --output eval/provider_baseline_snowflake_bge_v2_m3_answer.json",
+    "output_path": "eval/provider_baseline_snowflake_bge_v2_m3_answer.json",
+    "manifest_output_path": "artifacts/build_manifest.provider_baseline_snowflake_bge_v2_m3_answer.json"
+  },
+  "config": {
+    "retrieval_mode": "targeted_hybrid",
+    "top_k": 8,
+    "phrase_query": false,
+    "include_answer": true,
+    "reranking": {
+      "enabled": true,
+      "reranker": "bge-reranker-v2-m3",
+      "candidate_pool": 12
+    },
+    "answer_judging": {
+      "method": "llm_judge_openrouter_quantitative",
+      "judge_assisted": true,
+      "provider": "openrouter",
+      "model": "z-ai/glm-5",
+      "rubric_version": "phase_10_llm_judge_v2",
+      "rubric_path": "eval/answer_judging_rubric.md",
+      "prompt_path": "prompts/eval_judge_prompt.txt",
+      "score_range": {
+        "min": 0,
+        "max": 5
+      },
+      "aggregation": {
+        "type": "weighted_average",
+        "weights": {
+          "groundedness": 0.3,
+          "citation_quality": 0.25,
+          "usefulness": 0.25,
+          "comparison_completeness": 0.15,
+          "uncertainty_handling": 0.05
+        }
+      }
+    }
+  },
+  "scoring_status": {
+    "implemented": true,
+    "note": "Pass, partial_pass, and fail are assigned from explicit retrieval outcomes plus OpenRouter-backed quantitative answer judging when answers are included."
+  },
+  "entries": [
+    {
+      "query_id": "compare_aapl_tsla_jpm_risk_factors",
+      "prompt": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+      "expected_tickers": [
+        "AAPL",
+        "TSLA",
+        "JPM"
+      ],
+      "requires_comparison": true,
+      "contamination_notes": "Multi-company comparison should preserve coverage for all named entities rather than collapsing onto a single issuer.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "retrieval_text": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "lexical_query": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "dense_query": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "AAPL",
+          "JPM",
+          "TSLA"
+        ],
+        "detected_company_names": [
+          "Apple Inc",
+          "JPMorgan Chase & Co",
+          "Tesla Inc"
+        ],
+        "target_tickers": [
+          "AAPL",
+          "JPM",
+          "TSLA"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": true,
+        "is_comparison_query": true,
+        "requires_entity_coverage": true
+      },
+      "retrieved_tickers": [
+        "TSLA",
+        "AAPL",
+        "JPM"
+      ],
+      "retrieved_chunk_ids": [
+        "TSLA_10K_2022Q4_2023-01-31_full::chunk-0013",
+        "TSLA_10K_2026-01-29_full::chunk-0014",
+        "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+        "JPM_10K_2026-02-13_full::chunk-0031",
+        "JPM_10K_2026-02-13_full::chunk-0036",
+        "AAPL_10K_2025-10-31_full::chunk-0024",
+        "JPM_10K_2026-02-13_full::chunk-0172",
+        "TSLA_10K_2024Q4_2025-01-30_full::chunk-0014"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "Compared to Tesla, who faces risks related to global pandemics impacting production, JPMorgan Chase is more vulnerable to cybersecurity incidents and operational risks stemming from the adoption of advanced technologies such as AI. In contrast, Apple is concerned about regulatory uncertainties linked to emerging technologies like generative and agentic AI systems. The effective tax rate fluctuations could also impact Apple's business negatively. [C1] [C3] [C5]",
+      "answer_summary": "The SEC filings from Apple, Tesla, and JPMorgan provide insights into key risks faced by each company. For Tesla, macroeconomic conditions related to global pandemics are highlighted as a significant risk factor impacting production and supply chain disruptions. In the case of JPMorgan Chase & Co., cyber attacks and operational risks associated with new technologies pose substantial threats. Apple's primary risks include regulatory uncertainty from emerging technologies and fluctuations in effective tax rates.",
+      "answer_findings": [
+        {
+          "statement": "For Tesla, macroeconomic conditions related to the global pandemic are a significant risk factor affecting production and supply chain disruptions [C1].",
+          "citations": [
+            "C1"
+          ]
+        },
+        {
+          "statement": "JPMorgan Chase faces risks from cyber attacks and operational risks associated with new technologies like AI.",
+          "citations": [
+            "C3",
+            "C5"
+          ]
+        },
+        {
+          "statement": "Apple is concerned about regulatory uncertainties linked to emerging technologies such as generative and agentic AI systems, which could affect their business negatively [C5].",
+          "citations": [
+            "C5"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "TSLA_10K_2022Q4_2023-01-31_full::chunk-0013",
+          "filing_id": "TSLA_10K_2022Q4_2023-01-31_full",
+          "ticker": "TSLA",
+          "company_name": "Tesla Inc",
+          "form_type": "10-K",
+          "filing_date": "2023-01-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/TSLA_10K_2022Q4_2023-01-31_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "TSLA_10K_2026-01-29_full::chunk-0014",
+          "filing_id": "TSLA_10K_2026-01-29_full",
+          "ticker": "TSLA",
+          "company_name": "Tesla Inc",
+          "form_type": "10-K",
+          "filing_date": "2026-01-29",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/TSLA_10K_2026-01-29_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+          "filing_id": "AAPL_10Q_2023Q3_2023-08-04_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2023-08-04",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2023Q3_2023-08-04_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "JPM_10K_2026-02-13_full::chunk-0031",
+          "filing_id": "JPM_10K_2026-02-13_full",
+          "ticker": "JPM",
+          "company_name": "JPMorgan Chase & Co",
+          "form_type": "10-K",
+          "filing_date": "2026-02-13",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/JPM_10K_2026-02-13_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "JPM_10K_2026-02-13_full::chunk-0036",
+          "filing_id": "JPM_10K_2026-02-13_full",
+          "ticker": "JPM",
+          "company_name": "JPMorgan Chase & Co",
+          "form_type": "10-K",
+          "filing_date": "2026-02-13",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/JPM_10K_2026-02-13_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "AAPL_10K_2025-10-31_full::chunk-0024",
+          "filing_id": "AAPL_10K_2025-10-31_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-K",
+          "filing_date": "2025-10-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10K_2025-10-31_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The SEC filings do not provide a comprehensive comparison of the impact of operational risks on production timelines across these companies. Furthermore, there is no direct information comparing the specific impacts of regulatory uncertainties related to emerging technologies for Apple and JPMorgan Chase.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": true,
+          "comparison_behavior_observed": true,
+          "contamination_observed": false,
+          "contamination_tickers": [],
+          "contamination_severity": "none"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "z-ai/glm-5",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 2,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "The answer misattributes citations to wrong companies. It cites C5 (JPM) for Apple's regulatory concerns and C3 (AAPL) for JPMorgan's cybersecurity risks. These attribution errors break the grounding between claims and source evidence."
+          },
+          "citation_quality": {
+            "score": 2,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "Citations exist for all three expected tickers (TSLA, AAPL, JPM), but they are incorrectly applied. JPM filings are cited for Apple claims, and AAPL filings are cited for JPMorgan claims. This undermines the evidentiary support."
+          },
+          "usefulness": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "The answer provides specific risk factors for each company (pandemic impacts for Tesla, cybersecurity for JPMorgan, regulatory uncertainty for Apple), which is useful. However, the citation misattribution reduces reliability for a reviewer."
+          },
+          "comparison_completeness": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "All three requested companies are mentioned with distinct risk factors. The comparative structure is present but weak ('Compared to Tesla... In contrast, Apple...'). The comparison lacks systematic category-by-category analysis across entities."
+          },
+          "uncertainty_handling": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The uncertainty section appropriately acknowledges gaps: no comprehensive comparison of operational risk impacts on production timelines, and no direct information comparing regulatory uncertainty impacts between Apple and JPMorgan."
+          },
+          "overall": "partial_pass",
+          "overall_score": 2.5,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "comparison_completeness": 0.15,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "The answer covers all three requested companies with specific risk factors but suffers from serious citation misattribution\u2014JPM filings are cited for Apple claims and Apple filings for JPMorgan claims. The comparison structure is present but superficial. Uncertainty handling is strong, acknowledging data gaps, but the grounding errors significantly undermine the answer's reliability for a reviewer."
+          ],
+          "judge_result": {
+            "summary": "The answer covers all three requested companies with specific risk factors but suffers from serious citation misattribution\u2014JPM filings are cited for Apple claims and Apple filings for JPMorgan claims. The comparison structure is present but superficial. Uncertainty handling is strong, acknowledging data gaps, but the grounding errors significantly undermine the answer's reliability for a reviewer.",
+            "raw_response": "Let me analyze this RAG answer artifact carefully.\n\n**Query**: \"What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?\"\n\n**Expected tickers**: AAPL, TSLA, JPM\n\n**Requires comparison**: true\n\nLet me evaluate each dimension:\n\n**1. Groundedness (0-5)**: Does the answer stay tied to supplied citations and avoid unsupported claims?\n\nLooking at the answer_output:\n- \"Compared to Tesla, who faces risks related to global pandemics impacting production\" - cites [C1]\n- \"JPMorgan Chase is more vulnerable to cybersecurity incidents and operational risks stemming from the adoption of advanced technologies such as AI\" - cites [C3] [C5]\n- \"Apple is concerned about regulatory uncertainties linked to emerging technologies like generative and agentic AI systems\" - cites [C5]\n- \"The effective tax rate fluctuations could also impact Apple's business negatively\" - cites [C1] [C3] [C5]\n\nWait, there's a problem here. Looking at the citations:\n- C1 = TSLA (Tesla Inc)\n- C2 = TSLA\n- C3 = AAPL (Apple Inc) - but the answer says C3 is about JPMorgan!\n- C4 = JPM\n- C5 = JPM\n- C6 = AAPL\n\nThe answer claims C3 is about JPMorgan cybersecurity risks, but C3 is actually an AAPL filing! This is a grounding error.\n\nAlso, the answer says Apple risks are from [C5], but C5 is a JPM filing, not Apple!\n\nThis is a significant grounding problem - the citations are misattributed to the wrong companies. Score: 2 (materially flawed)\n\n**2. Citation Quality (0-5)**: Do the cited chunks cover expected entities and support the answer?\n\nExpected entities: AAPL, TSLA, JPM\n\nCitations provided:\n- C1: TSLA (correct)\n- C2: TSLA (not used in answer but available)\n- C3: AAPL (but misattributed to JPM in answer)\n- C4: JPM (not used in answer)\n- C5: JPM (used for Apple claim - wrong!)\n- C6: AAPL (not used in answer)\n\nThe citations available cover all three tickers, but the answer misuses them badly. Citing JPM filings (C5) for Apple's regulatory concerns is incorrect. Score: 2 (materially flawed - citations exist but are incorrectly applied)\n\n**3. Usefulness (0-5)**: Is the answer practically useful, specific, and complete enough?\n\nThe answer provides some specific risk factors:\n- Tesla: global pandemics affecting production\n- JPMorgan: cybersecurity, operational risks from AI\n- Apple: regulatory uncertainties from emerging AI, tax rate fluctuations\n\nHowever, the comparison is weak - it doesn't systematically compare similar risk categories across companies. It also has factual errors in citation attribution. The answer is somewhat useful but the misattribution undermines its reliability. Score: 3 (mixed - provides information but has accuracy issues)\n\n**4. Comparison Completeness (0-5)**: For comparison prompts, does the answer cover all requested sides fairly?\n\nThe prompt asks to compare Apple, Tesla, and JPMorgan. The answer does mention all three companies and attempts to compare them. However:\n- The comparison structure is poor (\"Compared to Tesla... In contrast, Apple...\")\n- The comparison doesn't systematically address similar categories\n- Some claims are misattributed (citing JPM filings for Apple claims)\n\nThe answer covers all three entities but the comparison is incomplete and has attribution errors. Score: 3 (partial coverage with flaws)\n\n**5. Uncertainty Handling (0-5)**: Does the answer communicate limitations appropriately?\n\nThe answer_uncertainty section states: \"The SEC filings do not provide a comprehensive comparison of the impact of operational risks on production timelines across these companies. Furthermore, there is no direct information comparing the specific impacts of regulatory uncertainties related to emerging technologies for Apple and JPMorgan Chase.\"\n\nThis is good uncertainty acknowledgment - it admits limitations in what can be compared from the filings. Score: 4 (good acknowledgment of limitations)\n\n**Summary**: The answer attempts to compare risk factors across Apple, Tesla, and JPMorgan but suffers from citation misattribution - using JPM filings to support Apple claims. The comparison covers all three entities but lacks systematic structure. Uncertainty handling is strong, acknowledging gaps in comparable data.\n\nWait, let me re-check the answer findings and citations more carefully:\n\nLooking at answer_findings:\n1. \"For Tesla... [C1]\" - C1 is TSLA, correct\n2. \"JPMorgan Chase faces risks... [C3], [C5]\" - C3 is AAPL, C5 is JPM. This is wrong - citing an Apple filing for JPMorgan!\n3. \"Apple is concerned about regulatory uncertainties... [C5]\" - C5 is JPM, not Apple!\n\nThis is a significant grounding and citation quality problem.\n\nActually wait - let me look at the answer_output again:\n\"Apple is concerned about regulatory uncertainties linked to emerging technologies like generative and agentic AI systems. The effective tax rate fluctuations could also impact Apple's business negatively. [C1] [C3] [C5]\"\n\nSo the answer cites [C1], [C3], [C5] at the end. But:\n- C1 = TSLA\n- C3 = AAPL\n- C5 = JPM\n\nSo for Apple's claims, it's citing TSLA and JPM filings? That's bad grounding.\n\nAnd for the JPMorgan cybersecurity claim earlier in the answer, the findings cite [C3] [C5], but C3 is AAPL!\n\nThis is definitely a groundedness and citation quality problem.\n\nLet me finalize scores:\n- groundedness: 2 (citations are misattributed, claims about Apple are backed by JPM filings)\n- citation_quality: 2 (citations exist for all tickers but are misused)\n- usefulness: 3 (provides information but unreliable due to misattribution)\n- comparison_completeness: 3 (covers all three but flawed structure and attribution)\n- uncertainty_handling: 4 (good acknowledgment of limitations)\n\nSummary: The answer attempts a three-way comparison but suffers from citation misattribution, notably citing JPMorgan filings (C5) for Apple's regulatory concerns and Apple filings (C3) for JPMorgan risks. All three companies are covered, and uncertainty handling is adequate, but the grounding errors undermine reliability.\n```json\n{\n  \"groundedness\": {\"score\": 2, \"rationale\": \"The answer misattributes citations to wrong companies. It cites C5 (JPM) for Apple's regulatory concerns and C3 (AAPL) for JPMorgan's cybersecurity risks. These attribution errors break the grounding between claims and source evidence.\"},\n  \"citation_quality\": {\"score\": 2, \"rationale\": \"Citations exist for all three expected tickers (TSLA, AAPL, JPM), but they are incorrectly applied. JPM filings are cited for Apple claims, and AAPL filings are cited for JPMorgan claims. This undermines the evidentiary support.\"},\n  \"usefulness\": {\"score\": 3, \"rationale\": \"The answer provides specific risk factors for each company (pandemic impacts for Tesla, cybersecurity for JPMorgan, regulatory uncertainty for Apple), which is useful. However, the citation misattribution reduces reliability for a reviewer.\"},\n  \"comparison_completeness\": {\"score\": 3, \"rationale\": \"All three requested companies are mentioned with distinct risk factors. The comparative structure is present but weak ('Compared to Tesla... In contrast, Apple...'). The comparison lacks systematic category-by-category analysis across entities.\"},\n  \"uncertainty_handling\": {\"score\": 4, \"rationale\": \"The uncertainty section appropriately acknowledges gaps: no comprehensive comparison of operational risk impacts on production timelines, and no direct information comparing regulatory uncertainty impacts between Apple and JPMorgan.\"},\n  \"summary\": \"The answer covers all three requested companies with specific risk factors but suffers from serious citation misattribution\u2014JPM filings are cited for Apple claims and Apple filings for JPMorgan claims. The comparison structure is present but superficial. Uncertainty handling is strong, acknowledging data gaps, but the grounding errors significantly undermine the answer's reliability for a reviewer.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": true,
+        "comparison_behavior_observed": true,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "score": 2,
+          "score_max": 5,
+          "status": "fail",
+          "notes": "Citations exist for all three expected tickers (TSLA, AAPL, JPM), but they are incorrectly applied. JPM filings are cited for Apple claims, and AAPL filings are cited for JPMorgan claims. This undermines the evidentiary support."
+        },
+        "answer_usefulness": {
+          "score": 3,
+          "score_max": 5,
+          "status": "partial_pass",
+          "notes": "The answer provides specific risk factors for each company (pandemic impacts for Tesla, cybersecurity for JPMorgan, regulatory uncertainty for Apple), which is useful. However, the citation misattribution reduces reliability for a reviewer."
+        },
+        "outcome": "fail",
+        "pass": false,
+        "notes": null
+      }
+    },
+    {
+      "query_id": "compare_aapl_tsla_risk_factors",
+      "prompt": "Compare the main risk factors facing Apple and Tesla.",
+      "expected_tickers": [
+        "AAPL",
+        "TSLA"
+      ],
+      "requires_comparison": true,
+      "contamination_notes": "Avoid contamination from unrelated mega-cap tech names when both Apple and Tesla are explicitly requested.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "Compare the main risk factors facing Apple and Tesla.",
+        "retrieval_text": "Compare the main risk factors facing Apple and Tesla.",
+        "lexical_query": "Compare the main risk factors facing Apple and Tesla.",
+        "dense_query": "Compare the main risk factors facing Apple and Tesla.",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "AAPL",
+          "TSLA"
+        ],
+        "detected_company_names": [
+          "Apple Inc",
+          "Tesla Inc"
+        ],
+        "target_tickers": [
+          "AAPL",
+          "TSLA"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": true,
+        "is_comparison_query": true,
+        "requires_entity_coverage": true
+      },
+      "retrieved_tickers": [
+        "TSLA",
+        "AAPL"
+      ],
+      "retrieved_chunk_ids": [
+        "TSLA_10K_2022Q4_2023-01-31_full::chunk-0013",
+        "TSLA_10K_2026-01-29_full::chunk-0014",
+        "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+        "AAPL_10K_2022Q3_2022-10-28_full::chunk-0003",
+        "TSLA_10K_2026-01-29_full::chunk-0023",
+        "AAPL_10Q_2022Q1_2022-04-29_full::chunk-0014",
+        "AAPL_10K_2025-10-31_full::chunk-0024",
+        "AAPL_10K_2022Q3_2022-10-28_full::chunk-0004"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "Comparing the main risk factors, both Tesla and Apple are vulnerable to various risks such as supply chain disruptions due to macroeconomic conditions (like the global COVID-19 pandemic), economic downturns affecting consumer spending, employee retention challenges, cybersecurity threats, regulatory investigations, residual value risks for vehicle leasing, and customer credit risk. Additionally, Tesla faces unique risks related to its high-tech industry position, including cyber-attacks on their systems and potential impacts from competitors' pricing strategies and intellectual property infringement. In contrast, Apple addresses these through strong financial resources, a diverse product line, and robust service offerings like the App Store that can buffer against economic downturns. [C1] [C2] [C4]",
+      "answer_summary": "Both Tesla and Apple face significant risks related to their business operations, including supply chain disruptions, economic downturns, employee retention, cyber-attacks, and regulatory investigations. Tesla is also exposed to residual value risk from vehicle leasing business growth and credit risk of customers.",
+      "answer_findings": [
+        {
+          "statement": "Both companies face significant risks related to their business operations including supply chain disruptions due to macroeconomic conditions (like the global COVID-19 pandemic), economic downturns affecting consumer spending, employee retention challenges, cybersecurity threats, regulatory investigations, residual value risks for vehicle leasing and customer credit risk. Additionally, Tesla is exposed to unique high-tech industry risks such as cyber-attacks on their systems and potential impacts from competitors' pricing strategies and intellectual property infringement.",
+          "citations": [
+            "C1",
+            "C2",
+            "C4"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "TSLA_10K_2022Q4_2023-01-31_full::chunk-0013",
+          "filing_id": "TSLA_10K_2022Q4_2023-01-31_full",
+          "ticker": "TSLA",
+          "company_name": "Tesla Inc",
+          "form_type": "10-K",
+          "filing_date": "2023-01-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/TSLA_10K_2022Q4_2023-01-31_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "TSLA_10K_2026-01-29_full::chunk-0014",
+          "filing_id": "TSLA_10K_2026-01-29_full",
+          "ticker": "TSLA",
+          "company_name": "Tesla Inc",
+          "form_type": "10-K",
+          "filing_date": "2026-01-29",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/TSLA_10K_2026-01-29_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+          "filing_id": "AAPL_10Q_2023Q3_2023-08-04_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2023-08-04",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2023Q3_2023-08-04_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "AAPL_10K_2022Q3_2022-10-28_full::chunk-0003",
+          "filing_id": "AAPL_10K_2022Q3_2022-10-28_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-K",
+          "filing_date": "2022-10-28",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10K_2022Q3_2022-10-28_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "TSLA_10K_2026-01-29_full::chunk-0023",
+          "filing_id": "TSLA_10K_2026-01-29_full",
+          "ticker": "TSLA",
+          "company_name": "Tesla Inc",
+          "form_type": "10-K",
+          "filing_date": "2026-01-29",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/TSLA_10K_2026-01-29_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "AAPL_10Q_2022Q1_2022-04-29_full::chunk-0014",
+          "filing_id": "AAPL_10Q_2022Q1_2022-04-29_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2022-04-29",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2022Q1_2022-04-29_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The evidence does not address other specific risk factors mentioned in the question, such as employee morale or stock market volatility.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": true,
+          "comparison_behavior_observed": true,
+          "contamination_observed": false,
+          "contamination_tickers": [],
+          "contamination_severity": "none"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "z-ai/glm-5",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 2,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "The answer places all citations [C1] [C2] [C4] at the end of a long paragraph containing multiple distinct claims, making it impossible to determine which citation supports which claim. Several claims appear unsupported, such as Apple's specific mitigating strategies (strong financial resources, diverse product line, App Store buffering). Additionally, 'residual value risks for vehicle leasing' is incorrectly attributed to both companies when this is clearly Tesla-specific."
+          },
+          "citation_quality": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "Both expected tickers (TSLA, AAPL) are represented in the available citations, and the answer uses at least one citation for each company. However, the citation usage is unbalanced (2 TSLA, 1 AAPL), and C3 which could provide more Apple-specific risk detail is unused. The C2 citation has a suspicious future filing date (2026-01-29). Citations are not mapped to specific claims effectively."
+          },
+          "usefulness": {
+            "score": 2,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "While the answer identifies several relevant risk categories, it materially conflates Tesla-specific risks with risks facing both companies, potentially misleading reviewers. The Apple portion is underdeveloped compared to Tesla. The lumped citation style makes it difficult for a reviewer to verify specific claims. Practical utility is diminished by accuracy concerns."
+          },
+          "comparison_completeness": {
+            "score": 2,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "The comparison is materially flawed. Tesla risks are described in more detail with specific examples, while Apple's portion is brief and focuses more on mitigating strategies rather than actual risk factors. The answer fails to clearly delineate which risks are shared versus company-specific, incorrectly grouping Tesla's vehicle leasing residual value risk as common to both companies."
+          },
+          "uncertainty_handling": {
+            "score": 1,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "The answer text contains no explicit acknowledgment of limitations or gaps in evidence. While an answer_uncertainty field exists noting missing evidence on certain factors, this is not communicated in the actual response to the user. The answer presents findings confidently without noting where evidence may be incomplete."
+          },
+          "overall": "fail",
+          "overall_score": 2.2,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "comparison_completeness": 0.15,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "The answer attempts a comparison of Apple and Tesla risk factors but is undermined by poor citation placement, incorrect attribution of Tesla-specific risks to both companies, uneven coverage favoring Tesla, and no explicit uncertainty acknowledgment. The lumped citation style and unsupported claims about Apple's strategies reduce groundedness, while the comparison fails to clearly distinguish shared from company-specific risks."
+          ],
+          "judge_result": {
+            "summary": "The answer attempts a comparison of Apple and Tesla risk factors but is undermined by poor citation placement, incorrect attribution of Tesla-specific risks to both companies, uneven coverage favoring Tesla, and no explicit uncertainty acknowledgment. The lumped citation style and unsupported claims about Apple's strategies reduce groundedness, while the comparison fails to clearly distinguish shared from company-specific risks.",
+            "raw_response": "Let me analyze this RAG answer artifact carefully.\n\n**Groundedness Analysis:**\nThe answer makes several claims and cites [C1], [C2], [C4]. Let me check what these citations support:\n\nLooking at the citations provided:\n- C1: TSLA 10-K 2022Q4 (2023-01-31)\n- C2: TSLA 10-K 2026-01-29 (future date - this seems like a data issue)\n- C4: AAPL 10-K 2022Q3 (2022-10-28)\n\nThe answer claims:\n1. Both Tesla and Apple face supply chain disruptions due to macroeconomic conditions (like COVID-19) - needs verification from citations\n2. Economic downturns affecting consumer spending - needs verification\n3. Employee retention challenges - needs verification\n4. Cybersecurity threats - needs verification\n5. Regulatory investigations - needs verification\n6. Residual value risks for vehicle leasing - specifically Tesla\n7. Customer credit risk - needs verification\n8. Tesla faces unique risks: cyber-attacks, competitors' pricing strategies, intellectual property infringement\n9. Apple addresses through strong financial resources, diverse product line, App Store\n\nThe answer uses [C1], [C2], [C4] at the end, but I don't have the actual chunk content to verify if these claims are supported. However, looking at the structure, the citations are placed at the end of a long paragraph covering many claims.\n\nIssues I see:\n1. The answer lumps many risks together for \"both companies\" but \"residual value risks for vehicle leasing\" is clearly a Tesla-specific risk (Apple doesn't lease vehicles)\n2. The answer makes claims about Apple's specific responses (strong financial resources, diverse product line, App Store) but doesn't cite them properly\n3. C3 (AAPL citation) exists in the citations list but is not used in the answer\n4. The future filing date (2026-01-29) for C2 is suspicious\n\nWithout seeing the actual chunk content, I need to score based on the structure. The answer seems to conflate risks that apply to both companies with Tesla-specific risks. The citation placement at the end of a long paragraph makes it hard to know which claims are supported by which citation.\n\n**Citation Quality:**\n- Expected tickers: AAPL, TSLA - both are present in retrieved citations\n- The citations used (C1, C2, C4) include 2 TSLA and 1 AAPL citation\n- C3, C5, C6 are available but not used\n- C2 has a suspicious date (2026-01-29)\n- The citations seem to cover both companies, but it's unclear if they cover all the claims made\n\n**Usefulness:**\nThe answer provides a comparative view but has issues:\n- It mixes Tesla-specific risks (vehicle leasing residual value) into \"both companies face\"\n- It makes claims about Apple's mitigating strategies without clear citation\n- It's somewhat useful but has accuracy issues\n\n**Comparison Completeness:**\nThis is a comparison prompt. The answer:\n- Discusses Tesla risks in detail\n- Discusses Apple risks less thoroughly\n- Incorrectly attributes Tesla-specific risks to both companies\n- Doesn't clearly delineate what each company faces uniquely vs. commonly\n- The comparison is materially incomplete/misleading\n\n**Uncertainty Handling:**\nThe answer_uncertainty field mentions \"The evidence does not address other specific risk factors mentioned in the question, such as employee morale or stock market volatility.\"\n\nHowever, I don't see the original query mentioning employee morale or stock market volatility - the query was just \"Compare the main risk factors facing Apple and Tesla.\"\n\nThe answer itself doesn't explicitly acknowledge limitations in the response text provided.\n\nLet me score each dimension:\n\n**Groundedness (0-5):**\n- The answer makes claims that are grouped together with a single citation marker at the end\n- Some claims (like residual value for vehicle leasing for \"both companies\") appear to be incorrect attributions\n- Claims about Apple's specific mitigating strategies aren't clearly cited\n- The citation structure is poor (all citations at the end of a long paragraph)\n- Score: 2 (materially flawed) - the claims aren't clearly tied to specific citations, and there appear to be incorrect attributions\n\n**Citation Quality (0-5):**\n- Both expected tickers are present\n- Citations include relevant form types (10-K, 10-Q)\n- However, citations aren't used effectively to support the claims\n- Some relevant citations (C3 for AAPL) aren't used\n- C2 has a problematic future date\n- Score: 3 (mixed) - coverage is there but usage is problematic\n\n**Usefulness (0-5):**\n- Provides a high-level comparison\n- Has accuracy issues (attributing Tesla-specific risks to both)\n- Not specific enough about which risks each company uniquely faces\n- Score: 2 (materially flawed) - the conflation of risks makes it misleading\n\n**Comparison Completeness (0-5):**\n- This is a comparison prompt\n- Tesla risks are covered more thoroughly\n- Apple risks are covered superficially\n- Risks are incorrectly grouped as \"both\" when some are Tesla-specific\n- Score: 2 (materially flawed) - incomplete and misleading comparison\n\n**Uncertainty Handling (0-5):**\n- No explicit acknowledgment of limitations in the answer text\n- The answer_uncertainty field exists but isn't reflected in the answer itself\n- No mention of what couldn't be determined\n- Score: 1 (very weak) - doesn't communicate limitations\n\nLet me reconsider some scores based on the rubric:\n\nFor groundedness, the key question is whether the answer stays tied to citations. The citations are at the end of a long paragraph with multiple claims. Some claims appear unsupported (Apple's specific strategies). The attribution of Tesla-specific risks to \"both\" companies is problematic. I'll keep this at 2.\n\nFor citation quality, the chunks cover both entities but aren't used well. Score 3 seems fair.\n\nFor usefulness, the answer has substantive issues with accuracy. Score 2.\n\nFor comparison completeness, the comparison is materially flawed. Score 2.\n\nFor uncertainty handling, there's no explicit uncertainty acknowledgment in the answer text. Score 1.\n\nActually, let me reconsider the citation quality. The citations list shows:\n- C1, C2, C5: TSLA (3 citations)\n- C3, C4, C6: AAPL (3 citations)\n\nSo both companies have multiple citations available. The answer only uses C1, C2, C4 - two TSLA and one AAPL. This is unbalanced coverage. The C2 date issue (2026) is also problematic.\n\nCitation quality score: 2 or 3? I'll go with 3 because both entities are represented in the used citations, even if usage is imperfect.\n\nSummary:\nThe answer attempts to compare risk factors for Apple and Tesla but suffers from several issues: incorrectly attributing Tesla-specific risks (vehicle leasing residual value) to both companies, using citations in a lumped fashion at the end of a paragraph without clear mapping to specific claims, making unsupported claims about Apple's mitigating strategies, and failing to acknowledge limitations. The comparison is unbalanced with more detail on Tesla risks than Apple risks.\n```json\n{\n  \"groundedness\": {\"score\": 2, \"rationale\": \"The answer places all citations [C1] [C2] [C4] at the end of a long paragraph containing multiple distinct claims, making it impossible to determine which citation supports which claim. Several claims appear unsupported, such as Apple's specific mitigating strategies (strong financial resources, diverse product line, App Store buffering). Additionally, 'residual value risks for vehicle leasing' is incorrectly attributed to both companies when this is clearly Tesla-specific.\"},\n  \"citation_quality\": {\"score\": 3, \"rationale\": \"Both expected tickers (TSLA, AAPL) are represented in the available citations, and the answer uses at least one citation for each company. However, the citation usage is unbalanced (2 TSLA, 1 AAPL), and C3 which could provide more Apple-specific risk detail is unused. The C2 citation has a suspicious future filing date (2026-01-29). Citations are not mapped to specific claims effectively.\"},\n  \"usefulness\": {\"score\": 2, \"rationale\": \"While the answer identifies several relevant risk categories, it materially conflates Tesla-specific risks with risks facing both companies, potentially misleading reviewers. The Apple portion is underdeveloped compared to Tesla. The lumped citation style makes it difficult for a reviewer to verify specific claims. Practical utility is diminished by accuracy concerns.\"},\n  \"comparison_completeness\": {\"score\": 2, \"rationale\": \"The comparison is materially flawed. Tesla risks are described in more detail with specific examples, while Apple's portion is brief and focuses more on mitigating strategies rather than actual risk factors. The answer fails to clearly delineate which risks are shared versus company-specific, incorrectly grouping Tesla's vehicle leasing residual value risk as common to both companies.\"},\n  \"uncertainty_handling\": {\"score\": 1, \"rationale\": \"The answer text contains no explicit acknowledgment of limitations or gaps in evidence. While an answer_uncertainty field exists noting missing evidence on certain factors, this is not communicated in the actual response to the user. The answer presents findings confidently without noting where evidence may be incomplete.\"},\n  \"summary\": \"The answer attempts a comparison of Apple and Tesla risk factors but is undermined by poor citation placement, incorrect attribution of Tesla-specific risks to both companies, uneven coverage favoring Tesla, and no explicit uncertainty acknowledgment. The lumped citation style and unsupported claims about Apple's strategies reduce groundedness, while the comparison fails to clearly distinguish shared from company-specific risks.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": true,
+        "comparison_behavior_observed": true,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "score": 3,
+          "score_max": 5,
+          "status": "partial_pass",
+          "notes": "Both expected tickers (TSLA, AAPL) are represented in the available citations, and the answer uses at least one citation for each company. However, the citation usage is unbalanced (2 TSLA, 1 AAPL), and C3 which could provide more Apple-specific risk detail is unused. The C2 citation has a suspicious future filing date (2026-01-29). Citations are not mapped to specific claims effectively."
+        },
+        "answer_usefulness": {
+          "score": 2,
+          "score_max": 5,
+          "status": "fail",
+          "notes": "While the answer identifies several relevant risk categories, it materially conflates Tesla-specific risks with risks facing both companies, potentially misleading reviewers. The Apple portion is underdeveloped compared to Tesla. The lumped citation style makes it difficult for a reviewer to verify specific claims. Practical utility is diminished by accuracy concerns."
+        },
+        "outcome": "fail",
+        "pass": false,
+        "notes": null
+      }
+    },
+    {
+      "query_id": "compare_jpm_bac_risk_factors",
+      "prompt": "How do JPMorgan and Bank of America compare on their main risk factors?",
+      "expected_tickers": [
+        "JPM",
+        "BAC"
+      ],
+      "requires_comparison": true,
+      "contamination_notes": "Financial-sector overlap is expected, but named-bank coverage must remain explicit.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "retrieval_text": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "lexical_query": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "dense_query": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "BAC",
+          "JPM"
+        ],
+        "detected_company_names": [
+          "Bank of America Corporation",
+          "JPMorgan Chase & Co"
+        ],
+        "target_tickers": [
+          "BAC",
+          "JPM"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": true,
+        "is_comparison_query": true,
+        "requires_entity_coverage": true
+      },
+      "retrieved_tickers": [
+        "JPM",
+        "BAC"
+      ],
+      "retrieved_chunk_ids": [
+        "JPM_10K_2026-02-13_full::chunk-0014",
+        "BAC_10Q_2025Q1_2025-04-30_full::chunk-0042",
+        "BAC_10Q_2025Q2_2025-07-31_full::chunk-0050",
+        "BAC_10Q_2025Q3_2025-10-31_full::chunk-0048",
+        "JPM_10K_2026-02-13_full::chunk-0053",
+        "JPM_10Q_2025Q2_2025-08-05_full::chunk-0073",
+        "JPM_10K_2026-02-13_full::chunk-0036",
+        "JPM_10K_2026-02-13_full::chunk-0026"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "JPMorgan Chase and Bank of America both highlight key business risks including legal/regulatory (including supervisory expectations), market, credit, liquidity, operational, strategic, conduct, reputation, country, and people risks. JPMorgan Chase's detailed breakdown of risk categories, such as consumer credit portfolio management on page 60-63, provides more insight into specific types of risks faced by the company. [C1] [C2]",
+      "answer_summary": "JPMorgan Chase and Bank of America both face various regulatory, market, credit, liquidity, operational, strategic, conduct, reputation, country and people risks outlined in their SEC filings. JPMorgan Chase has more detailed breakdowns for certain risk categories such as credit portfolio management and net charge-off rates.",
+      "answer_findings": [
+        {
+          "statement": "Both companies disclose principal risk factors related to legal and regulatory (including supervisory expectations), market, credit, liquidity, operational, strategic, conduct, reputation, country, and people risks.",
+          "citations": [
+            "C1",
+            "C2"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "JPM_10K_2026-02-13_full::chunk-0014",
+          "filing_id": "JPM_10K_2026-02-13_full",
+          "ticker": "JPM",
+          "company_name": "JPMorgan Chase & Co",
+          "form_type": "10-K",
+          "filing_date": "2026-02-13",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/JPM_10K_2026-02-13_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "BAC_10Q_2025Q1_2025-04-30_full::chunk-0042",
+          "filing_id": "BAC_10Q_2025Q1_2025-04-30_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-04-30",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q1_2025-04-30_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "BAC_10Q_2025Q2_2025-07-31_full::chunk-0050",
+          "filing_id": "BAC_10Q_2025Q2_2025-07-31_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-07-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q2_2025-07-31_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "BAC_10Q_2025Q3_2025-10-31_full::chunk-0048",
+          "filing_id": "BAC_10Q_2025Q3_2025-10-31_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-10-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q3_2025-10-31_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "JPM_10K_2026-02-13_full::chunk-0053",
+          "filing_id": "JPM_10K_2026-02-13_full",
+          "ticker": "JPM",
+          "company_name": "JPMorgan Chase & Co",
+          "form_type": "10-K",
+          "filing_date": "2026-02-13",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/JPM_10K_2026-02-13_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "JPM_10Q_2025Q2_2025-08-05_full::chunk-0073",
+          "filing_id": "JPM_10Q_2025Q2_2025-08-05_full",
+          "ticker": "JPM",
+          "company_name": "JPMorgan Chase & Co",
+          "form_type": "10-Q",
+          "filing_date": "2025-08-05",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/JPM_10Q_2025Q2_2025-08-05_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The evidence does not provide a direct comparison of JPMorgan Chase and Bank of America on specific risk factors or their impact in terms of metrics such as net charge-offs or asset quality ratios. It focuses more on the types of risks rather than quantifiable differences between the companies.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": true,
+          "comparison_behavior_observed": true,
+          "contamination_observed": false,
+          "contamination_tickers": [],
+          "contamination_severity": "none"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "z-ai/glm-5",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "The claim that both banks share similar risk categories (legal/regulatory, market, credit, liquidity, operational, strategic, conduct, reputation, country, and people risks) is supported by citations C1 and C2. However, the comparative assertion that JPMorgan provides 'more insight' with 'detailed breakdown' is only weakly grounded\u2014page references (60-63) are mentioned without specific citation support, and no evidence is cited to show BAC lacks similar detail."
+          },
+          "citation_quality": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "Citations C1 (JPM 10-K) and C2 (BAC 10-Q) appropriately cover both expected entities and support the shared risk categories claim. However, the answer underutilizes available citations (C3-C6 are never referenced), and the comparative claim about JPM's superior detail lacks direct citation support."
+          },
+          "usefulness": {
+            "score": 2,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "The answer provides a basic list of common risk categories, which has limited practical value. It fails to meaningfully compare the banks\u2014it merely states they share categories and asserts JPM has more detail without explaining implications. Raw page numbers without context are not actionable for a reviewer seeking comparative insights."
+          },
+          "comparison_completeness": {
+            "score": 2,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "The comparison is materially incomplete. While both entities are mentioned, the answer only lists shared risk categories and makes an unsubstantiated claim that JPM offers more detail. No actual differences in risk exposure, materiality, or management approach are discussed. BAC's risk profile is not analyzed independently\u2014only lumped into 'both have' statements."
+          },
+          "uncertainty_handling": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The uncertainty statement appropriately acknowledges that the evidence does not support direct quantitative comparisons (net charge-offs, asset quality ratios) and correctly identifies the limitation that findings focus on risk types rather than measurable differences between companies."
+          },
+          "overall": "partial_pass",
+          "overall_score": 2.65,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "comparison_completeness": 0.15,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "The answer correctly identifies shared risk categories for both JPM and BAC with adequate citation support, but delivers a superficial comparison that fails to differentiate the banks meaningfully. The unsupported claim about JPM's superior detail and the lack of independent BAC analysis make this response partially useful at best, though uncertainty limitations are well-communicated."
+          ],
+          "judge_result": {
+            "summary": "The answer correctly identifies shared risk categories for both JPM and BAC with adequate citation support, but delivers a superficial comparison that fails to differentiate the banks meaningfully. The unsupported claim about JPM's superior detail and the lack of independent BAC analysis make this response partially useful at best, though uncertainty limitations are well-communicated.",
+            "raw_response": "Let me analyze the saved RAG answer artifact carefully.\n\n**Query:** \"How do JPMorgan and Bank of America compare on their main risk factors?\"\n\n**Expected Tickers:** JPM, BAC\n\n**Requires Comparison:** Yes\n\n**Answer Output:**\n\"JPMorgan Chase and Bank of America both highlight key business risks including legal/regulatory (including supervisory expectations), market, credit, liquidity, operational, strategic, conduct, reputation, country, and people risks. JPMorgan Chase's detailed breakdown of risk categories, such as consumer credit portfolio management on page 60-63, provides more insight into specific types of risks faced by the company. [C1] [C2]\"\n\n**Answer Findings:**\n- Both companies disclose principal risk factors related to legal and regulatory, market, credit, liquidity, operational, strategic, conduct, reputation, country, and people risks.\n- Citations: C1, C2\n\n**Answer Citations:**\n- C1: JPM_10K_2026-02-13_full::chunk-0014 (JPM 10-K)\n- C2: BAC_10Q_2025Q1_2025-04-30_full::chunk-0042 (BAC 10-Q)\n- C3: BAC_10Q_2025Q2_2025-07-31_full::chunk-0050\n- C4: BAC_10Q_2025Q3_2025-10-31_full::chunk-0048\n- C5: JPM_10K_2026-02-13_full::chunk-0053\n- C6: JPM_10Q_2025Q2_2025-08-05_full::chunk-0073\n\nNow let me score each category:\n\n**1. Groundedness (0-5):**\nThe answer makes a claim that both JPM and BAC share similar risk categories, citing C1 and C2. However, the answer states that JPMorgan has \"more detailed breakdown\" but only provides page references (60-63) without clear citation support for this comparative claim. The comparison element is weak - it says JPM has more detail but doesn't cite specific evidence showing BAC has less detail. The citations C1 and C2 are used for the general risk categories claim, but the comparative statement about JPM having more detail is less well-supported. Score: 3 (mixed - some claims are supported, but the comparative claim about detail level is weakly grounded)\n\n**2. Citation Quality (0-5):**\nThe citations provided include:\n- C1: JPM 10-K chunk (good source for risk factors)\n- C2: BAC 10-Q chunk (good source for risk factors)\n- C3-C6: Additional citations that appear in the artifact but aren't referenced in the answer text\n\nThe citations C1 and C2 are used to support the main claim about shared risk categories. However, only two citations are referenced in the answer despite 6 being available. The citations do cover both expected entities (JPM and BAC). But the comparative claim about JPM having \"more detailed breakdown\" lacks specific citation support. Score: 3 (partially acceptable - covers both entities but underutilizes available citations and doesn't fully support comparative claims)\n\n**3. Usefulness (0-5):**\nThe answer provides a list of risk categories common to both banks, which is somewhat useful. However, it doesn't really compare them meaningfully - it just says both have similar risks and then mentions JPM has more detail without explaining what that means for a comparison. A comparison should ideally highlight differences, not just similarities. The mention of \"page 60-63\" is not practically useful without the actual content. Score: 2 (materially flawed - doesn't provide a meaningful comparison)\n\n**4. Comparison Completeness (0-5):**\nThe prompt asks for a comparison of main risk factors. The answer:\n- Lists shared risk categories (good for similarities)\n- Claims JPM has \"more detailed breakdown\" but doesn't elaborate\n- Doesn't mention any differences in the actual risk factors themselves\n- Doesn't explain how BAC's risk factors compare (just says they share categories)\n- Doesn't provide a fair comparison of both sides\n\nThe comparison is quite incomplete - it barely scratches the surface of what a comparison should entail. Score: 2 (materially flawed - one-sided comparison that doesn't adequately cover both entities)\n\n**5. Uncertainty Handling (0-5):**\nThe answer_uncertainty field states: \"The evidence does not provide a direct comparison of JPMorgan Chase and Bank of America on specific risk factors or their impact in terms of metrics such as net charge-offs or asset quality ratios. It focuses more on the types of risks rather than quantifiable differences between the companies.\"\n\nThis acknowledgment of limitations is good - it admits the evidence doesn't support a detailed comparison. However, this uncertainty statement isn't integrated into the main answer output itself, which might confuse users. The uncertainty is well-communicated. Score: 4 (strong - acknowledges limitations appropriately)\n\nLet me reconsider some scores:\n\n**Groundedness:** The main claim about shared risk categories is supported by C1 and C2. The claim about JPM having more detail with page numbers (60-63) seems like it might come from the JPM 10-K source but isn't properly cited. The comparative aspect is weakly grounded. I'll stick with 3.\n\n**Citation Quality:** The citations cover both JPM and BAC, which is good. But only C1 and C2 are referenced in the answer, leaving C3-C6 unused. The comparison claim isn't well-supported. Score: 3.\n\n**Usefulness:** The answer is somewhat useful for knowing what risk categories exist, but not useful for understanding how the two banks differ. Score: 2.\n\n**Comparison Completeness:** The answer fails to provide a meaningful comparison. It only mentions that both share similar categories and briefly claims JPM has more detail. Score: 2.\n\n**Uncertainty Handling:** The uncertainty is well-articulated in the answer_uncertainty field. Score: 4.\n\n**Summary:** The answer lists common risk categories for both banks with appropriate citations, but fails to deliver a meaningful comparison. It claims JPM has more detailed breakdowns without adequately supporting or explaining this comparative assertion. The uncertainty statement appropriately acknowledges the lack of quantifiable differences, though this limitation isn't integrated into the main response.\n```json\n{\n  \"groundedness\": {\"score\": 3, \"rationale\": \"The claim that both banks share similar risk categories (legal/regulatory, market, credit, liquidity, operational, strategic, conduct, reputation, country, and people risks) is supported by citations C1 and C2. However, the comparative assertion that JPMorgan provides 'more insight' with 'detailed breakdown' is only weakly grounded\u2014page references (60-63) are mentioned without specific citation support, and no evidence is cited to show BAC lacks similar detail.\"},\n  \"citation_quality\": {\"score\": 3, \"rationale\": \"Citations C1 (JPM 10-K) and C2 (BAC 10-Q) appropriately cover both expected entities and support the shared risk categories claim. However, the answer underutilizes available citations (C3-C6 are never referenced), and the comparative claim about JPM's superior detail lacks direct citation support.\"},\n  \"usefulness\": {\"score\": 2, \"rationale\": \"The answer provides a basic list of common risk categories, which has limited practical value. It fails to meaningfully compare the banks\u2014it merely states they share categories and asserts JPM has more detail without explaining implications. Raw page numbers without context are not actionable for a reviewer seeking comparative insights.\"},\n  \"comparison_completeness\": {\"score\": 2, \"rationale\": \"The comparison is materially incomplete. While both entities are mentioned, the answer only lists shared risk categories and makes an unsubstantiated claim that JPM offers more detail. No actual differences in risk exposure, materiality, or management approach are discussed. BAC's risk profile is not analyzed independently\u2014only lumped into 'both have' statements.\"},\n  \"uncertainty_handling\": {\"score\": 4, \"rationale\": \"The uncertainty statement appropriately acknowledges that the evidence does not support direct quantitative comparisons (net charge-offs, asset quality ratios) and correctly identifies the limitation that findings focus on risk types rather than measurable differences between companies.\"},\n  \"summary\": \"The answer correctly identifies shared risk categories for both JPM and BAC with adequate citation support, but delivers a superficial comparison that fails to differentiate the banks meaningfully. The unsupported claim about JPM's superior detail and the lack of independent BAC analysis make this response partially useful at best, though uncertainty limitations are well-communicated.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": true,
+        "comparison_behavior_observed": true,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "score": 3,
+          "score_max": 5,
+          "status": "partial_pass",
+          "notes": "Citations C1 (JPM 10-K) and C2 (BAC 10-Q) appropriately cover both expected entities and support the shared risk categories claim. However, the answer underutilizes available citations (C3-C6 are never referenced), and the comparative claim about JPM's superior detail lacks direct citation support."
+        },
+        "answer_usefulness": {
+          "score": 2,
+          "score_max": 5,
+          "status": "fail",
+          "notes": "The answer provides a basic list of common risk categories, which has limited practical value. It fails to meaningfully compare the banks\u2014it merely states they share categories and asserts JPM has more detail without explaining implications. Raw page numbers without context are not actionable for a reviewer seeking comparative insights."
+        },
+        "outcome": "fail",
+        "pass": false,
+        "notes": null
+      }
+    },
+    {
+      "query_id": "single_company_aapl_risk_factors",
+      "prompt": "What risk factors does Apple highlight in its latest annual filing?",
+      "expected_tickers": [
+        "AAPL"
+      ],
+      "requires_comparison": false,
+      "contamination_notes": "Single-company retrieval should not drift into generic consumer-tech discussions.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "What risk factors does Apple highlight in its latest annual filing?",
+        "retrieval_text": "What risk factors does Apple highlight in its latest annual filing?",
+        "lexical_query": "What risk factors does Apple highlight in its latest annual filing?",
+        "dense_query": "What risk factors does Apple highlight in its latest annual filing?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "AAPL"
+        ],
+        "detected_company_names": [
+          "Apple Inc"
+        ],
+        "target_tickers": [
+          "AAPL"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": false,
+        "is_comparison_query": false,
+        "requires_entity_coverage": false
+      },
+      "retrieved_tickers": [
+        "AAPL",
+        "META",
+        "GOOG"
+      ],
+      "retrieved_chunk_ids": [
+        "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+        "AAPL_10Q_2025Q1_2025-05-02_full::chunk-0012",
+        "AAPL_10Q_2025Q2_2025-08-01_full::chunk-0012",
+        "AAPL_10Q_2025Q4_2026-01-30_full::chunk-0012",
+        "META_10K_2024Q4_2025-01-30_full::chunk-0065",
+        "META_10K_2026-01-29_full::chunk-0062",
+        "GOOG_10K_2022Q4_2023-02-03_full::chunk-0005",
+        "GOOG_10K_2023Q4_2024-01-31_full::chunk-0005"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "Apple highlights multiple risk factors in its SEC filings, particularly related to macroeconomic conditions such as inflation, interest rates, currency fluctuations, tariffs and trade measures, and changes in consumer behavior due to product launches. These risks can affect the Company\u2019s business performance by impacting its supply chain, pricing strategies, gross margins, and overall financial health. [C1] [C2] [C3]",
+      "answer_summary": "Apple highlights various risks in its SEC filings, including market conditions such as inflation and interest rates, economic policies like tariffs and trade measures, and changes in consumer behavior due to product introductions. These factors can impact the Company\u2019s supply chain, pricing, gross margin, and overall financial condition.",
+      "answer_findings": [
+        {
+          "statement": "Apple identifies multiple external factors that could impact its operations including macroeconomic conditions such as inflation, interest rates, currency fluctuations, tariffs and trade measures, and changes in consumer behavior due to product launches. These risks can influence the Company's supply chain, pricing strategies, gross margins, and overall financial health.",
+          "citations": [
+            "C1",
+            "C2",
+            "C3"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0022",
+          "filing_id": "AAPL_10Q_2023Q3_2023-08-04_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2023-08-04",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2023Q3_2023-08-04_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "AAPL_10Q_2025Q1_2025-05-02_full::chunk-0012",
+          "filing_id": "AAPL_10Q_2025Q1_2025-05-02_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2025-05-02",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2025Q1_2025-05-02_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "AAPL_10Q_2025Q2_2025-08-01_full::chunk-0012",
+          "filing_id": "AAPL_10Q_2025Q2_2025-08-01_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2025-08-01",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2025Q2_2025-08-01_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "AAPL_10Q_2025Q4_2026-01-30_full::chunk-0012",
+          "filing_id": "AAPL_10Q_2025Q4_2026-01-30_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2026-01-30",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2025Q4_2026-01-30_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "META_10K_2024Q4_2025-01-30_full::chunk-0065",
+          "filing_id": "META_10K_2024Q4_2025-01-30_full",
+          "ticker": "META",
+          "company_name": "Meta Platforms Inc",
+          "form_type": "10-K",
+          "filing_date": "2025-01-30",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/META_10K_2024Q4_2025-01-30_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "META_10K_2026-01-29_full::chunk-0062",
+          "filing_id": "META_10K_2026-01-29_full",
+          "ticker": "META",
+          "company_name": "Meta Platforms Inc",
+          "form_type": "10-K",
+          "filing_date": "2026-01-29",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/META_10K_2026-01-29_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The evidence does not provide specific risk factors for the third quarter of 2025.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": false,
+          "comparison_behavior_observed": null,
+          "contamination_observed": true,
+          "contamination_tickers": [
+            "META",
+            "GOOG"
+          ],
+          "contamination_severity": "high"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "z-ai/glm-5",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer ties its claims to the cited AAPL sources (C1, C2, C3) and avoids making unsupported assertions. The risk factors mentioned (inflation, interest rates, currency fluctuations, tariffs, consumer behavior) appear grounded in the cited quarterly filings."
+          },
+          "citation_quality": {
+            "score": 2,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "The citations are AAPL filings (correct ticker), but they are 10-Q quarterly reports rather than the 'latest annual filing' (10-K) requested by the prompt. Additionally, the retrieval included irrelevant META chunks (C5, C6) that shouldn't have been retrieved for a single-company query, indicating retrieval contamination."
+          },
+          "usefulness": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "The answer provides a reasonable overview of Apple's risk factors and is practically useful for understanding general risk categories. However, it doesn't properly address the specific request for the 'latest annual filing,' instead drawing from quarterly reports, which limits completeness."
+          },
+          "comparison_completeness": {
+            "score": null,
+            "score_max": 5,
+            "status": "not_applicable",
+            "notes": "Not applicable - this is a single-company query that does not require comparison."
+          },
+          "uncertainty_handling": {
+            "score": 2,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "The uncertainty note mentions 'third quarter of 2025' which is irrelevant to the prompt's question about annual filings. The answer fails to acknowledge the key limitation: that quarterly 10-Q filings were used instead of the requested annual 10-K filing."
+          },
+          "overall": "partial_pass",
+          "overall_score": 3.0,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "The answer provides a useful summary of Apple's risk factors with properly grounded AAPL citations, but materially misses the prompt's request for the 'latest annual filing' by citing quarterly 10-Q reports instead of an annual 10-K. The retrieval system also fetched irrelevant META documents, suggesting contamination in the retrieval process. Uncertainty handling does not address the core limitation of using wrong filing types."
+          ],
+          "judge_result": {
+            "summary": "The answer provides a useful summary of Apple's risk factors with properly grounded AAPL citations, but materially misses the prompt's request for the 'latest annual filing' by citing quarterly 10-Q reports instead of an annual 10-K. The retrieval system also fetched irrelevant META documents, suggesting contamination in the retrieval process. Uncertainty handling does not address the core limitation of using wrong filing types.",
+            "raw_response": "Let me analyze this RAG answer evaluation carefully.\n\n**Query Details:**\n- Query ID: \"single_company_aapl_risk_factors\"\n- Prompt: \"What risk factors does Apple highlight in its latest annual filing?\"\n- Expected tickers: [\"AAPL\"]\n- Requires comparison: false\n\n**Answer Analysis:**\nThe answer states: \"Apple highlights multiple risk factors in its SEC filings, particularly related to macroeconomic conditions such as inflation, interest rates, currency fluctuations, tariffs and trade measures, and changes in consumer behavior due to product launches. These risks can affect the Company's business performance by impacting its supply chain, pricing strategies, gross margins, and overall financial health. [C1] [C2] [C3]\"\n\n**Citations used:** C1, C2, C3\n\nLooking at the citations provided:\n- C1: AAPL 10-Q 2023Q3 (filing date 2023-08-04)\n- C2: AAPL 10-Q 2025Q1 (filing date 2025-05-02)\n- C3: AAPL 10-Q 2025Q2 (filing date 2025-08-01)\n\n**Issues I notice:**\n\n1. **Prompt asks for \"latest annual filing\"** - This means the answer should reference Apple's 10-K (annual report), not quarterly 10-Q filings. The citations are all from 10-Q filings, which are quarterly reports, not annual filings.\n\n2. **Citation quality issues:**\n   - The retrieved chunks include META and GOOG tickers (C5, C6 are META), which shouldn't be there for a single-company query\n   - The citations used (C1, C2, C3) are all AAPL, which is correct for the entity\n   - However, they're 10-Q filings, not the \"latest annual filing\" (10-K) requested\n\n3. **Uncertainty handling:** The answer_uncertainty states \"The evidence does not provide specific risk factors for the third quarter of 2025\" - this is a strange statement since the prompt asked for annual filing risk factors, not Q3 2025 specifically.\n\n4. **Groundedness:** The answer does cite AAPL sources (C1, C2, C3), which is good, but the sources are quarterly reports rather than the requested annual filing. The content appears to be grounded in the citations provided.\n\n5. **Usefulness:** The answer provides general risk factor categories (inflation, interest rates, etc.) which are helpful, but doesn't fully address the prompt's request for the \"latest annual filing\" specifically.\n\n**Scoring:**\n\n1. **Groundedness (3-4):** The answer stays tied to the citations provided (C1, C2, C3), all of which are AAPL filings. The claims appear supported by these quarterly filings. However, there's a mismatch - the prompt asks about \"latest annual filing\" but citations are quarterly 10-Qs. Score: 3 (mixed - grounded in citations but wrong filing type)\n\n2. **Citation quality (2-3):** The citations cover AAPL as expected, but they're 10-Q filings instead of the requested annual 10-K filing. The retrieval also included META and GOOG chunks which shouldn't have been retrieved for a single-company query. Score: 2 (materially flawed - wrong filing type, irrelevant tickers retrieved)\n\n3. **Usefulness (3):** The answer provides some useful information about Apple's risk factors, but doesn't directly answer what's in the \"latest annual filing.\" It's partially helpful but incomplete. Score: 3\n\n4. **Comparison completeness (null):** Not applicable - requires_comparison is false.\n\n5. **Uncertainty handling (2):** The uncertainty note mentions \"third quarter of 2025\" which doesn't relate to the prompt's question about annual filings. There's no acknowledgment that the sources are quarterly reports rather than the requested annual filing. Score: 2\n\nLet me reconsider the scores:\n\n- **Groundedness**: The answer does cite its sources and the claims appear to be based on the cited chunks. The issue is more about citation quality (wrong filing type) than groundedness per se. I'll give it a 4 - it's grounded in what was cited, even if what was cited wasn't ideal.\n\n- **Citation quality**: The citations are AAPL (correct ticker) but they're 10-Q filings instead of the 10-K annual filing requested. This is a material flaw. Also, the retrieval included META and GOOG which shouldn't be there. Score: 2\n\n- **Usefulness**: The answer gives a reasonable overview of risk factors but doesn't specifically address \"latest annual filing.\" It's useful but not fully aligned with the prompt. Score: 3\n\n- **Comparison completeness**: null (not required)\n\n- **Uncertainty handling**: The uncertainty note doesn't address the real limitation (wrong filing type used). It mentions Q3 2025 which is irrelevant to the prompt. Score: 2\n\nActually, let me reconsider groundedness more carefully. The definition is \"does the answer stay tied to the supplied citations and avoid unsupported claims?\" The answer does cite C1, C2, C3 and makes claims that appear to come from those sources. The issue isn't that the answer makes unsupported claims, but that the sources themselves weren't the right type. This is more of a citation quality issue. So groundedness could be higher - maybe 4.\n\nBut wait - I should verify if the answer's claims are actually supported by the citations. Without seeing the actual chunk content, I have to assume the answer is grounded based on the structure provided. The answer_findings show the statement with citations C1, C2, C3, suggesting the content does come from those sources.\n\nLet me finalize:\n\n- **Groundedness: 4** - The answer ties its claims to the provided citations and doesn't make obvious unsupported claims\n- **Citation quality: 2** - The citations are 10-Qs instead of the requested annual 10-K, and the retrieval included irrelevant tickers (META, GOOG)\n- **Usefulness: 3** - Provides useful risk factor information but doesn't properly address \"latest annual filing\"\n- **Comparison completeness: null** - Not applicable\n- **Uncertainty handling: 2** - Doesn't acknowledge the limitation of using quarterly reports instead of annual filing; the stated uncertainty about Q3 2025 is irrelevant to the prompt\n\nSummary: The answer provides a reasonable overview of Apple's risk factors with appropriate AAPL citations, but fails to properly address the prompt's request for the \"latest annual filing\" by citing quarterly 10-Q reports instead of the annual 10-K. The retrieval system also included irrelevant META and GOOG documents that weren't used. The uncertainty handling doesn't acknowledge the filing-type mismatch.\n```json\n{\n  \"groundedness\": {\"score\": 4, \"rationale\": \"The answer ties its claims to the cited AAPL sources (C1, C2, C3) and avoids making unsupported assertions. The risk factors mentioned (inflation, interest rates, currency fluctuations, tariffs, consumer behavior) appear grounded in the cited quarterly filings.\"},\n  \"citation_quality\": {\"score\": 2, \"rationale\": \"The citations are AAPL filings (correct ticker), but they are 10-Q quarterly reports rather than the 'latest annual filing' (10-K) requested by the prompt. Additionally, the retrieval included irrelevant META chunks (C5, C6) that shouldn't have been retrieved for a single-company query, indicating retrieval contamination.\"},\n  \"usefulness\": {\"score\": 3, \"rationale\": \"The answer provides a reasonable overview of Apple's risk factors and is practically useful for understanding general risk categories. However, it doesn't properly address the specific request for the 'latest annual filing,' instead drawing from quarterly reports, which limits completeness.\"},\n  \"comparison_completeness\": {\"score\": null, \"rationale\": \"Not applicable - this is a single-company query that does not require comparison.\"},\n  \"uncertainty_handling\": {\"score\": 2, \"rationale\": \"The uncertainty note mentions 'third quarter of 2025' which is irrelevant to the prompt's question about annual filings. The answer fails to acknowledge the key limitation: that quarterly 10-Q filings were used instead of the requested annual 10-K filing.\"},\n  \"summary\": \"The answer provides a useful summary of Apple's risk factors with properly grounded AAPL citations, but materially misses the prompt's request for the 'latest annual filing' by citing quarterly 10-Q reports instead of an annual 10-K. The retrieval system also fetched irrelevant META documents, suggesting contamination in the retrieval process. Uncertainty handling does not address the core limitation of using wrong filing types.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": false,
+        "comparison_behavior_observed": null,
+        "contamination_observed": true,
+        "contamination_tickers": [
+          "META",
+          "GOOG"
+        ],
+        "contamination_severity": "high",
+        "citation_quality": {
+          "score": 2,
+          "score_max": 5,
+          "status": "fail",
+          "notes": "The citations are AAPL filings (correct ticker), but they are 10-Q quarterly reports rather than the 'latest annual filing' (10-K) requested by the prompt. Additionally, the retrieval included irrelevant META chunks (C5, C6) that shouldn't have been retrieved for a single-company query, indicating retrieval contamination."
+        },
+        "answer_usefulness": {
+          "score": 3,
+          "score_max": 5,
+          "status": "partial_pass",
+          "notes": "The answer provides a reasonable overview of Apple's risk factors and is practically useful for understanding general risk categories. However, it doesn't properly address the specific request for the 'latest annual filing,' instead drawing from quarterly reports, which limits completeness."
+        },
+        "outcome": "fail",
+        "pass": false,
+        "notes": [
+          "Unexpected retrieved tickers: META, GOOG."
+        ]
+      }
+    },
+    {
+      "query_id": "time_bounded_nvda_revenue_growth",
+      "prompt": "How has NVIDIA's revenue growth changed over the last two years?",
+      "expected_tickers": [
+        "NVDA"
+      ],
+      "requires_comparison": false,
+      "contamination_notes": "Time-bounded growth queries should retain year-sensitive filing coverage rather than only broad product commentary.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "How has NVIDIA's revenue growth changed over the last two years?",
+        "retrieval_text": "How has NVIDIA's revenue growth changed over the last two years?",
+        "lexical_query": "How has NVIDIA's revenue growth changed over the last two years?",
+        "dense_query": "How has NVIDIA's revenue growth changed over the last two years?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "NVDA"
+        ],
+        "detected_company_names": [
+          "NVIDIA Corporation"
+        ],
+        "target_tickers": [
+          "NVDA"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": false,
+        "is_comparison_query": false,
+        "requires_entity_coverage": false
+      },
+      "retrieved_tickers": [
+        "NVDA"
+      ],
+      "retrieved_chunk_ids": [
+        "NVDA_10K_2025-02-26_full::chunk-0049",
+        "NVDA_10K_2023Q1_2023-02-24_full::chunk-0044",
+        "NVDA_10K_2023Q1_2023-02-24_full::chunk-0042",
+        "NVDA_10Q_2023Q3_2023-08-28_full::chunk-0020",
+        "NVDA_10K_2022Q1_2022-03-18_full::chunk-0039",
+        "NVDA_10Q_2022Q2_2022-05-27_full::chunk-0022",
+        "NVDA_10Q_2023Q3_2023-08-28_full::chunk-0019",
+        "NVDA_10Q_2023Q4_2023-11-21_full::chunk-0021"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "Since fiscal year 2023, NVIDIA's revenue growth has been primarily attributed to its Compute & Networking (Data Center) and Graphics (Professional Visualization) segments. In fiscal year 2023, Data Center revenue grew by 41%, driven by hyperscalers and multi-year cloud service agreements for AI services. Professional Visualization revenue surged by 67%, supported by enterprise demand for hybrid work environments and increased sales of workstation GPUs. These two segments collectively accounted for the majority of NVIDIA's total revenue growth over the last two years. [C3] [C4] [C5]",
+      "answer_summary": "NVIDIA's revenue growth in fiscal years 2023 and 2024 was mainly driven by Data Center and Professional Visualization segments. Revenue for these two segments increased significantly compared to the previous year, reflecting strong demand in AI solutions, cloud computing, and workstations.",
+      "answer_findings": [
+        {
+          "statement": "NVIDIA's Revenue Growth in Data Center and Professional Visualization segments has significantly outpaced overall revenue growth in the company, reflecting strong demand in AI solutions, cloud computing, and workstations.",
+          "citations": [
+            "C3",
+            "C4",
+            "C5"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "NVDA_10K_2025-02-26_full::chunk-0049",
+          "filing_id": "NVDA_10K_2025-02-26_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-K",
+          "filing_date": "2025-02-26",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10K_2025-02-26_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "NVDA_10K_2023Q1_2023-02-24_full::chunk-0044",
+          "filing_id": "NVDA_10K_2023Q1_2023-02-24_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-K",
+          "filing_date": "2023-02-24",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10K_2023Q1_2023-02-24_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "NVDA_10K_2023Q1_2023-02-24_full::chunk-0042",
+          "filing_id": "NVDA_10K_2023Q1_2023-02-24_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-K",
+          "filing_date": "2023-02-24",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10K_2023Q1_2023-02-24_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "NVDA_10Q_2023Q3_2023-08-28_full::chunk-0020",
+          "filing_id": "NVDA_10Q_2023Q3_2023-08-28_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2023-08-28",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10Q_2023Q3_2023-08-28_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "NVDA_10K_2022Q1_2022-03-18_full::chunk-0039",
+          "filing_id": "NVDA_10K_2022Q1_2022-03-18_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-K",
+          "filing_date": "2022-03-18",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10K_2022Q1_2022-03-18_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "NVDA_10Q_2022Q2_2022-05-27_full::chunk-0022",
+          "filing_id": "NVDA_10Q_2022Q2_2022-05-27_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2022-05-27",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10Q_2022Q2_2022-05-27_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The evidence does not provide specific details about the contribution of Gaming or Automotive segments to total revenue over these two years. The impact on inventory management from cryptocurrency mining volatility is also not addressed in the provided context.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": false,
+          "comparison_behavior_observed": null,
+          "contamination_observed": false,
+          "contamination_tickers": [],
+          "contamination_severity": "none"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "z-ai/glm-5",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "The answer cites specific sources [C3][C4][C5] for its claims about FY2023 growth rates (41% Data Center, 67% Professional Visualization), but there's a temporal mismatch. The prompt asks about 'last two years' yet the answer focuses on FY2023 data while citing C5 from FY2022. The phrase 'Since fiscal year 2023' combined with citing older filings creates ambiguity about what time period is actually covered."
+          },
+          "citation_quality": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "The cited chunks C3, C4, and C5 are from relevant NVDA filings covering FY2022-2023, but they don't capture the full two-year window requested. Notably, C1 from FY2025 (most recent) was retrieved but not cited, leaving a gap in coverage. The citations support segment-level discussion but miss year-over-year trajectory data that would better address the time-bounded query."
+          },
+          "usefulness": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "The answer provides concrete growth percentages for two key segments with explanatory drivers (hyperscalers, AI services, hybrid work), which is practically useful. However, it omits Gaming and Automotive segments entirely, doesn't present a clear two-year growth trajectory, and the time-bounded aspect of the query is incompletely addressed. A reviewer would have useful but partial information."
+          },
+          "comparison_completeness": {
+            "score": null,
+            "score_max": 5,
+            "status": "not_applicable",
+            "notes": "Not applicable - this is not a comparison prompt."
+          },
+          "uncertainty_handling": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer_uncertainty field explicitly acknowledges missing information about Gaming and Automotive segment contributions, as well as cryptocurrency mining volatility impact on inventory. This shows appropriate awareness of evidence gaps, though it would be stronger if integrated directly into the main answer rather than as a separate field."
+          },
+          "overall": "partial_pass",
+          "overall_score": 3.06,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "The answer delivers specific growth figures for Data Center (41%) and Professional Visualization (67%) with relevant NVDA citations, but incompletely addresses the 'last two years' temporal scope by focusing primarily on FY2023 data and omitting FY2024-2025 developments. Major segments (Gaming, Automotive) are unaddressed, and citation selection excludes the most recent FY2025 filing. Uncertainty handling is appropriate, acknowledging the missing segment coverage and evidence limitations."
+          ],
+          "judge_result": {
+            "summary": "The answer delivers specific growth figures for Data Center (41%) and Professional Visualization (67%) with relevant NVDA citations, but incompletely addresses the 'last two years' temporal scope by focusing primarily on FY2023 data and omitting FY2024-2025 developments. Major segments (Gaming, Automotive) are unaddressed, and citation selection excludes the most recent FY2025 filing. Uncertainty handling is appropriate, acknowledging the missing segment coverage and evidence limitations.",
+            "raw_response": "I need to evaluate the RAG answer based on the provided criteria. Let me analyze each aspect:\n\n**Groundedness (0-5):**\nThe answer claims:\n1. \"In fiscal year 2023, Data Center revenue grew by 41%\" - I need to check if this is supported by citations C3, C4, C5\n2. \"Professional Visualization revenue surged by 67%\" - need to verify\n3. The answer cites [C3] [C4] [C5] at the end\n\nLooking at the citations provided:\n- C3: NVDA_10K_2023Q1_2023-02-24_full (FY2023 10-K)\n- C4: NVDA_10Q_2023Q3_2023-08-28_full (Q3 FY2023 10-Q)\n- C5: NVDA_10K_2022Q1_2022-03-18_full (FY2022 10-K)\n\nThe issue is that I don't have the actual chunk content to verify the specific numbers (41%, 67%). However, the citations come from the relevant time period filings. The answer makes specific numerical claims that should be verifiable in the cited chunks.\n\nThe answer claims these are for \"fiscal year 2023\" but cites C5 which is from FY2022 (dated 2022-03-18). There's a temporal mismatch issue.\n\nAlso, the prompt asks about \"last two years\" but the answer focuses on fiscal year 2023 only, which seems incomplete.\n\nScore: 3 - The answer is partially grounded with relevant citations, but there are temporal inconsistencies and the specific percentages cannot be fully verified without seeing the actual chunk content.\n\n**Citation Quality (0-5):**\nThe cited chunks include:\n- C3: FY2023 10-K - relevant for the time period\n- C4: Q3 FY2023 10-Q - relevant\n- C5: FY2022 10-K - seems less relevant for \"fiscal year 2023\" claims\n\nThe citations cover the expected entity (NVDA) and appear to be from relevant filings for the time period. However, there's a temporal mismatch - C5 is from 2022 which doesn't align with FY2023 claims.\n\nScore: 3 - Citations are from the right company and generally relevant time period, but there's a temporal inconsistency.\n\n**Usefulness (0-5):**\nThe answer provides specific percentages (41% for Data Center, 67% for Professional Visualization) and explains the drivers (hyperscalers, cloud service agreements, hybrid work). This is practically useful for understanding revenue growth.\n\nHowever, the answer has limitations:\n1. Only covers FY2023, not truly \"last two years\"\n2. Doesn't mention Gaming or Automotive segments which are also major segments\n3. The answer_uncertainty notes these limitations appropriately\n\nScore: 3 - The answer is partially useful with specific data, but doesn't fully address \"last two years\" and misses major segments.\n\n**Comparison Completeness:**\nSince requires_comparison is false, this should be null.\n\n**Uncertainty Handling (0-5):**\nThe answer_uncertainty field acknowledges:\n- Missing details about Gaming and Automotive segments\n- Cryptocurrency mining volatility impact not addressed\n\nThis shows appropriate acknowledgment of limitations in the evidence provided.\n\nHowever, the main answer doesn't explicitly mention these uncertainties inline - they're in a separate field. The rubric asks about whether the answer communicates limitations appropriately.\n\nScore: 4 - The uncertainty is documented, though it would be better if integrated into the main answer.\n\nLet me reconsider the groundedness more carefully. The contamination notes say: \"Time-bounded growth queries should retain year-sensitive filing coverage rather than only broad product commentary.\"\n\nThe answer does use year-specific data (fiscal year 2023), so it's following this guidance to some extent. But the prompt asks about \"last two years\" and the answer only covers FY2023 data specifically.\n\nActually, looking more carefully - the answer claims \"Since fiscal year 2023\" which suggests it's covering FY2023 onwards, but the phrase \"last two years\" in the prompt would typically mean comparing current period to two years ago, or showing a trajectory over two years.\n\nThe citations provided are:\n- C1: 2025-02-26 (FY2025 10-K)\n- C2: 2023-02-24 (FY2023 10-K) \n- C3: 2023-02-24 (FY2023 10-K)\n- C4: 2023-08-28 (Q3 FY2023 10-Q)\n- C5: 2022-03-18 (FY2022 10-K)\n- C6: 2022-05-27 (Q2 FY2022 10-Q)\n\nSo the retrieval did pull filings from 2022, 2023, and 2025, covering multiple years. But the answer only cites C3, C4, C5 which are from 2022-2023 timeframe.\n\nThe answer_summary mentions \"fiscal years 2023 and 2024\" but there's no FY2024 data in the cited chunks (the latest cited is from 2023-08-28 which would be FY2024 Q2, but it's not cited for FY2024 full year data).\n\nThere's a discrepancy between what the answer claims and what the citations actually support.\n\nLet me finalize my scores:\n\n**Groundedness: 3** - The answer makes specific claims with citations, but there are temporal inconsistencies and the \"two years\" requirement isn't fully met.\n\n**Citation Quality: 3** - Citations are from relevant NVDA filings, but don't fully align with the time periods claimed in the answer.\n\n**Usefulness: 3** - Provides specific numbers and drivers, but incomplete coverage of \"last two years\" and missing major segments.\n\n**Comparison Completeness: null** - Not a comparison prompt.\n\n**Uncertainty Handling: 4** - Uncertainties are acknowledged, though in a separate field rather than integrated.\n\nActually, let me reconsider groundedness. The rubric asks \"does the answer stay tied to the supplied citations and avoid unsupported claims?\" The answer does cite its claims [C3] [C4] [C5], and without seeing the actual chunk content, I have to assume the citations support the claims. The main issue is the temporal coverage. I'll keep groundedness at 3.\n\nFor citation quality, the chunks don't cover FY2024 or FY2025 data (C1 from 2025 isn't cited in the answer), so there's a gap in year coverage.\n\nLet me write the rationale clearly:\n\n**Groundedness (3):** The answer cites specific sources for its claims about FY2023 growth rates, but there's a temporal mismatch - the prompt asks about \"last two years\" yet the answer focuses primarily on FY2023 data. The claim about \"Since fiscal year 2023\" combined with citing C5 (from FY2022) creates inconsistency about what time period is actually being covered.\n\n**Citation Quality (3):** The cited chunks (C3, C4, C5) are from NVDA filings and cover FY2022-2023 periods, but don't include more recent data from C1 (FY2025 10-K) which was retrieved. The citations don't fully support the \"last two years\" scope of the query.\n\n**Usefulness (3):** The answer provides concrete percentages for Data Center and Professional Visualization growth, which is practically useful. However, it omits Gaming and Automotive segments, doesn't provide a clear two-year trajectory, and the time-bounded nature of the query isn't fully addressed.\n\n**Comparison Completeness (null):** Not applicable - not a comparison prompt.\n\n**Uncertainty Handling (4):** The answer_uncertainty field appropriately acknowledges missing information about Gaming, Automotive segments, and cryptocurrency mining volatility, showing awareness of evidence limitations.\n\n**Summary:** The answer provides specific growth figures for Data Center (41%) and Professional Visualization (67%) segments with relevant citations, but falls short on the \"last two years\" temporal scope, missing FY2024-2025 data and omitting major business segments. The groundedness is partial with temporal inconsistencies in citation usage, while uncertainty handling is good with explicit acknowledgment of missing evidence.\n```json\n{\n  \"groundedness\": {\"score\": 3, \"rationale\": \"The answer cites specific sources [C3][C4][C5] for its claims about FY2023 growth rates (41% Data Center, 67% Professional Visualization), but there's a temporal mismatch. The prompt asks about 'last two years' yet the answer focuses on FY2023 data while citing C5 from FY2022. The phrase 'Since fiscal year 2023' combined with citing older filings creates ambiguity about what time period is actually covered.\"},\n  \"citation_quality\": {\"score\": 3, \"rationale\": \"The cited chunks C3, C4, and C5 are from relevant NVDA filings covering FY2022-2023, but they don't capture the full two-year window requested. Notably, C1 from FY2025 (most recent) was retrieved but not cited, leaving a gap in coverage. The citations support segment-level discussion but miss year-over-year trajectory data that would better address the time-bounded query.\"},\n  \"usefulness\": {\"score\": 3, \"rationale\": \"The answer provides concrete growth percentages for two key segments with explanatory drivers (hyperscalers, AI services, hybrid work), which is practically useful. However, it omits Gaming and Automotive segments entirely, doesn't present a clear two-year growth trajectory, and the time-bounded aspect of the query is incompletely addressed. A reviewer would have useful but partial information.\"},\n  \"comparison_completeness\": {\"score\": null, \"rationale\": \"Not applicable - this is not a comparison prompt.\"},\n  \"uncertainty_handling\": {\"score\": 4, \"rationale\": \"The answer_uncertainty field explicitly acknowledges missing information about Gaming and Automotive segment contributions, as well as cryptocurrency mining volatility impact on inventory. This shows appropriate awareness of evidence gaps, though it would be stronger if integrated directly into the main answer rather than as a separate field.\"},\n  \"summary\": \"The answer delivers specific growth figures for Data Center (41%) and Professional Visualization (67%) with relevant NVDA citations, but incompletely addresses the 'last two years' temporal scope by focusing primarily on FY2023 data and omitting FY2024-2025 developments. Major segments (Gaming, Automotive) are unaddressed, and citation selection excludes the most recent FY2025 filing. Uncertainty handling is appropriate, acknowledging the missing segment coverage and evidence limitations.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": false,
+        "comparison_behavior_observed": null,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "score": 3,
+          "score_max": 5,
+          "status": "partial_pass",
+          "notes": "The cited chunks C3, C4, and C5 are from relevant NVDA filings covering FY2022-2023, but they don't capture the full two-year window requested. Notably, C1 from FY2025 (most recent) was retrieved but not cited, leaving a gap in coverage. The citations support segment-level discussion but miss year-over-year trajectory data that would better address the time-bounded query."
+        },
+        "answer_usefulness": {
+          "score": 3,
+          "score_max": 5,
+          "status": "partial_pass",
+          "notes": "The answer provides concrete growth percentages for two key segments with explanatory drivers (hyperscalers, AI services, hybrid work), which is practically useful. However, it omits Gaming and Automotive segments entirely, doesn't present a clear two-year growth trajectory, and the time-bounded aspect of the query is incompletely addressed. A reviewer would have useful but partial information."
+        },
+        "outcome": "partial_pass",
+        "pass": false,
+        "notes": null
+      }
+    },
+    {
+      "query_id": "sector_regulatory_banks_capital",
+      "prompt": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+      "expected_tickers": [
+        "JPM",
+        "BAC"
+      ],
+      "requires_comparison": false,
+      "contamination_notes": "Sector query may retrieve multiple banks, but should stay within relevant banking and regulatory context.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "retrieval_text": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "lexical_query": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "dense_query": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": null,
+        "detected_company_names": null,
+        "target_tickers": null,
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": false,
+        "is_comparison_query": false,
+        "requires_entity_coverage": false
+      },
+      "retrieved_tickers": [
+        "GS",
+        "MS",
+        "BAC",
+        "AXP"
+      ],
+      "retrieved_chunk_ids": [
+        "GS_10K_2025-02-27_full::chunk-0019",
+        "MS_10K_2026-02-19_full::chunk-0010",
+        "BAC_10K_2025-02-25_full::chunk-0008",
+        "MS_10K_2026-02-19_full::chunk-0009",
+        "AXP_10K_2026-02-06_full::chunk-0013",
+        "GS_10K_2025-02-27_full::chunk-0018",
+        "MS_10K_2026-02-19_full::chunk-0028",
+        "BAC_10Q_2025Q3_2025-10-31_full::chunk-0036"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "Large U.S. banks like Goldman Sachs and Morgan Stanley are discussing regulatory and capital-related risks in their SEC filings. These include ongoing concerns over stress tests conducted by the Federal Reserve, limitations on dividend payments, stringent capital planning requirements, and the need for robust resolution strategies should a bank fail or be deemed too-big-to-fail (TBTF). [C1] [C2]",
+      "answer_summary": "Large U.S. banks, including Goldman Sachs and Morgan Stanley, are discussing regulatory and capital-related risks in their SEC filings. These risks include compliance with stress tests by the Federal Reserve, limitations on dividend payments, capital planning requirements, and resolution strategies should a bank fail or be deemed too-big-to-fail.",
+      "answer_findings": [
+        {
+          "statement": "Large U.S. banks are facing risks related to compliance with stress tests by the Federal Reserve.",
+          "citations": [
+            "C1",
+            "C2"
+          ]
+        },
+        {
+          "statement": "Limitations on dividend payments also pose a risk for large U.S. banks, such as Goldman Sachs and Morgan Stanley.",
+          "citations": [
+            "C1",
+            "C2"
+          ]
+        },
+        {
+          "statement": "Capital planning requirements are stringent and require detailed plans from large U.S. banking organizations like Goldman Sachs and Morgan Stanley.",
+          "citations": [
+            "C1",
+            "C2"
+          ]
+        },
+        {
+          "statement": "Resolution strategies, including an SPOE strategy by Morgan Stanley, are necessary to address potential failures or TBTF situations for these banks.",
+          "citations": [
+            "C1",
+            "C2"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "GS_10K_2025-02-27_full::chunk-0019",
+          "filing_id": "GS_10K_2025-02-27_full",
+          "ticker": "GS",
+          "company_name": "Goldman Sachs Group Inc",
+          "form_type": "10-K",
+          "filing_date": "2025-02-27",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/GS_10K_2025-02-27_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "MS_10K_2026-02-19_full::chunk-0010",
+          "filing_id": "MS_10K_2026-02-19_full",
+          "ticker": "MS",
+          "company_name": "Morgan Stanley",
+          "form_type": "10-K",
+          "filing_date": "2026-02-19",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/MS_10K_2026-02-19_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "BAC_10K_2025-02-25_full::chunk-0008",
+          "filing_id": "BAC_10K_2025-02-25_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-K",
+          "filing_date": "2025-02-25",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10K_2025-02-25_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "MS_10K_2026-02-19_full::chunk-0009",
+          "filing_id": "MS_10K_2026-02-19_full",
+          "ticker": "MS",
+          "company_name": "Morgan Stanley",
+          "form_type": "10-K",
+          "filing_date": "2026-02-19",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/MS_10K_2026-02-19_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "AXP_10K_2026-02-06_full::chunk-0013",
+          "filing_id": "AXP_10K_2026-02-06_full",
+          "ticker": "AXP",
+          "company_name": "American Express Company",
+          "form_type": "10-K",
+          "filing_date": "2026-02-06",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AXP_10K_2026-02-06_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "GS_10K_2025-02-27_full::chunk-0018",
+          "filing_id": "GS_10K_2025-02-27_full",
+          "ticker": "GS",
+          "company_name": "Goldman Sachs Group Inc",
+          "form_type": "10-K",
+          "filing_date": "2025-02-27",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/GS_10K_2025-02-27_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The specific details of the stress test framework changes proposed by the Federal Reserve and the limitations on short-term debt have not been explicitly stated in the provided filings.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": false,
+          "comparison_behavior_required": false,
+          "comparison_behavior_observed": null,
+          "contamination_observed": true,
+          "contamination_tickers": [
+            "GS",
+            "MS",
+            "AXP"
+          ],
+          "contamination_severity": "high"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "z-ai/glm-5",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer stays tied to the cited sources (C1 from GS and C2 from MS), making specific claims about stress tests, dividend limitations, capital planning, and resolution strategies that would reasonably appear in major bank 10-K filings. No obvious unsupported claims are made in the main text."
+          },
+          "citation_quality": {
+            "score": 2,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "The expected tickers were JPM and BAC, but the answer only cites GS and MS. Bank of America (BAC) was both expected and retrieved (C3 exists in the citation list), yet it is completely ignored in the answer. The answer also only uses 2 of 6 available citations, missing opportunities to provide broader coverage of the sector."
+          },
+          "usefulness": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "The answer identifies relevant regulatory risks (stress tests, dividend restrictions, capital planning, TBTF resolution) which is useful for a reviewer. However, it lacks depth on any specific risk, misses two expected major banks (JPM not retrieved, BAC ignored despite being retrieved), and provides only surface-level information without specifics like regulatory framework names or quantitative impacts."
+          },
+          "comparison_completeness": {
+            "score": null,
+            "score_max": 5,
+            "status": "not_applicable",
+            "notes": "Not applicable - this is not a comparison prompt."
+          },
+          "uncertainty_handling": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "A separate uncertainty statement acknowledges missing details about stress test framework changes and short-term debt limitations. However, this is presented separately rather than integrated into the main answer, and the answer does not explicitly flag that the expected major banks (JPM, BAC) are missing from the coverage."
+          },
+          "overall": "partial_pass",
+          "overall_score": 3.06,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "The answer provides relevant regulatory risk information from Goldman Sachs and Morgan Stanley filings with appropriate citations, but fails to cover the expected entities (JPM was not retrieved; BAC was retrieved but ignored). The groundedness is solid, but citation coverage is materially incomplete, and the usefulness is limited by shallow treatment of topics and missing expected banks. Uncertainty is acknowledged but poorly integrated."
+          ],
+          "judge_result": {
+            "summary": "The answer provides relevant regulatory risk information from Goldman Sachs and Morgan Stanley filings with appropriate citations, but fails to cover the expected entities (JPM was not retrieved; BAC was retrieved but ignored). The groundedness is solid, but citation coverage is materially incomplete, and the usefulness is limited by shallow treatment of topics and missing expected banks. Uncertainty is acknowledged but poorly integrated.",
+            "raw_response": "Let me analyze this RAG answer based on the provided criteria.\n\n**Query Analysis:**\n- Query ID: \"sector_regulatory_banks_capital\"\n- Prompt: \"What regulatory and capital-related risks are large U.S. banks discussing in recent filings?\"\n- Expected tickers: JPM, BAC\n- Retrieved tickers: GS, MS, BAC, AXP\n\n**Groundedness Assessment:**\nThe answer states: \"Large U.S. banks like Goldman Sachs and Morgan Stanley are discussing regulatory and capital-related risks in their SEC filings. These include ongoing concerns over stress tests conducted by the Federal Reserve, limitations on dividend payments, stringent capital planning requirements, and the need for robust resolution strategies should a bank fail or be deemed too-big-to-fail (TBTF). [C1] [C2]\"\n\nThe citations are C1 (GS) and C2 (MS). The answer is grounded to the cited sources. However, I don't have access to the actual chunk content, so I need to evaluate based on what's provided. The answer uses citations and appears to stay within the bounds of what would reasonably be in banking 10-K filings about regulatory risks.\n\nScore: 4 - The answer appears grounded with citations, but without seeing the actual chunk content, I can only go by the citation references provided. The answer ties claims to citations.\n\n**Citation Quality Assessment:**\n- Expected tickers: JPM, BAC\n- Retrieved tickers: GS, MS, BAC, AXP\n- Cited in answer: C1 (GS), C2 (MS)\n\nThe retrieved chunks include BAC (which was expected), but the answer only cites GS and MS. It doesn't use the BAC chunk (C3) that was retrieved. Also, JPM was expected but not retrieved. The answer focuses on Goldman Sachs and Morgan Stanley but ignores Bank of America which was both expected and retrieved.\n\nThe citation quality is partially good (uses retrieved sources) but misses BAC which was both expected and retrieved. Also, there are 6 available citations but only 2 are used in the answer.\n\nScore: 3 - Mixed. Citations are from legitimate banking sources, but the answer ignores the BAC citation that was available and expected.\n\n**Usefulness Assessment:**\nThe answer provides specific regulatory risks:\n1. Stress tests by Federal Reserve\n2. Limitations on dividend payments\n3. Capital planning requirements\n4. Resolution strategies/TBTF concerns\n\nThis is useful information for understanding regulatory risks. However, it's quite brief and doesn't provide deep detail on any of these topics. It also doesn't cover the expected banks (JPM, BAC).\n\nScore: 3 - Partially useful. Provides relevant information but lacks depth and doesn't cover the expected entities.\n\n**Comparison Completeness:**\nThis is not a comparison prompt, so this should be null.\n\nScore: null\n\n**Uncertainty Handling Assessment:**\nThe answer_uncertainty field states: \"The specific details of the stress test framework changes proposed by the Federal Reserve and the limitations on short-term debt have not been explicitly stated in the provided filings.\"\n\nThis acknowledges limitations in the available information. However, the main answer doesn't integrate this uncertainty directly - it's provided separately.\n\nScore: 3 - The uncertainty is acknowledged in a separate field, but not well integrated into the main answer. It shows some awareness of limitations.\n\n**Overall Summary:**\nThe answer provides relevant regulatory risk information (stress tests, dividend limitations, capital planning, resolution strategies) from GS and MS filings, with appropriate citations. However, it misses Bank of America (expected and retrieved) and doesn't mention JPM (expected but not retrieved). The groundedness is solid with citations, but citation coverage is incomplete. Uncertainty is noted separately but could be better integrated.\n\nLet me finalize the scores:\n\n- groundedness: 4 (uses citations, appears tied to sources, no obvious hallucinations)\n- citation_quality: 2 (only uses 2 of 6 available citations, ignores expected BAC which was retrieved)\n- usefulness: 3 (useful content but lacks depth and misses expected entities)\n- comparison_completeness: null (not a comparison prompt)\n- uncertainty_handling: 3 (acknowledged but separate from main answer)\n\nWait, let me reconsider citation_quality. The expected tickers were JPM and BAC. The retrieved tickers were GS, MS, BAC, AXP. BAC was retrieved (C3 exists) but the answer doesn't cite it. JPM wasn't retrieved at all. The answer uses GS and MS which are legitimate large U.S. banks, just not the ones expected.\n\nThe question asks about \"large U.S. banks\" in general, not specifically JPM and BAC. So the answer is answering the prompt reasonably by using GS and MS. However, missing BAC which was both expected and retrieved is a flaw.\n\nI'll stick with citation_quality of 2 or 3. Since the answer does cite legitimate banks relevant to the query, I'll give it a 3 for being partially acceptable.\n\nActually, re-reading the rubric: \"do the cited chunks cover the expected entities and support the answer?\"\n\nExpected entities: JPM, BAC\nCited entities: GS, MS\n\nThe cited chunks do NOT cover the expected entities. BAC was available but not used. JPM wasn't retrieved. So the citation quality is weak on coverage of expected entities.\n\nScore for citation_quality: 2 - materially flawed. The expected tickers weren't covered, and an available relevant chunk (BAC) was ignored.\n```json\n{\n  \"groundedness\": {\"score\": 4, \"rationale\": \"The answer stays tied to the cited sources (C1 from GS and C2 from MS), making specific claims about stress tests, dividend limitations, capital planning, and resolution strategies that would reasonably appear in major bank 10-K filings. No obvious unsupported claims are made in the main text.\"},\n  \"citation_quality\": {\"score\": 2, \"rationale\": \"The expected tickers were JPM and BAC, but the answer only cites GS and MS. Bank of America (BAC) was both expected and retrieved (C3 exists in the citation list), yet it is completely ignored in the answer. The answer also only uses 2 of 6 available citations, missing opportunities to provide broader coverage of the sector.\"},\n  \"usefulness\": {\"score\": 3, \"rationale\": \"The answer identifies relevant regulatory risks (stress tests, dividend restrictions, capital planning, TBTF resolution) which is useful for a reviewer. However, it lacks depth on any specific risk, misses two expected major banks (JPM not retrieved, BAC ignored despite being retrieved), and provides only surface-level information without specifics like regulatory framework names or quantitative impacts.\"},\n  \"comparison_completeness\": {\"score\": null, \"rationale\": \"Not applicable - this is not a comparison prompt.\"},\n  \"uncertainty_handling\": {\"score\": 3, \"rationale\": \"A separate uncertainty statement acknowledges missing details about stress test framework changes and short-term debt limitations. However, this is presented separately rather than integrated into the main answer, and the answer does not explicitly flag that the expected major banks (JPM, BAC) are missing from the coverage.\"},\n  \"summary\": \"The answer provides relevant regulatory risk information from Goldman Sachs and Morgan Stanley filings with appropriate citations, but fails to cover the expected entities (JPM was not retrieved; BAC was retrieved but ignored). The groundedness is solid, but citation coverage is materially incomplete, and the usefulness is limited by shallow treatment of topics and missing expected banks. Uncertainty is acknowledged but poorly integrated.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": false,
+        "comparison_behavior_required": false,
+        "comparison_behavior_observed": null,
+        "contamination_observed": true,
+        "contamination_tickers": [
+          "GS",
+          "MS",
+          "AXP"
+        ],
+        "contamination_severity": "high",
+        "citation_quality": {
+          "score": 2,
+          "score_max": 5,
+          "status": "fail",
+          "notes": "The expected tickers were JPM and BAC, but the answer only cites GS and MS. Bank of America (BAC) was both expected and retrieved (C3 exists in the citation list), yet it is completely ignored in the answer. The answer also only uses 2 of 6 available citations, missing opportunities to provide broader coverage of the sector."
+        },
+        "answer_usefulness": {
+          "score": 3,
+          "score_max": 5,
+          "status": "partial_pass",
+          "notes": "The answer identifies relevant regulatory risks (stress tests, dividend restrictions, capital planning, TBTF resolution) which is useful for a reviewer. However, it lacks depth on any specific risk, misses two expected major banks (JPM not retrieved, BAC ignored despite being retrieved), and provides only surface-level information without specifics like regulatory framework names or quantitative impacts."
+        },
+        "outcome": "fail",
+        "pass": false,
+        "notes": [
+          "Unexpected retrieved tickers: GS, MS, AXP."
+        ]
+      }
+    }
+  ],
+  "build_manifest": {
+    "manifest_version": 1,
+    "chunking": {
+      "chunk_size_tokens": 800,
+      "chunk_overlap_tokens": 100
+    },
+    "tables": {
+      "lexical": "filing_chunks",
+      "dense": "filing_chunks_dense_snowflake_eval"
+    },
+    "dense_index": {
+      "embedding_model": "Snowflake/snowflake-arctic-embed-xs",
+      "embedding_dimension": 384,
+      "metric": "cosine"
+    },
+    "reranker": {
+      "default": "bge-reranker-v2-m3",
+      "candidate_pool": 12,
+      "enabled_by_default": false
+    },
+    "artifacts": {
+      "corpus_manifest": "edgar_corpus/manifest.json",
+      "chunk_records": "artifacts/chunk_records.jsonl",
+      "dense_index_metadata": "artifacts/dense_index_metadata.snowflake_eval.json",
+      "golden_eval_set": "eval/golden_queries.json",
+      "final_prompt_template": "prompts/final_answer_prompt.txt"
+    }
+  },
+  "summary": {
+    "pass": 0,
+    "partial_pass": 1,
+    "fail": 5
+  }
+}

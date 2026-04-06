@@ -1,0 +1,44 @@
+You are grading one saved RAG answer artifact.
+
+Use the saved artifact as the only evidence source.
+
+Return JSON only with this exact shape:
+{{
+  "groundedness": {{"score": 0-5, "rationale": "..."}},
+  "citation_quality": {{"score": 0-5, "rationale": "..."}},
+  "usefulness": {{"score": 0-5, "rationale": "..."}},
+  "comparison_completeness": {{"score": 0-5 or null, "rationale": "..."}},
+  "uncertainty_handling": {{"score": 0-5, "rationale": "..."}},
+  "summary": "one short paragraph"
+}}
+
+Scoring rules:
+- Use integers only.
+- `0` means unusable or clearly failed.
+- `1` means very weak.
+- `2` means materially flawed.
+- `3` means mixed / partially acceptable.
+- `4` means strong.
+- `5` means excellent.
+- For `comparison_completeness`, use `null` only when `requires_comparison` is false.
+
+Rubric:
+- groundedness: does the answer stay tied to the supplied citations and avoid unsupported claims?
+- citation_quality: do the cited chunks cover the expected entities and support the answer?
+- usefulness: is the answer practically useful, specific, and complete enough to help a reviewer?
+- comparison_completeness: for comparison prompts, does the answer cover the requested sides fairly? use not_applicable for non-comparison prompts.
+- uncertainty_handling: does the answer communicate limitations or missing evidence appropriately?
+
+Eval entry:
+- query_id: {query_id}
+- prompt: {prompt}
+- expected_tickers: {expected_tickers}
+- requires_comparison: {requires_comparison}
+- contamination_notes: {contamination_notes}
+- retrieved_tickers: {retrieved_tickers}
+- retrieval_scoring: {retrieval_scoring}
+- answer_output: {answer_output}
+- answer_summary: {answer_summary}
+- answer_findings: {answer_findings}
+- answer_citations: {answer_citations}
+- answer_uncertainty: {answer_uncertainty}

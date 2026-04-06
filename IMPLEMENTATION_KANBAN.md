@@ -16,17 +16,50 @@ Deliver a working SEC filings RAG demo with:
 - LanceDB-backed retrieval
 - evaluation across chunking and retrieval strategies
 - one final LLM call for answer generation
-- a fast local reviewer flow: install, build, demo
+- a fast reviewer flow: install, restore, demo
 
 Current portability path:
 
-- explicit local-build reviewer flow
-- lexical retrieval requires the `filing_chunks` table built by `uv run eliza-rag-load-chunks`
-- dense and hybrid retrieval additionally require `filing_chunks_dense` plus `artifacts/dense_index_metadata.json` built by `uv run eliza-rag-build-dense-index`
+- primary reviewer path uses a GitHub Release archive containing `data/lancedb/` plus `artifacts/dense_index_metadata.json`
+- maintainers can still regenerate lexical and dense retrieval artifacts locally with `uv run eliza-rag-load-chunks` and `uv run eliza-rag-build-dense-index`
+- `uv run eliza-rag-storage package-archive` is the publisher step that turns the current retrieval state into the demo artifact
 
 ## Active Phase
 
-### `in_progress` Phase 06C: Metadata-Aware Query Targeting And Coverage-Preserving Retrieval
+### `done` Phase 10: Final Demo Lock, Narrative Cleanup, And Reviewer Packaging
+
+Goal:
+
+- turn the existing implementation and saved artifact set into a cleaner reviewer-facing demo package
+
+Why now:
+
+- the repo already has the core retrieval, answer, and eval layers needed for a credible demo
+- the main remaining gap is presentation clarity rather than missing capability
+- reviewer and maintainer documentation had drifted together too heavily in the top-level README
+
+Phase 10 deliverables:
+
+- rewrite `README.md` around the clone-to-demo reviewer journey
+- add `ARCHITECTURE.md` as a compact live-walkthrough document
+- tighten the evaluation story around `eval/provider_eval_visualization_judged.png`
+- separate reviewer-facing entry docs from deeper eval detail and historical phase records
+- preserve the distinction between raw artifacts, judged overlays, and read-only reports
+
+Current implementation state:
+
+- the top-level README is now reviewer-first and shorter
+- the prior top-level README was preserved as `README_DEPRECATED.md`
+- `ARCHITECTURE.md` now explains the pipeline in plain language
+- the judged visualization is now framed as a discussion aid layered over saved raw evidence
+- supporting docs now separate:
+  - reviewer usage
+  - compact architecture explanation
+  - eval detail
+  - historical handoff records
+- the repo should now be treated as presentation-ready unless a later pass finds concrete reviewer-friction issues
+
+### `done` Phase 06C: Metadata-Aware Query Targeting And Coverage-Preserving Retrieval
 
 Goal:
 
@@ -55,6 +88,226 @@ Current implementation state:
 - the follow-up company-detection pass now adds stronger deterministic alias normalization for metadata-backed company names, including prompt forms such as `JPMorgan`, `JPMorgan Chase`, and `Bank of America`
 - the re-run comparison matrix now shows full named-company coverage for the main Apple/Tesla/JPMorgan blocker under `targeted_hybrid + BGE rerank`
 - current recommendation is to move to lightweight final evaluation and demo-lock preparation, using `targeted_hybrid` as the preferred retrieval mode for named-company comparison prompts
+- the release-archive demo flow is now implemented so reviewers can restore prebuilt retrieval artifacts instead of rebuilding LanceDB state locally during the demo setup
+
+### `done` Phase 07: Stabilization, Evaluation Harness, And Modular Provider Boundaries
+
+Goal:
+
+- freeze the current demo path before broad modularization
+- make release artifacts more traceable
+- extract clean interfaces so alternate embedding and reranking models can be tested without destabilizing the CLI flow
+
+Why now:
+
+- the repo already has a credible reviewer and demo path
+- the main risk has shifted from missing features to regressions during refactor
+- provider experimentation is now more valuable than another broad architecture phase, but only if it happens behind measurable interfaces
+
+Phase 07 deliverables:
+
+- create a small golden evaluation set with expected company coverage and contamination rules
+- emit a build manifest that records chunking, embedding, reranker, and artifact identity together
+- add an evaluation runner that saves structured outputs for baseline and candidate runs
+- extract explicit interfaces for embedders, rerankers, query analyzers, retrievers, and answer backends
+- keep deterministic query analysis as the default while provider experiments focus first on embeddings and rerankers
+
+Current implementation state:
+
+- `targeted_hybrid + BGE rerank` is the current recommended retrieval path for named-company comparison prompts
+- the release-archive reviewer flow is implemented and should remain the primary demo contract during this phase
+- the code/config default dense embedder is Snowflake, but the currently committed local dense artifact snapshot still reports `hashed_v1`
+- Phase 07 cleanup is complete:
+  - `eliza-rag-eval` now accepts `bge-reranker-base`
+  - the eval CLI surface now matches the retrieval and answer CLIs for reranker selection
+  - answer backend typing now uses the shared `AnswerBackend` contract cleanly
+  - the docs now distinguish the default Snowflake path from the current committed `hashed_v1` local artifact snapshot
+  - implementation handoff is captured in `PHASE_07_CLEANUP_HANDOFF.md`
+- Phase 07A is complete:
+  - committed golden eval set at `eval/golden_queries.json`
+  - bounded eval runner available as `uv run eliza-rag-eval`
+  - build manifest emitted to `artifacts/build_manifest.json`
+  - baseline retrieval-only eval saved at `eval/baseline_targeted_hybrid_retrieval.json`
+  - dense query encoding now follows saved dense-index metadata rather than current config defaults
+- Phase 07C is complete:
+  - named embedder selections now expose default `snowflake-arctic-embed-xs`, retained fallback `hashed_v1`, and alternate `bge-m3`
+  - named reranker selections now expose baseline `bge-reranker-v2-m3` and alternate `bge-reranker-base`
+  - `uv run eliza-rag-build-dense-index --embedder ...` now supports explicit side-by-side alternate dense builds
+  - README comparison commands now document baseline versus alternate provider runs without changing defaults
+- the next coding pass should run bounded provider comparisons against the committed golden eval set before any default recommendation changes
+
+### `done` Phase 08: Evidence-Driven Provider Evaluation And Scoring Hardening
+
+Goal:
+
+- turn the prepared Phase 07 experiment surface into decision-quality evidence
+- harden eval scoring so future default changes are justified by saved artifacts rather than wiring claims
+
+Why now:
+
+- Phase 07 completed the infrastructure needed for bounded provider comparisons
+- the repo still lacks saved evidence that the alternate embedder or alternate reranker is better than baseline
+- current eval scoring is still too shallow to support a strong default-change decision
+
+Phase 08 deliverables:
+
+- save a baseline provider-comparison eval artifact using the current recommended path
+- save an alternate-embedder-only eval artifact
+- save an alternate-reranker-only eval artifact
+- record exact commands and manifest linkage for each saved run
+- extend scoring beyond ticker coverage and comparison placeholders
+- decide, after those runs, whether the committed local dense artifact baseline should remain `hashed_v1` or be refreshed to Snowflake
+
+Current implementation state:
+
+- saved provider-comparison artifacts now exist for the bounded runs that actually completed locally:
+  - Snowflake embedder + `bge-reranker-v2-m3` at `eval/provider_baseline_snowflake_bge_v2_m3.json`
+  - `hashed_v1` embedder + `bge-reranker-v2-m3` at `eval/provider_hashed_v1_bge_v2_m3.json`
+  - Snowflake embedder + `bge-reranker-base` at `eval/provider_snowflake_bge_reranker_base.json`
+- per-run manifest linkage now exists for those saved artifacts under `artifacts/build_manifest.provider_*.json`
+- eval scoring is no longer placeholder-level:
+  - the runner now saves explicit `pass`, `partial_pass`, and `fail` outcomes
+  - contamination observations are recorded directly in the eval artifact
+  - citation-quality and answer-usefulness scoring are present as conditional answer-level fields and remain `not_evaluated` when answers are not included
+- current evidence on the golden slice favors Snowflake over the committed local `hashed_v1` baseline:
+  - Snowflake + `bge-reranker-v2-m3`: `4 pass / 1 partial_pass / 1 fail`
+  - `hashed_v1` + `bge-reranker-v2-m3`: `3 pass / 3 partial_pass / 0 fail`
+  - interpretation: `hashed_v1` avoids the outright fail on the broad bank-sector prompt, but does so with materially more contamination
+- current evidence does not show a meaningful reranker win for `bge-reranker-base` over `bge-reranker-v2-m3` on this bounded slice:
+  - Snowflake + `bge-reranker-base`: `4 pass / 1 partial_pass / 1 fail`
+- the attempted `bge-m3` embedder comparison was abandoned for this phase because the local rebuild cost was too high relative to the bounded evidence goal
+- the current recommendation for named-company comparison prompts remains `targeted_hybrid + bge-reranker-v2-m3`
+- the committed local dense artifact baseline should remain `hashed_v1` for now:
+  - Snowflake evidence is better, but the repo has not yet refreshed the reviewer-facing release artifact contract to a published Snowflake archive
+- reviewer-facing artifact hygiene needs to stay explicit:
+  - GitHub Release archives remain the intended large retrieval artifact source for reviewers
+  - local experiment tables and per-run manifests should remain separate from the release-path baseline
+
+### `done` Phase 09: Answer-Level Evaluation And Artifact-Driven Visualization
+
+Goal:
+
+- add bounded answer-level evaluation on top of the saved Phase 08 retrieval evidence layer
+- add a small visualization or reporting path that reads directly from saved eval artifacts
+
+Why now:
+
+- Phase 08 established stronger retrieval-quality evidence and saved provider artifacts
+- the main remaining uncertainty is answer quality, not whether provider evidence can be saved
+- later review and recommendation changes will be easier if the repo can inspect saved artifacts visually without depending on local transient state
+
+Phase 09 deliverables:
+
+- save at least one answer-included eval artifact for the current recommended provider path
+- add bounded structured answer-level judging
+- keep retrieval-level and answer-level scoring distinct in the saved artifact shape
+- add a small visualization or reporting path driven directly from saved `eval/*.json` artifacts
+
+Current implementation state:
+
+- the answer-included baseline artifact now exists at `eval/provider_baseline_snowflake_bge_v2_m3_answer.json`
+- the answer-included baseline manifest now exists at `artifacts/build_manifest.provider_baseline_snowflake_bge_v2_m3_answer.json`
+- additional answer-included comparison artifacts now exist at:
+  - `eval/provider_hashed_v1_bge_v2_m3_answer.json`
+  - `eval/provider_hashed_v1_bge_reranker_base_answer.json`
+  - `eval/provider_snowflake_bge_reranker_base_answer.json`
+- the answer-judging layer is now quantitative and OpenRouter-backed:
+  - method: `llm_judge_openrouter_quantitative`
+  - rubric saved at `eval/answer_judging_rubric.md`
+  - default model in the current environment: `z-ai/glm-5`
+  - dimensions:
+    - groundedness
+    - citation quality
+    - usefulness
+    - comparison completeness
+    - uncertainty handling
+  - each dimension receives a `0-5` score
+  - overall answer score is a weighted aggregate over the atomic dimensions
+- judged overlays now exist at:
+  - `eval/provider_baseline_snowflake_bge_v2_m3_answer_judged.json`
+  - `eval/provider_hashed_v1_bge_v2_m3_answer_judged.json`
+  - `eval/provider_hashed_v1_bge_reranker_base_answer_judged.json`
+  - `eval/provider_snowflake_bge_reranker_base_answer_judged.json`
+- the current judged answer summaries are:
+  - baseline Snowflake + `bge-reranker-v2-m3`: `1 pass / 2 partial_pass / 3 fail`
+  - `hashed_v1` + `bge-reranker-base`: `0 pass / 4 partial_pass / 2 fail`
+  - `hashed_v1` + `bge-reranker-v2-m3`: `0 pass / 2 partial_pass / 4 fail`
+  - Snowflake + `bge-reranker-base`: `0 pass / 2 partial_pass / 4 fail`
+- the expanded raw answer-only matrix currently shows:
+  - baseline Snowflake + `bge-reranker-v2-m3`: `3 pass / 2 partial_pass / 1 fail`
+  - `hashed_v1` + `bge-reranker-base`: `2 pass / 2 partial_pass / 2 fail`
+  - `hashed_v1` + `bge-reranker-v2-m3`: `3 pass / 3 partial_pass / 0 fail`
+  - Snowflake + `bge-reranker-base`: `3 pass / 2 partial_pass / 1 fail`
+- the repo now has a read-only report path:
+  - CLI: `uv run eliza-rag-eval-report`
+  - generated artifact: `eval/provider_eval_report.md`
+- judged-only report artifact: `eval/provider_eval_report_judged.md`
+- the repo still builds on the saved retrieval-quality artifact set from Phase 08:
+  - `eval/provider_baseline_snowflake_bge_v2_m3.json`
+  - `eval/provider_hashed_v1_bge_v2_m3.json`
+  - `eval/provider_snowflake_bge_reranker_base.json`
+- visualization work should remain artifact-driven:
+  - read saved eval JSON
+  - do not query live LanceDB state directly
+  - do not replace the raw evidence artifacts with a secondary analytics truth
+
+### `done` Phase 07A: Golden Eval Set And Build Manifest
+
+Goal:
+
+- freeze a small regression baseline before broader modularization
+- make release and retrieval artifacts more traceable
+
+Completed deliverables:
+
+- committed golden evaluation set with required comparison, single-company, time-bounded, and sector-style prompts
+- machine-readable build manifest covering chunking, table names, dense-index contract, reranker settings, and artifact paths
+- bounded eval runner that saves config, retrieved tickers, retrieved chunk ids, optional answer fields, and scoring placeholders
+- saved baseline output for the current local retrieval state
+- tests for the new eval and manifest shapes
+
+Important implementation note:
+
+- the first real eval run exposed a bug where dense query encoding followed current settings instead of the saved dense metadata artifact
+- that mismatch is now fixed and should be treated as part of the Phase 07A stabilization work, not as separate later cleanup
+
+### `done` Phase 07C: Provider Experiment Prep
+
+Goal:
+
+- make one alternate embedder and one alternate reranker selectable behind the extracted provider seams
+- document exact comparison commands without flipping the default recommendation
+
+Completed deliverables:
+
+- explicit named embedder aliases for the baseline Snowflake path and alternate `bge-m3` path
+- explicit alternate reranker adapter `bge-reranker-base` beside the baseline `bge-reranker-v2-m3`
+- dense-index build CLI support for explicit embedder selection plus alternate artifact naming
+- focused provider-selection tests and README command documentation
+
+Important implementation note:
+
+- this phase wires the comparison surface only
+- it does not yet claim that the alternate embedder or reranker outperforms the current baseline
+
+### `done` Phase 07 Cleanup: Congruence, Artifact Consistency, And Interface Hygiene
+
+Goal:
+
+- remove the remaining mismatches between CLI claims, saved artifacts, interface documentation, and current code state
+
+Completed deliverables:
+
+- eval CLI reranker surface expanded to include `bge-reranker-base`
+- eval CLI test coverage added for the alternate reranker selection
+- duplicate local answer-backend protocol removed in favor of the shared `AnswerBackend` contract
+- docs updated to distinguish the Snowflake code/config default from the currently committed local `hashed_v1` dense artifact snapshot
+- cleanup handoff recorded in `PHASE_07_CLEANUP_HANDOFF.md`
+
+Important implementation note:
+
+- this cleanup pass did not rebuild dense artifacts
+- it resolved the artifact mismatch by making the saved local artifact state explicit in the docs and handoff records
 
 ## Track 1: Project Setup
 
@@ -288,7 +541,7 @@ Expected output:
 
 Current state:
 
-- the repo now declares the local-build reviewer flow as the supported portability mode
+- the repo now declares the GitHub Release archive restore flow as the supported reviewer mode
 - lexical retrieval fails with a direct `uv run eliza-rag-load-chunks` instruction when the chunk table is missing
 - dense and hybrid retrieval fail with a direct `uv run eliza-rag-build-dense-index` instruction when dense artifacts are missing
 - retrieval JSON status now reports lexical table presence plus dense table and metadata presence
@@ -355,7 +608,7 @@ Current state:
 
 ## Track 6: Reranking
 
-### `in_progress` Add reranking stage
+### `done` Add reranking stage
 
 Expected output:
 
@@ -364,11 +617,11 @@ Expected output:
 
 Current state:
 
-- Phase 06B is the active project path
-- reranking is the chosen next retrieval-quality improvement
-- implementation remains to be completed
+- reranking is implemented in retrieval and answer flows
+- `--rerank` exposes reranking explicitly at the CLI layer
+- the repo supports both `heuristic` and `bge-reranker-v2-m3`, with BGE as the recommended path
 
-### `in_progress` Support reranking in eval matrix
+### `todo` Support reranking in eval matrix
 
 Expected output:
 
@@ -376,8 +629,8 @@ Expected output:
 
 Current state:
 
-- Phase 06B requires direct comparison between current baseline retrieval and reranked retrieval
-- the evaluation matrix should stay bounded around the reranking decision rather than expanding broadly
+- the next evaluation harness should preserve direct comparison between reranked and non-reranked runs
+- reranking should now be treated as one controlled axis within the broader golden-set regression harness
 
 ## Track 7: Answer Generation
 
@@ -413,14 +666,19 @@ Current state:
 
 ## Track 8: Evaluation
 
-### `todo` Create gold evaluation question set
+### `in_progress` Create gold evaluation question set
 
 Expected output:
 
 - 12 to 20 representative questions
 - expected entities, periods, and themes
 
-### `todo` Define experiment matrix
+Current state:
+
+- the repo now has several known-critical demo questions that should seed the golden set
+- the next step is to formalize them into a committed evaluation artifact with explicit pass/fail expectations
+
+### `in_progress` Define experiment matrix
 
 Expected output:
 
@@ -428,6 +686,11 @@ Expected output:
 - retrieval mode arms
 - query rewrite arms
 - reranking arms
+
+Current state:
+
+- the immediate matrix should stay intentionally narrow
+- first compare the current default path against no-behavior-change modularization baselines and one-at-a-time provider swaps
 
 ### `todo` Implement retrieval evaluation
 
@@ -517,23 +780,85 @@ Expected output:
 1. Project setup
 2. Corpus ingestion
 3. Baseline chunking
-4. LanceDB ingestion and dense retrieval
-5. Lexical and hybrid retrieval
-6. Prompt template and one-call answer path
-7. Eval set and experiment matrix
-8. Reranking
-9. Documentation and final packaging
+4. Retrieval and answer path implementation
+5. Release-archive reviewer flow
+6. Golden eval set and build manifest
+7. No-behavior-change interface extraction
+8. One-at-a-time provider experiments
+
+## Track 11: Modularization
+
+### `todo` Add build manifest for retrieval artifacts
+
+Expected output:
+
+- artifact metadata that records chunking settings, embedding model, reranker, and source artifact names together
+- a portable record that can be shipped with release archives and used in evaluation reports
+
+### `done` Extract embedder interface
+
+Expected output:
+
+- stable internal contract for embedding providers
+- current Snowflake implementation retained as the default adapter
+- room for one alternate embedding provider without CLI churn
+
+Status:
+
+- added `src/eliza_rag/interfaces.py` with a shared `Embedder` contract
+- moved current embedding behavior behind resolver-selected adapters in `src/eliza_rag/embeddings.py`
+- kept existing dense-index build and query behavior stable
+
+### `done` Extract reranker interface
+
+Expected output:
+
+- stable internal contract for reranking providers
+- current heuristic and BGE rerankers moved behind the same interface
+
+Status:
+
+- added reranker adapters and `build_reranker(...)` dispatch in `src/eliza_rag/retrieval.py`
+- preserved the existing heuristic and transformer reranker behavior behind one internal seam
+
+### `done` Extract query analyzer and retriever interfaces
+
+Expected output:
+
+- deterministic query analysis preserved as the default implementation
+- retrieval orchestration separated from provider-specific retrieval logic
+
+Status:
+
+- moved deterministic query analysis behind `build_query_analyzer(...)`
+- moved retrieval mode dispatch behind `build_retriever(...)`
+- preserved the current CLI retrieval behavior and default retrieval path
+
+### `done` Extract answer backend interface cleanly from answer orchestration
+
+Expected output:
+
+- prompt assembly and citation enforcement remain in the core pipeline
+- backend transport details move behind explicit backend clients
+
+Status:
+
+- answer backends now implement the shared `AnswerBackend` protocol
+- prompt assembly, response parsing, and citation enforcement remain in core orchestration
 
 ## Immediate Next Tasks
 
-### `in_progress` Implement reranking over top retrieval candidates
+### `in_progress` Run bounded provider experiments behind the extracted interfaces
 
 Why first:
 
-- it is the selected Phase 06B workstream and the highest-leverage retrieval-quality upgrade already identified by the project docs
+- the repo now has a frozen eval baseline and explicit provider seams, so one-at-a-time provider comparison is the next highest-signal step
 
-### `todo` Expose reranking configuration in retrieval and answer commands
+### `todo` Compare the baseline Snowflake embedder against `bge-m3`
 
+### `todo` Compare the baseline `bge-reranker-v2-m3` reranker against `bge-reranker-base`
+
+### `todo` Extend eval scoring beyond the current coverage placeholders once the first provider comparisons are recorded
 ### `todo` Compare baseline hybrid retrieval against reranked retrieval on representative questions
 
 ### `todo` Decide whether reranked retrieval becomes the recommended demo path

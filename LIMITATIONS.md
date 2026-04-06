@@ -160,6 +160,153 @@ Implications:
 - the main known multi-company blocker has been narrowed enough to justify final evaluation, but the behavior is still heuristic rather than guaranteed for every unseen company-name variant
 - future regressions are still possible for aliases that are not represented clearly enough in corpus metadata
 
+### Release Archive Freshness Is A Publisher Responsibility
+
+The primary demo distribution path now restores a prebuilt LanceDB archive from a GitHub Release instead of rebuilding retrieval state on every reviewer machine.
+
+Implications:
+
+- the archive must be regenerated after any corpus, chunking, lexical-index, or dense-index refresh
+- a stale release ZIP can drift from the current code and quietly produce confusing demo behavior if it is not republished
+- this tradeoff is acceptable for the current live-demo goal because it reduces reviewer setup risk, but it is still a manual publisher responsibility rather than a self-validating artifact pipeline
+
+### The New Golden Eval Baseline Already Exposes Contamination And Sector-Coverage Gaps
+
+Phase 07A added a committed golden eval set and a saved baseline run artifact. That baseline already shows meaningful retrieval-quality gaps rather than just harness shape.
+
+Observed in `eval/baseline_targeted_hybrid_retrieval.json`:
+
+- the Apple single-company annual-risk prompt still pulls unrelated issuers into the top-k
+- the broader bank regulatory or capital prompt does not fully recover the expected `JPM` and `BAC` coverage in the saved baseline
+
+Implications:
+
+- freezing the eval set does not mean retrieval quality is frozen at an acceptable endpoint
+- broader sector prompts remain weaker than named-company comparison prompts
+- later scoring should explicitly penalize contamination and not only missing expected tickers
+
+### Retrieval-Level And Answer-Level Scoring Are Now Separated, But The Answer Judge Is Still Heuristic
+
+The eval runner no longer stops at retrieval-only scoring, but the current answer judge is still a bounded heuristic layer rather than a human review process or judge-model ensemble.
+
+Current state:
+
+- expected ticker coverage is recorded
+- comparison behavior is recorded
+- contamination observations are now turned into stable saved fields
+- explicit `pass`, `partial_pass`, and `fail` outcomes are now assigned for retrieval-only runs
+- the answer-included baseline artifact now also records:
+  - groundedness
+  - citation quality
+  - usefulness
+  - comparison completeness
+  - uncertainty handling
+- the current answer-judging method is `heuristic_only`
+
+Implications:
+
+- the provider artifacts are now stronger retrieval-quality evidence than the old placeholder contract
+- the saved answer-included baseline is stronger end-to-end evidence than the retrieval-only runs, but it is still not the same thing as human judgment
+- future provider experiments should avoid claiming answer wins from heuristic judge output alone without preserving the raw answer artifact
+
+### OpenRouter Judge Runs Depend On External Credentials And Provider Behavior
+
+The repo now supports a judge-assisted eval pass using OpenRouter, with `qwen/qwen3.6-plus:free` as the default configured judge model.
+
+Implications:
+
+- a real judge run requires `OPENROUTER_API_KEY` or `ELIZA_RAG_JUDGE_API_KEY`
+- the judge path still depends on the narrow Responses-style contract already used elsewhere in the repo
+- free hosted models can change behavior or availability independently of the saved raw eval artifacts
+- judge-assisted outputs should therefore be treated as an overlay on saved answer artifacts, not as a replacement for them
+
+### Local Answer Artifacts Can Still Fail Because The Single-Call Answer Contract Is Strict
+
+The saved Phase 09 answer-included baseline run shows that the answer layer can still fail even when retrieval looks reasonable.
+
+Observed in `eval/provider_baseline_snowflake_bge_v2_m3_answer.json`:
+
+- the sector-style bank regulatory prompt still fails retrieval-level expectations
+- the local Ollama answer for that case also failed the strict parsing contract with `Model response must include a non-empty \`answer\``
+
+Implications:
+
+- answer-included evals can expose answer-format failures in addition to retrieval-quality failures
+- the single-call answer contract remains intentionally strict and does not retry malformed outputs
+- answer-level reporting should therefore be interpreted alongside the raw `answer_error` and saved artifact contents, not only the summary counts
+
+### Provider Wiring Is Not The Same Thing As Provider Evaluation
+
+Phase 07C exposed alternate provider selections explicitly, and Phase 08 converted part of that surface into actual saved evidence.
+
+Current state:
+
+- saved provider-comparison artifacts now exist for:
+  - Snowflake embedder + `bge-reranker-v2-m3`
+  - `hashed_v1` embedder + `bge-reranker-v2-m3`
+  - Snowflake embedder + `bge-reranker-base`
+- alternate embedder `bge-m3` is still selectable beside baseline `snowflake-arctic-embed-xs`
+- alternate reranker `bge-reranker-base` is selectable beside baseline `bge-reranker-v2-m3`
+- the `bge-m3` embedder was not retained in the saved Phase 08 evidence set because the local rebuild cost was too high for this bounded run
+- README commands now describe how to run baseline versus candidate comparisons one component at a time
+
+Implications:
+
+- no default recommendation should change just because a candidate is wired in
+- the repo now has meaningful saved provider evidence, but only for the runs that completed locally
+- side-by-side dense builds need separate table names and metadata artifact names or the baseline contract can be overwritten
+
+### Hugging Face Model Downloads Still Add Operational Friction
+
+The provider experiment surface depends on local model downloads for the non-hashed embedder and the transformer rerankers.
+
+Implications:
+
+- first use of `bge-m3`, `bge-reranker-v2-m3`, or `bge-reranker-base` can fail or stall in environments without network access or sufficient local cache
+- provider experiments are therefore easier to wire than to reproduce deterministically on a fresh machine
+- this does not block the baseline demo path, but it does matter for later comparison reproducibility
+
+### Release Archives Should Remain The Reviewer-Facing Artifact Source
+
+The repo now carries both saved eval evidence and a reviewer-facing release-archive story. Those need to stay distinct.
+
+Implications:
+
+- saved `eval/*.json` artifacts are useful evidence and should remain small enough to review and visualize
+- local experiment tables and temporary inspection outputs should not become part of the normal reviewer story
+- GitHub Release archives should remain the sanctioned large retrieval artifact source for reviewers
+- stale local dense tables, temp LanceDB inspection directories, or abandoned provider rebuilds should not be treated as demo truth unless they are republished deliberately
+
+### Generated Reports Are Views, Not New Evidence Sources
+
+The repo now includes a generated report artifact at `eval/provider_eval_report.md`.
+
+Implications:
+
+- the report is useful for spotting failure clusters quickly
+- the report is derived from saved `eval/*.json` files and can only be as good as those inputs
+- recommendation changes should still cite the underlying JSON artifacts, not only the generated report
+
+### Modularization Without A Frozen Eval Set Would Be High Risk
+
+The repo is now far enough along that broad modularization work can regress a demo path that currently functions.
+
+Implications:
+
+- extracting provider interfaces before freezing a small golden evaluation set would make regressions harder to detect
+- changing multiple components at once would blur whether failures come from architecture changes, provider swaps, or both
+- the next phase should add a golden set and build manifest before treating provider modularity as the main workstream
+
+### Query Routing Is Still Better Framed As A Control-Plane Problem Than A Model-Swap Problem
+
+The current repo uses deterministic query analysis to infer years, companies, and comparison intent. That logic is heuristic, but it is also inspectable.
+
+Implications:
+
+- a learned or generative routing model would add opaque failure modes before the repo has enough evaluation structure to justify it
+- routing changes should be treated as a later experiment, not the first modularization target
+- embeddings and rerankers remain the safer first provider-swap surfaces
+
 ## Evaluation Implications
 
 These limitations are part of the experiment, not just background noise.

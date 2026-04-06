@@ -10,6 +10,55 @@ Build a working demo that answers a business question over SEC filings using:
 
 This plan is optimized for the assessment timebox: quick to implement, easy to explain live, and accurate enough to defend.
 
+## Current Repo State
+
+The repo is no longer at the early scaffold stage described in the original execution plan.
+
+Current implemented state:
+
+- local corpus normalization and chunk materialization are working
+- lexical, dense, hybrid, and `targeted_hybrid` retrieval paths exist
+- reranking is implemented and exposed explicitly
+- one alternate embedder and one alternate reranker are now wired behind explicit provider-selection surfaces
+- the one-final-call answer path is implemented
+- the primary reviewer flow now restores a prebuilt GitHub Release archive instead of requiring a local retrieval rebuild
+- the top-level docs now separate reviewer usage, architecture explanation, and deeper eval detail
+
+Current interpretation:
+
+- the main demo path is credible enough to stabilize
+- the repo has completed the bounded answer-eval and visualization work from Phase 09
+- the next priority after that work is documentation and presentation quality rather than new core capability
+- Phase 07 completed the provider-boundary extraction work
+- Phase 08 completed the provider-evidence and retrieval-scoring layer
+- Phase 09 completed bounded answer-level evaluation and artifact-driven inspection
+- Phase 10 is the final bounded demo-lock and reviewer-packaging phase
+
+## Next Recommended Execution Path
+
+The next bounded phase should now be treated as Phase 10:
+
+1. simplify the top-level README around the reviewer journey
+2. separate the compact architecture story into its own document
+3. tighten the evaluation narrative around the saved judged visualization
+4. keep raw artifacts, judged overlays, and read-only reports clearly separated
+5. leave maintainer detail and phase history in supporting docs rather than the entry path
+
+This is the recommended order because:
+
+- the main uncertainty is now presentation quality, not missing retrieval capability
+- the repo already has a credible saved evidence stack
+- reviewer friction is now more likely to come from diffuse documentation than from missing core mechanics
+
+Current status:
+
+- the eval baseline and build-manifest foundation are in place
+- Phase 07B completed the explicit interface extraction for embedders, rerankers, query analyzers, retrievers, and answer backends
+- Phase 07 is complete in intended scope
+- Phase 08 produced bounded saved provider evidence and stronger retrieval-level scoring
+- Phase 09 produced bounded answer-level evaluation, judged overlays, and artifact-driven reporting
+- Phase 10 should now be treated as the final demo-lock and reviewer-packaging pass
+
 ## What We Know From The Workspace
 
 - The workspace currently contains only the prompt, the assessment PDF, and `edgar_corpus.zip`.
@@ -330,6 +379,23 @@ Recommended judging method:
 
 This aligns with the prompt note that using a strong model with one-shot demonstrations is acceptable for verification.
 
+### 3A. Stability Harness Before Broader Modularity
+
+Before broadening the architecture further, add a narrow stability harness that records:
+
+- query text
+- expected company coverage
+- unacceptable contamination
+- retrieval mode and reranker configuration
+- final answer output
+- citation ids and cited chunks
+
+Purpose:
+
+- make modular refactors measurable rather than anecdotal
+- prevent accidental regressions while extracting provider interfaces
+- create a stable baseline before testing alternate embedding and reranking models
+
 ### 4. Decision Rule
 
 Choose the final pipeline by:
@@ -392,6 +458,24 @@ Recommended answer format:
 - evaluation notes
 - demo walkthrough notes
 
+### Phase 5: Stabilization And Modularization Prep
+
+- golden evaluation set and eval runner
+- build manifest tied to release artifacts
+- explicit provider interfaces for:
+  - embedder
+  - reranker
+  - query analyzer
+  - retriever
+  - answer backend
+- no-behavior-change extraction of current implementations behind those interfaces
+
+### Phase 6: Bounded Provider Experiments
+
+- compare the current Snowflake embedding baseline against one stronger candidate
+- compare the current BGE reranker against one alternate reranker
+- keep deterministic query analysis as the default unless evaluation proves otherwise
+
 ## Proposed Final Recommendation
 
 Unless experiments show otherwise, the default submission should be:
@@ -418,6 +502,10 @@ This is the highest-confidence path for the assessment because it is:
   - Mitigation: chunk carefully and rerank aggressively
 - Risk: comparison questions need evidence from multiple companies
   - Mitigation: diversify retrieval across entities and cap per-document dominance
+- Risk: modularization could silently regress a demo path that currently works
+  - Mitigation: freeze a golden evaluation set and build manifest before provider swaps
+- Risk: introducing a learned router too early adds opaque failures
+  - Mitigation: keep deterministic query analysis as the default until evaluation shows it is the dominant bottleneck
 - Risk: answer call exceeds context budget
   - Mitigation: limit to top reranked chunks and compress metadata formatting
 - Risk: late-interaction experiments consume too much time

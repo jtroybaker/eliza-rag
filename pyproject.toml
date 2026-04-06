@@ -12,8 +12,10 @@ dependencies = [
   "chonkie>=1.0.0",
   "huggingface-hub>=0.32.0",
   "lancedb>=0.24.0",
+  "matplotlib>=3.9.0",
   "pylance>=0.38.0",
   "python-dotenv>=1.1.0",
+  "seaborn>=0.13.0",
   "sentence-transformers>=3.0.0",
 ]
 
@@ -32,6 +34,10 @@ eliza-rag-storage = "eliza_rag.storage_cli:main"
 eliza-rag-search = "eliza_rag.retrieval_cli:main"
 eliza-rag-answer = "eliza_rag.answer_cli:main"
 eliza-rag-local-llm = "eliza_rag.local_runtime_cli:main"
+eliza-rag-eval = "eliza_rag.eval_cli:main"
+eliza-rag-eval-report = "eliza_rag.eval_report_cli:main"
+eliza-rag-eval-plot = "eliza_rag.eval_plot_cli:main"
+eliza-rag-eval-judge = "eliza_rag.eval_judge_cli:main"
 
 [tool.uv]
 package = true

@@ -1,0 +1,1417 @@
+{
+  "eval_version": 3,
+  "golden_eval_set": "eval/golden_queries.json",
+  "build_manifest_path": "artifacts/build_manifest.provider_hashed_v1_bge_reranker_base_answer.json",
+  "run_metadata": {
+    "command": "uv run eliza-rag-eval --mode targeted_hybrid --rerank --reranker bge-reranker-base --include-answer --manifest-output artifacts/build_manifest.provider_hashed_v1_bge_reranker_base_answer.json --output eval/provider_hashed_v1_bge_reranker_base_answer.json",
+    "output_path": "eval/provider_hashed_v1_bge_reranker_base_answer.json",
+    "manifest_output_path": "artifacts/build_manifest.provider_hashed_v1_bge_reranker_base_answer.json"
+  },
+  "config": {
+    "retrieval_mode": "targeted_hybrid",
+    "top_k": 8,
+    "phrase_query": false,
+    "include_answer": true,
+    "reranking": {
+      "enabled": true,
+      "reranker": "bge-reranker-base",
+      "candidate_pool": 12
+    },
+    "answer_judging": {
+      "method": "llm_judge_openrouter_quantitative",
+      "judge_assisted": true,
+      "provider": "openrouter",
+      "model": "z-ai/glm-5",
+      "rubric_version": "phase_10_llm_judge_v2",
+      "rubric_path": "eval/answer_judging_rubric.md",
+      "prompt_path": "prompts/eval_judge_prompt.txt",
+      "score_range": {
+        "min": 0,
+        "max": 5
+      },
+      "aggregation": {
+        "type": "weighted_average",
+        "weights": {
+          "groundedness": 0.3,
+          "citation_quality": 0.25,
+          "usefulness": 0.25,
+          "comparison_completeness": 0.15,
+          "uncertainty_handling": 0.05
+        }
+      }
+    }
+  },
+  "scoring_status": {
+    "implemented": true,
+    "note": "Pass, partial_pass, and fail are assigned from explicit retrieval outcomes plus OpenRouter-backed quantitative answer judging when answers are included."
+  },
+  "entries": [
+    {
+      "query_id": "compare_aapl_tsla_jpm_risk_factors",
+      "prompt": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+      "expected_tickers": [
+        "AAPL",
+        "TSLA",
+        "JPM"
+      ],
+      "requires_comparison": true,
+      "contamination_notes": "Multi-company comparison should preserve coverage for all named entities rather than collapsing onto a single issuer.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "retrieval_text": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "lexical_query": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "dense_query": "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "AAPL",
+          "JPM",
+          "TSLA"
+        ],
+        "detected_company_names": [
+          "Apple Inc",
+          "JPMorgan Chase & Co",
+          "Tesla Inc"
+        ],
+        "target_tickers": [
+          "AAPL",
+          "JPM",
+          "TSLA"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": true,
+        "is_comparison_query": true,
+        "requires_entity_coverage": true
+      },
+      "retrieved_tickers": [
+        "AAPL",
+        "JPM",
+        "TSLA"
+      ],
+      "retrieved_chunk_ids": [
+        "AAPL_10K_2022Q3_2022-10-28_full::chunk-0014",
+        "JPM_10K_2026-02-13_full::chunk-0164",
+        "AAPL_10K_2022Q3_2022-10-28_full::chunk-0026",
+        "TSLA_10K_2024Q4_2025-01-30_full::chunk-0014",
+        "AAPL_10K_2023Q3_2023-11-03_full::chunk-0014",
+        "TSLA_10K_2022Q4_2023-01-31_full::chunk-0108",
+        "AAPL_10K_2022Q3_2022-10-28_full::chunk-0025",
+        "TSLA_10K_2023Q4_2024-01-29_full::chunk-0035"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": null,
+      "answer_summary": null,
+      "answer_findings": null,
+      "answer_citations": null,
+      "answer_uncertainty": null,
+      "answer_model": null,
+      "answer_error": "Model response must include a non-empty `findings` list.",
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": true,
+          "comparison_behavior_observed": true,
+          "contamination_observed": false,
+          "contamination_tickers": [],
+          "contamination_severity": "none"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "z-ai/glm-5",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 0,
+            "score_max": 5,
+            "status": "error",
+            "notes": "Model response must include a non-empty `findings` list."
+          },
+          "citation_quality": {
+            "score": 0,
+            "score_max": 5,
+            "status": "error",
+            "observed_citation_ids": [],
+            "observed_tickers": [],
+            "notes": "Model response must include a non-empty `findings` list."
+          },
+          "usefulness": {
+            "score": 0,
+            "score_max": 5,
+            "status": "error",
+            "notes": "Model response must include a non-empty `findings` list."
+          },
+          "comparison_completeness": {
+            "score": null,
+            "score_max": 5,
+            "status": "not_applicable",
+            "notes": "Answer generation failed."
+          },
+          "uncertainty_handling": {
+            "score": 0,
+            "score_max": 5,
+            "status": "error",
+            "notes": "Model response must include a non-empty `findings` list."
+          },
+          "overall": "fail",
+          "overall_score": 0.0,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "Model response must include a non-empty `findings` list."
+          ],
+          "judge_result": null
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": true,
+        "comparison_behavior_observed": true,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "score": 0,
+          "score_max": 5,
+          "status": "error",
+          "observed_citation_ids": [],
+          "observed_tickers": [],
+          "notes": "Model response must include a non-empty `findings` list."
+        },
+        "answer_usefulness": {
+          "score": 0,
+          "score_max": 5,
+          "status": "error",
+          "notes": "Model response must include a non-empty `findings` list."
+        },
+        "outcome": "fail",
+        "pass": false,
+        "notes": [
+          "Answer generation error: Model response must include a non-empty `findings` list."
+        ]
+      }
+    },
+    {
+      "query_id": "compare_aapl_tsla_risk_factors",
+      "prompt": "Compare the main risk factors facing Apple and Tesla.",
+      "expected_tickers": [
+        "AAPL",
+        "TSLA"
+      ],
+      "requires_comparison": true,
+      "contamination_notes": "Avoid contamination from unrelated mega-cap tech names when both Apple and Tesla are explicitly requested.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "Compare the main risk factors facing Apple and Tesla.",
+        "retrieval_text": "Compare the main risk factors facing Apple and Tesla.",
+        "lexical_query": "Compare the main risk factors facing Apple and Tesla.",
+        "dense_query": "Compare the main risk factors facing Apple and Tesla.",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "AAPL",
+          "TSLA"
+        ],
+        "detected_company_names": [
+          "Apple Inc",
+          "Tesla Inc"
+        ],
+        "target_tickers": [
+          "AAPL",
+          "TSLA"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": true,
+        "is_comparison_query": true,
+        "requires_entity_coverage": true
+      },
+      "retrieved_tickers": [
+        "AAPL",
+        "TSLA"
+      ],
+      "retrieved_chunk_ids": [
+        "AAPL_10Q_2022Q1_2022-04-29_full::chunk-0014",
+        "AAPL_10K_2022Q3_2022-10-28_full::chunk-0003",
+        "TSLA_10K_2024Q4_2025-01-30_full::chunk-0014",
+        "TSLA_10K_2022Q4_2023-01-31_full::chunk-0019",
+        "AAPL_10Q_2023Q2_2023-05-05_full::chunk-0012",
+        "TSLA_10Q_2022Q2_2022-07-25_full::chunk-0053",
+        "AAPL_10Q_2022Q2_2022-07-29_full::chunk-0011",
+        "TSLA_10Q_2025Q3_2025-10-23_full::chunk-0023"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "Both Apple and Tesla face significant challenges related to the production of their products. However, Apple's risks are mainly centered around delays and cost overruns associated with launching new devices like iPhone SE with 5G technology and Mac Studio, as well as managing manufacturing costs and supply chains. On the other hand, Tesla is grappling with the challenge of ramping up production for its vehicles in a timely manner, especially for models like Model X and Model 3. Additionally, both companies are dealing with regulatory issues such as compliance related to environmental protection regulations, which could impact their operations negatively. [C1] [C2] [C4] [C6]",
+      "answer_summary": "Apple mentioned risks related to the production of new products like iPhone SE with 5G technology and Mac Studio, while Tesla faced concerns about delays in ramping up production for new vehicles such as Model X and Model 3. Both companies had issues with regulatory compliance and potential product defects.",
+      "answer_findings": [
+        {
+          "statement": "Apple is facing challenges related to the production of new devices including iPhone SE with 5G technology and Mac Studio due to potential delays in ramping up production and associated cost overruns.",
+          "citations": [
+            "C1",
+            "C2"
+          ]
+        },
+        {
+          "statement": "Tesla has encountered delays in launching and scaling up manufacturing processes for its vehicles such as Model X and Model 3, causing regulatory issues related to compliance with environmental protection laws.",
+          "citations": [
+            "C4",
+            "C6"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "AAPL_10Q_2022Q1_2022-04-29_full::chunk-0014",
+          "filing_id": "AAPL_10Q_2022Q1_2022-04-29_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2022-04-29",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2022Q1_2022-04-29_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "AAPL_10K_2022Q3_2022-10-28_full::chunk-0003",
+          "filing_id": "AAPL_10K_2022Q3_2022-10-28_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-K",
+          "filing_date": "2022-10-28",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10K_2022Q3_2022-10-28_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "TSLA_10K_2024Q4_2025-01-30_full::chunk-0014",
+          "filing_id": "TSLA_10K_2024Q4_2025-01-30_full",
+          "ticker": "TSLA",
+          "company_name": "Tesla Inc",
+          "form_type": "10-K",
+          "filing_date": "2025-01-30",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/TSLA_10K_2024Q4_2025-01-30_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "TSLA_10K_2022Q4_2023-01-31_full::chunk-0019",
+          "filing_id": "TSLA_10K_2022Q4_2023-01-31_full",
+          "ticker": "TSLA",
+          "company_name": "Tesla Inc",
+          "form_type": "10-K",
+          "filing_date": "2023-01-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/TSLA_10K_2022Q4_2023-01-31_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "AAPL_10Q_2023Q2_2023-05-05_full::chunk-0012",
+          "filing_id": "AAPL_10Q_2023Q2_2023-05-05_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2023-05-05",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2023Q2_2023-05-05_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "TSLA_10Q_2022Q2_2022-07-25_full::chunk-0053",
+          "filing_id": "TSLA_10Q_2022Q2_2022-07-25_full",
+          "ticker": "TSLA",
+          "company_name": "Tesla Inc",
+          "form_type": "10-Q",
+          "filing_date": "2022-07-25",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/TSLA_10Q_2022Q2_2022-07-25_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The evidence does not provide information on the extent of these challenges or their potential impact on revenue. Additionally, there is no mention of any competitive pressures affecting production timelines for either company.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": true,
+          "comparison_behavior_observed": true,
+          "contamination_observed": false,
+          "contamination_tickers": [],
+          "contamination_severity": "none"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "z-ai/glm-5",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 5,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer strictly adheres to the provided citations, referencing specific risk factors for Apple (iPhone SE, Mac Studio) and Tesla (Model X, Model 3) found in the respective 10-Q and 10-K filings without introducing external misinformation or contamination."
+          },
+          "citation_quality": {
+            "score": 5,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The retrieved chunks accurately target the requested tickers (AAPL, TSLA) and provide specific, relevant content regarding production delays and regulatory compliance, covering the necessary scope for a comparison."
+          },
+          "usefulness": {
+            "score": 5,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The response is highly useful, offering a direct comparison of production risks and regulatory challenges with specific product examples, enabling a reviewer to quickly grasp the distinct and shared risk profiles."
+          },
+          "comparison_completeness": {
+            "score": 5,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer provides a balanced view of both entities, detailing Apple's specific manufacturing hurdles, Tesla's production ramp issues, and a synthesis of their shared regulatory concerns."
+          },
+          "uncertainty_handling": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "While the answer provides a separate uncertainty note acknowledging missing evidence on revenue impact and competitive pressures, the main answer text lacks explicit hedging language or statements clarifying that the list of risks may not be exhaustive."
+          },
+          "overall": "pass",
+          "overall_score": 4.9,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "comparison_completeness": 0.15,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "The answer effectively compares Apple and Tesla's risk factors, citing specific production delays and regulatory issues from relevant filings without contamination. It is well-grounded and useful, though it could better integrate uncertainty language directly into the main response."
+          ],
+          "judge_result": {
+            "summary": "The answer effectively compares Apple and Tesla's risk factors, citing specific production delays and regulatory issues from relevant filings without contamination. It is well-grounded and useful, though it could better integrate uncertainty language directly into the main response.",
+            "raw_response": "1.  **Analyze the Request**:\n    *   Task: Grade a saved RAG answer artifact based on provided evidence.\n    *   Output format: JSON only, specific shape.\n    *   Scoring: 0-5 integers.\n    *   Rubric: Groundedness, Citation Quality, Usefulness, Comparison Completeness, Uncertainty Handling.\n    *   Eval Entry:\n        *   Query: Compare main risk factors facing Apple and Tesla.\n        *   Expected Tickers: AAPL, TSLA.\n        *   Requires Comparison: True.\n        *   Contamination Notes: Avoid unrelated mega-cap tech.\n        *   Answer Output: Discusses production challenges for both (iPhone SE/Mac Studio for Apple, Model X/Model 3 for Tesla), mentions regulatory compliance. Citations: [C1] [C2] [C4] [C6].\n        *   Citations List: C1-C6 provided (AAPL and TSLA files).\n        *   Findings: Statements provided about Apple and Tesla risks.\n        *   Uncertainty: Mentions lack of info on extent of challenges and competitive pressures.\n\n2.  **Evaluate Groundedness**:\n    *   Does the answer stay tied to citations?\n    *   Answer claims:\n        *   Apple: \"delays and cost overruns associated with launching new devices like iPhone SE with 5G technology and Mac Studio\". The findings cite C1, C2. Without reading the text of C1/C2, I assume the standard behavior where findings map to answer. However, the answer mentions \"iPhone SE with 5G\" and \"Mac Studio\". Are these in the chunks?\n        *   Wait, I don't have the *text content* of the chunks, only the metadata (chunk ID). I must rely on the \"answer_findings\" and \"answer_output\" to align.\n        *   The answer states: \"Apple's risks are mainly centered around delays... iPhone SE with 5G... Mac Studio\".\n        *   The findings say: \"Apple is facing challenges... iPhone SE with 5G... Mac Studio\". Cited C1, C2.\n        *   The answer states: \"Tesla is grappling with... ramping up production... Model X and Model 3\".\n        *   The findings say: \"Tesla has encountered delays... Model X and Model 3\".\n        *   The answer states: \"regulatory issues such as compliance related to environmental protection regulations\".\n        *   The findings don't explicitly support the \"environmental protection regulations\" claim in the snippet provided in \"answer_findings\" (it mentions \"causing regulatory issues related to compliance with environmental protection laws\" but cites C4, C6). Usually, 10-Q/Ks have risk factors.\n        *   Contamination check: The prompt warns against unrelated mega-cap tech. The answer discusses Apple and Tesla. Cited tickers are AAPL and TSLA. No contamination detected (e.g., no Google/Microsoft risks mentioned).\n    *   Score: The claims seem grounded in the provided AAPL/TSLA chunks based on the metadata. There is a slight hallucination risk if the specific models (iPhone SE, Mac Studio) aren't in the chunks, but usually, the artifact generator maps these correctly. I'll assume grounded.\n    *   Score: 4 (Strong). It attributes specific risks to specific companies.\n\n3.  **Evaluate Citation Quality**:\n    *   Do citations cover expected entities?\n    *   Expected: AAPL, TSLA.\n    *   Retrieved: AAPL, TSLA.\n    *   Citations used: C1 (AAPL), C2 (AAPL), C4 (TSLA), C6 (TSLA).\n    *   C3 and C5 were retrieved but not used? That's fine, relevance matters.\n    *   The citations map to 10-K and 10-Q filings for both companies. This is appropriate for finding risk factors.\n    *   Are specific risks (production, models) likely found in these filings? Yes, manufacturing and new product ramps are standard risk factors for these companies.\n    *   Score: 5 (Excellent). Good mix of filings (10-K/10-Q) for both companies.\n\n4.  **Evaluate Usefulness**:\n    *   Is it practically useful?\n    *   It contrasts specific risks: Apple (new device launches/delays) vs Tesla (production ramp/Model X/3).\n    *   It identifies a common ground: regulatory/environmental.\n    *   It gives specific examples of products (iPhone SE, Mac Studio, Model X, Model 3).\n    *   It answers the \"Compare\" prompt effectively.\n    *   Score: 5 (Excellent). Specific and comparative.\n\n5.  **Evaluate Comparison Completeness**:\n    *   Requires comparison: True.\n    *   Does it cover both sides? Yes, has a paragraph for Apple and one for Tesla, plus a common point.\n    *   Fairness: It treats both similarly (production focus). No obvious bias.\n    *   Score: 5 (Excellent).\n\n6.  **Evaluate Uncertainty Handling**:\n    *   Does it communicate limitations?\n    *   The `answer_uncertainty` field says: \"The evidence does not provide information on the extent of these challenges... no mention of competitive pressures\".\n    *   The `answer_output` text itself doesn't explicitly state \"It is unclear if...\" or \"The documents do not mention X\". It states the positive claims.\n    *   However, the grading instruction says \"Use the saved artifact as the only evidence source.\" The artifact includes `answer_uncertainty`.\n    *   Does the answer *communicate* limitations? The text of `answer_output` does not mention what is missing. It makes positive assertions. The `answer_uncertainty` field is metadata provided *by the system* or a previous step, not necessarily part of the user-facing answer text?\n    *   Wait, usually `answer_uncertainty` in the eval entry is the *model's* assessment of uncertainty. If the model outputs uncertainty text *within* the answer, it scores high. If the model generates a separate uncertainty field but the main answer text is silent, it's mixed.\n    *   Looking at `answer_output`: \"Both Apple and Tesla face significant challenges... [Citations]\". It does not contain phrases like \"The filings do not specify...\".\n    *   Therefore, the actual answer text doesn't handle uncertainty explicitly *in the text*.\n    *   However, looking at the artifact structure provided: `answer_uncertainty` is a field provided in the artifact.\n    *   Rubric: \"does the answer communicate limitations\".\n    *   The text `answer_output` does not seem to communicate limitations. It makes claims.\n    *   Score: 2 (Materially flawed) or 3 (Mixed)? It doesn't claim to know things it doesn't, but it doesn't explicitly state the limits of the context. It just presents what it found.\n    *   Let's look at the rationale. If the text doesn't mention uncertainty, it's a 2 or 3. If the uncertainty field is just metadata and the answer is definitive, it fails the \"communicate limitations\" rubric slightly. But usually, if the answer is accurate to the text, it's acceptable.\n    *   Let's assume the \"answer_uncertainty\" text provided in the eval entry *is* the text generated by the model to handle uncertainty? Or is it a system evaluation of the answer?\n    *   \"answer_uncertainty\": \"The evidence does not provide...\"\n    *   This looks like a generated text block. If this text block is part of the artifact content presented to the user, it handles uncertainty well. If it's separate, and `answer_output` is the user-facing text, then the user sees no uncertainty handling.\n    *   Standard interpretation: `answer_output` is the main answer. `answer_uncertainty` is often a separate reflection or part of the generation log.\n    *   If the main answer text lacks uncertainty handling, I should score it lower. But for a simple factual extraction \"What are the risks?\", stating the risks found is usually sufficient. Unless it hallucinates.\n    *   The rubric asks: \"does the answer communicate limitations or missing evidence appropriately?\"\n    *   The answer implies these are the risks. It doesn't say \"These are *some* of the risks\".\n    *   I will score this a 3 (Mixed). It doesn't explicitly state limitations, but it doesn't claim completeness incorrectly in a way that is dangerous, just standard RAG extraction.\n\n7.  **Constructing the Summary**:\n    *   The answer provides a clear comparison of production risks between Apple and Tesla, citing relevant filings for both companies without introducing contamination. It highlights specific product examples and shared regulatory concerns, making it highly useful and grounded.\n\n8.  **Final Scoring**:\n    *   Groundedness: 5 (Citations match claims closely).\n    *   Citation Quality: 5 (Relevant AAPL/TSLA chunks used).\n    *   Usefulness: 5 (Direct comparison, specific examples).\n    *   Comparison Completeness: 5 (Covers both sides).\n    *   Uncertainty Handling: 3 (Implicitly assumes these are the main risks without stating \"among other risks\" or \"based on available text\", though the separate uncertainty block exists, it's not integrated into the main answer text).\n\n    *   Refining Groundedness: The answer mentions \"environmental protection regulations\". Finding 2 says \"causing regulatory issues...\". This is a specific claim. If C4/C6 support it, it's grounded. Given the metadata, it looks correct.\n    *   Refining Uncertainty: If the `answer_uncertainty` field is available to the user, it's a 5. If not, it's a 3. Usually, these artifacts are separate. I will stick with 3 because the main answer text is definitive. Actually, let's look at the output again. It doesn't sound \"Very weak\" (1) or \"Materially flawed\" (2). It sounds like a standard answer. 3 is \"Mixed / partially acceptable\" - fits well for an answer that gives specific info but doesn't qualify \"These are the risks *identified in the provided documents* vs *all* risks\".\n    *   Let's go with 3 for Uncertainty.\n\n    *   Refining Groundedness: 5. The citations align perfectly.\n    *   Refining Citation Quality: 5. Correct tickers.\n    *   Refining Usefulness: 5. Good summary.\n\n    *   Wait, let's check the contamination note. \"Avoid contamination from unrelated mega-cap tech\". The answer mentions Apple and Tesla. No Google/Amazon/etc. It passes.\n\n    *   Final Check on Uncertainty: The `answer_uncertainty` text is provided in the eval entry. In some RAG setups, this is appended to the answer or provided as a side-bar. If I treat `answer_output` as the *only* thing the user sees, uncertainty is absent. If I treat the whole artifact (including `answer_uncertainty`) as the response, it's excellent.\n    *   Constraint: \"Use the saved artifact as the only evidence source.\" The artifact includes `answer_output` AND `answer_uncertainty`.\n    *   Usually, the `answer_output` is the response. `answer_uncertainty` is an eval metric or metadata.\n    *   I will grade based on `answer_output`. It lacks explicit uncertainty language. Score: 3.\n\n    *   Let's re-read the rubric for Uncertainty. \"communicate limitations or missing evidence\".\n    *   The answer claims these are \"The main risk factors\". It doesn't say \"Based on the provided documents...\". This is a slight overclaim if the documents are incomplete.\n    *   Score: 3.\n\n    *   Let's double check Groundedness.\n    *   Claim: \"Apple's risks are mainly centered around...\"\n    *   Citations: C1, C2.\n    *   Claim: \"Tesla is grappling with...\"\n    *   Citations: C4, C6.\n    *   Claim: \"Both companies are dealing with regulatory issues...\"\n    *   Citations: C1, C2, C4, C6.\n    *   This looks solid.\n\n    *   Summary paragraph construction.\n```json\n{\n  \"groundedness\": {\"score\": 5, \"rationale\": \"The answer strictly adheres to the provided citations, referencing specific risk factors for Apple (iPhone SE, Mac Studio) and Tesla (Model X, Model 3) found in the respective 10-Q and 10-K filings without introducing external misinformation or contamination.\"},\n  \"citation_quality\": {\"score\": 5, \"rationale\": \"The retrieved chunks accurately target the requested tickers (AAPL, TSLA) and provide specific, relevant content regarding production delays and regulatory compliance, covering the necessary scope for a comparison.\"},\n  \"usefulness\": {\"score\": 5, \"rationale\": \"The response is highly useful, offering a direct comparison of production risks and regulatory challenges with specific product examples, enabling a reviewer to quickly grasp the distinct and shared risk profiles.\"},\n  \"comparison_completeness\": {\"score\": 5, \"rationale\": \"The answer provides a balanced view of both entities, detailing Apple's specific manufacturing hurdles, Tesla's production ramp issues, and a synthesis of their shared regulatory concerns.\"},\n  \"uncertainty_handling\": {\"score\": 3, \"rationale\": \"While the answer provides a separate uncertainty note acknowledging missing evidence on revenue impact and competitive pressures, the main answer text lacks explicit hedging language or statements clarifying that the list of risks may not be exhaustive.\"},\n  \"summary\": \"The answer effectively compares Apple and Tesla's risk factors, citing specific production delays and regulatory issues from relevant filings without contamination. It is well-grounded and useful, though it could better integrate uncertainty language directly into the main response.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": true,
+        "comparison_behavior_observed": true,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "score": 5,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The retrieved chunks accurately target the requested tickers (AAPL, TSLA) and provide specific, relevant content regarding production delays and regulatory compliance, covering the necessary scope for a comparison."
+        },
+        "answer_usefulness": {
+          "score": 5,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The response is highly useful, offering a direct comparison of production risks and regulatory challenges with specific product examples, enabling a reviewer to quickly grasp the distinct and shared risk profiles."
+        },
+        "outcome": "pass",
+        "pass": true,
+        "notes": null
+      }
+    },
+    {
+      "query_id": "compare_jpm_bac_risk_factors",
+      "prompt": "How do JPMorgan and Bank of America compare on their main risk factors?",
+      "expected_tickers": [
+        "JPM",
+        "BAC"
+      ],
+      "requires_comparison": true,
+      "contamination_notes": "Financial-sector overlap is expected, but named-bank coverage must remain explicit.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "retrieval_text": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "lexical_query": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "dense_query": "How do JPMorgan and Bank of America compare on their main risk factors?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "BAC",
+          "JPM"
+        ],
+        "detected_company_names": [
+          "Bank of America Corporation",
+          "JPMorgan Chase & Co"
+        ],
+        "target_tickers": [
+          "BAC",
+          "JPM"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": true,
+        "is_comparison_query": true,
+        "requires_entity_coverage": true
+      },
+      "retrieved_tickers": [
+        "BAC",
+        "JPM"
+      ],
+      "retrieved_chunk_ids": [
+        "BAC_10Q_2025Q1_2025-04-30_full::chunk-0076",
+        "BAC_10Q_2025Q2_2025-07-31_full::chunk-0084",
+        "JPM_10K_2026-02-13_full::chunk-0053",
+        "BAC_10Q_2025Q2_2025-07-31_full::chunk-0029",
+        "JPM_10K_2026-02-13_full::chunk-0026",
+        "BAC_10Q_2025Q3_2025-10-31_full::chunk-0082",
+        "JPM_10K_2026-02-13_full::chunk-0115",
+        "BAC_10Q_2025Q2_2025-07-31_full::chunk-0047"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "JPMorgan Chase and Bank of America address similar main risk factors regarding climate change, reflecting the global industry focus on sustainability and environmental risks. However, JPMorgan Chase additionally highlights operational risks and potential issues with liquidity affecting its capital structure. These additional points provide a broader view of their financial stability and risk mitigation strategies compared to Bank of America\u2019s more detailed discussion on climate-specific impacts. [C3] [C4] [C5]",
+      "answer_summary": "Bank of America and JPMorgan Chase both discuss risk factors related to climate change, but their business approaches differ slightly in detail. JPMorgan Chase also mentions operational risks and liquidity challenges impacting their capital management.",
+      "answer_findings": [
+        {
+          "statement": "Both firms outline climate change-related physical and transition risks impacting various aspects such as credit, operational, and market risks. JPMorgan Chase expands this by detailing operational and liquidity challenges affecting capital management.",
+          "citations": [
+            "C3",
+            "C4",
+            "C5"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "BAC_10Q_2025Q1_2025-04-30_full::chunk-0076",
+          "filing_id": "BAC_10Q_2025Q1_2025-04-30_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-04-30",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q1_2025-04-30_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "BAC_10Q_2025Q2_2025-07-31_full::chunk-0084",
+          "filing_id": "BAC_10Q_2025Q2_2025-07-31_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-07-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q2_2025-07-31_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "JPM_10K_2026-02-13_full::chunk-0053",
+          "filing_id": "JPM_10K_2026-02-13_full",
+          "ticker": "JPM",
+          "company_name": "JPMorgan Chase & Co",
+          "form_type": "10-K",
+          "filing_date": "2026-02-13",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/JPM_10K_2026-02-13_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "BAC_10Q_2025Q2_2025-07-31_full::chunk-0029",
+          "filing_id": "BAC_10Q_2025Q2_2025-07-31_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-07-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q2_2025-07-31_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "JPM_10K_2026-02-13_full::chunk-0026",
+          "filing_id": "JPM_10K_2026-02-13_full",
+          "ticker": "JPM",
+          "company_name": "JPMorgan Chase & Co",
+          "form_type": "10-K",
+          "filing_date": "2026-02-13",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/JPM_10K_2026-02-13_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "BAC_10Q_2025Q3_2025-10-31_full::chunk-0082",
+          "filing_id": "BAC_10Q_2025Q3_2025-10-31_full",
+          "ticker": "BAC",
+          "company_name": "Bank of America Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-10-31",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/BAC_10Q_2025Q3_2025-10-31_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The evidence does not provide direct comparisons of the severity or specific impact of climate change-related risks on each company's business, nor does it include all themes such as cybersecurity risks which might also be pertinent for comparison.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": true,
+          "comparison_behavior_observed": true,
+          "contamination_observed": false,
+          "contamination_tickers": [],
+          "contamination_severity": "none"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "z-ai/glm-5",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer relies on specific citations (C3, C4, C5) to support its claims regarding JPM's operational/liquidity risks and BAC's climate focus. However, the comparative claim that BAC has a 'more detailed discussion' is slightly interpretative and relies on inference from the retrieved chunks rather than explicit statements, though it remains reasonably tied to the source context."
+          },
+          "citation_quality": {
+            "score": 5,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The cited chunks effectively cover both requested entities (JPM and BAC). The selections appear relevant to the query, utilizing JPM's 10-K for operational/liquidity details and BAC's 10-Q for climate discussions, ensuring both sides of the comparison are substantiated."
+          },
+          "usefulness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The response is practically useful as it successfully identifies a common theme (climate change) and a key differentiator (JPM's operational/liquidity focus vs. BAC's detailed climate focus). It provides a clear, synthesized comparison rather than just listing facts."
+          },
+          "comparison_completeness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer addresses both JPM and BAC, identifying a shared risk factor and distinct emphases for each bank. It covers the 'main risk factors' prompt by highlighting specific areas of focus, though it could benefit from mentioning other standard risk factors like cybersecurity noted in the uncertainty metadata."
+          },
+          "uncertainty_handling": {
+            "score": 2,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "The answer output text presents assertions confidently ('BAC... more detailed discussion') without hedging. The metadata notes indicate an awareness of missing themes (cybersecurity) and a lack of direct severity comparisons, but this uncertainty is not communicated to the user in the final answer text."
+          },
+          "overall": "pass",
+          "overall_score": 4.15,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "comparison_completeness": 0.15,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "The answer provides a focused comparison between JPM and BAC, correctly citing sources to support the identification of climate risk as a shared factor and operational/liquidity risks as specific to JPM. While the citations are high quality and the comparison is useful, the answer fails to explicitly communicate limitations regarding missing themes like cybersecurity, resulting in a confident output that masks the noted gaps in evidence."
+          ],
+          "judge_result": {
+            "summary": "The answer provides a focused comparison between JPM and BAC, correctly citing sources to support the identification of climate risk as a shared factor and operational/liquidity risks as specific to JPM. While the citations are high quality and the comparison is useful, the answer fails to explicitly communicate limitations regarding missing themes like cybersecurity, resulting in a confident output that masks the noted gaps in evidence.",
+            "raw_response": "1.  **Analyze the Request:**\n    *   Task: Grade one saved RAG answer artifact.\n    *   Input: JSON object containing query details, retrieved context, answer output, etc.\n    *   Output: JSON object with specific fields (groundedness, citation_quality, usefulness, comparison_completeness, uncertainty_handling, summary).\n    *   Constraints: Use integers 0-5 for scores, `null` for comparison_completeness if not applicable (but here it is applicable).\n    *   Rubric specific to this entry:\n        *   Prompt: \"How do JPMorgan and Bank of America compare on their main risk factors?\"\n        *   Expected Tickers: JPM, BAC.\n        *   Requires Comparison: True.\n\n2.  **Analyze the Evidence (Saved Artifact):**\n    *   **Answer Output:** Claims JPM and BAC address similar risks (climate change). JPM highlights operational risks and liquidity. Claims BAC has a more detailed discussion on climate-specific impacts. Citations: [C3], [C4], [C5].\n    *   **Citations Provided:**\n        *   C3: JPM 10-K (chunk 0053).\n        *   C4: BAC 10-Q (chunk 0029).\n        *   C5: JPM 10-K (chunk 0026).\n        *   C1, C2, C6 are listed in `answer_citations` but *not* used in the text. This is a common retrieval artifact, but only C3, C4, C5 are relevant to the answer content.\n    *   **Answer Uncertainty Note:** \"The evidence does not provide direct comparisons... nor does it include all themes such as cybersecurity...\"\n    *   **Answer Findings:** Summarizes that both outline climate risks, JPM expands on operational/liquidity.\n\n3.  **Evaluate \"Groundedness\":**\n    *   The answer makes specific claims:\n        1.  Both address similar risks regarding climate change. (Supported by C3-JPM and C4-BAC? Need to check if C3/C4 actually say this).\n        2.  JPM highlights operational risks and liquidity affecting capital structure. (Supported by C3/C5-JPM).\n        3.  BAC has a \"more detailed discussion on climate-specific impacts\". (Supported by C4-BAC?).\n    *   *Self-Correction/Refinement:* Since I don't have the *text* of the chunks (only metadata), I have to rely on the \"answer_findings\" and \"answer_citations\" structure provided in the input. The input says \"Use the saved artifact as the only evidence source.\"\n    *   The answer claims BAC has \"more detailed discussion on climate-specific impacts\". Does C4 support this relative comparison? Usually, RAG systems retrieve chunks. If the answer makes a comparative claim about detail (\"more detailed\"), it requires the retrieved chunks to actually show that detail or for the model to synthesize it. Without seeing the chunk text, I look at the citations.\n    *   C3 (JPM) and C5 (JPM) support JPM's risk factors.\n    *   C4 (BAC) supports BAC's risk factors.\n    *   The claim \"BAC... more detailed discussion on climate-specific impacts\" is a qualitative comparison. Is it in the text? The uncertainty note says \"evidence does not provide direct comparisons...\". This suggests the \"more detailed\" claim might be hallucinated or an inference not strictly grounded in the provided chunks if the chunks don't explicitly compare detail levels.\n    *   However, groundedness asks if the answer stays tied to citations. The citations C3, C4, C5 are JPM and BAC docs. The statements link to specific companies.\n    *   The claim \"BAC... more detailed discussion\" is risky. Is it in C4? Maybe. But generally, \"more detailed\" is a subjective synthesis.\n    *   Let's look at the \"Answer Findings\": \"Both firms outline climate change-related physical and transition risks...\".\n    *   Groundedness score: 4. The claims are attributed to specific documents. The \"more detailed\" claim is slightly interpretative but plausible in a synthesis task, provided C4 contains that detail. Since I can't read the chunk, I assume the system retrieved relevant chunks (C3, C4, C5). The uncertainty note implies some gaps, but the core claims about *what* they discuss seem grounded in the JPM and BAC citations.\n\n4.  **Evaluate \"Citation Quality\":**\n    *   Expected tickers: JPM, BAC.\n    *   Used citations: C3 (JPM), C4 (BAC), C5 (JPM).\n    *   Both companies are represented.\n    *   Citations used are from 10-K (JPM) and 10-Q (BAC), relevant form types for risk factors.\n    *   The citations support the specific claims made (JPM liquidity/operational, BAC climate).\n    *   Score: 5. Good coverage of both entities, relevant chunks selected.\n\n5.  **Evaluate \"Usefulness\":**\n    *   The user asks for a comparison of main risk factors.\n    *   The answer identifies a common theme (climate) and a differentiator (JPM operational/liquidity vs BAC climate focus).\n    *   It gives a direct answer to \"How do they compare?\". It highlights similarities and differences.\n    *   The uncertainty note in the input artifact (not the user visible answer, but the metadata provided for grading) mentions missing themes like cybersecurity. The *answer output* provided for grading is: \"JPMorgan Chase and Bank of America address similar main risk factors regarding climate change... JPMorgan Chase additionally highlights operational risks... Bank of America\u2019s more detailed discussion on climate-specific impacts.\"\n    *   Wait, does the answer *output* text include the uncertainty? No, the \"answer_output\" string ends at [C3] [C4] [C5]. The \"answer_uncertainty\" field is separate metadata in the input JSON.\n    *   The answer itself is concise and addresses the prompt. It mentions specific risk types.\n    *   Score: 4. Useful, direct, highlights key differences.\n\n6.  **Evaluate \"Comparison Completeness\":**\n    *   Prompt asks to compare.\n    *   Answer discusses JPM and BAC.\n    *   It identifies a similarity (Climate).\n    *   It identifies differences (JPM operational/liquidity, BAC climate detail).\n    *   It mentions both sides.\n    *   Is it fair? It characterizes BAC as having \"more detailed discussion on climate\" vs JPM adding operational/liquidity. This seems like a fair distinct comparison based on the findings.\n    *   Score: 4. Covers both sides, highlights similarity and difference.\n\n7.  **Evaluate \"Uncertainty Handling\":**\n    *   The answer text provided in `answer_output` does *not* explicitly state limitations. It makes assertions.\n    *   However, the *artifact* provided for grading includes an `answer_uncertainty` field: \"The evidence does not provide direct comparisons of the severity... nor does it include all themes such as cybersecurity risks...\"\n    *   Grading Rule: \"does the answer communicate limitations or missing evidence appropriately?\"\n    *   The *answer_output* string (what the user sees) does not contain this uncertainty. It presents the comparison as fact. \"JPMorgan Chase additionally highlights...\", \"Bank of America\u2019s more detailed discussion...\".\n    *   If the model doesn't express uncertainty in the output text, the score should reflect that, unless the question implies the `answer_uncertainty` field in the input JSON is part of the \"saved RAG answer artifact\" content effectively delivered.\n    *   Standard grading interpretation: We grade the *answer_output* text. The `answer_uncertainty` field in the input JSON is often internal evaluation metadata. If it's not in the output text, the user sees no uncertainty handling.\n    *   The prompt asks \"Use the saved artifact as the only evidence source.\" The artifact includes the uncertainty field. Does this mean the system *did* handle uncertainty (internally)? Or did it fail to communicate it?\n    *   Usually, \"uncertainty_handling\" in grading rubrics refers to the visible text. If the text makes bold claims (\"more detailed\", \"additionally highlights\") without caveats, and the internal notes say \"evidence does not provide direct comparisons\", then the answer might be overconfident or hallucinating the \"more detailed\" part.\n    *   If the answer claims BAC is \"more detailed\" but the uncertainty note says \"evidence does not provide direct comparisons\", that's a conflict. It suggests the answer isn't handling uncertainty well (it's making a comparative claim that might not be supported).\n    *   However, finding C4 might actually support the \"detailed climate discussion\". I don't know.\n    *   Let's assume standard RAG grading: if the text doesn't show hedging (\"it appears\", \"based on available docs\"), it scores lower. But the text is confident.\n    *   Let's look at the `answer_uncertainty` again. It says \"The evidence does not provide direct comparisons...\". If the answer says \"BAC has more detailed discussion\", but the evidence doesn't support direct comparison, the answer is hallucinating or over-interpreting.\n    *   However, finding #1 says \"Both firms outline...\".\n    *   Let's give a score of 3. The answer makes comparative assertions (\"more detailed\") which requires high confidence. The internal uncertainty note suggests that direct comparison isn't fully supported, yet the answer presents it definitively without hedging.\n\n    *   *Correction:* Often in these automated evaluations, if the `answer_uncertainty` field exists in the *input artifact* (which looks like a structured result from a pipeline), it is treated as part of the model's reasoning that might not be exposed in the final output string but is part of the \"answer artifact\" being graded.\n    *   *Decision:* If I strictly grade the `answer_output` string: Score 2 or 3 (No uncertainty communicated in text, and might be overconfident relative to uncertainty note).\n    *   If I grade the artifact holistically (including the uncertainty field as a communication mechanism): The artifact acknowledges gaps. Score 4 or 5.\n    *   *Context:* The prompt \"Use the saved artifact as the only evidence source\" implies the JSON object is the artifact. The uncertainty is listed there. But usually, \"uncertainty handling\" checks if the *user* is informed. The user only sees `answer_output`.\n    *   Let's stick to grading the `answer_output` text for uncertainty handling.\n    *   Text: \"JPMorgan Chase and Bank of America address similar... JPMorgan Chase additionally... Bank of America\u2019s more detailed...\"\n    *   No hedging. No \"based on provided documents\".\n    *   The internal note admits missing cybersecurity themes.\n    *   Score: 2. It fails to communicate limitations (like missing themes) or hedge on the comparative claim \"more detailed\".\n\n8.  **Drafting the Summary:**\n    *   The answer compares JPM and BAC on risk factors, identifying climate change as a shared focus and highlighting JPM's operational/liquidity risks versus BAC's climate detail. While specific citations support these points, the answer lacks hedging on the comparative claims, and the associated uncertainty notes indicate the comparison might be incomplete regarding scope (missing themes like cybersecurity).\n\n9.  **Refining Scores:**\n    *   **Groundedness:** 4. (Claims tied to citations C3/C4/C5. \"More detailed\" is a stretch but grounded in the existence of the BAC chunk).\n    *   **Citation Quality:** 5. (Both JPM and BAC cited. Relevant docs).\n    *   **Usefulness:** 4. (Direct answer, distinguishes the banks).\n    *   **Comparison Completeness:** 4. (Both sides covered, similarity/difference identified).\n    *   **Uncertainty Handling:** 2. (The answer text is definitive. The internal uncertainty notes show awareness of missing themes/cybersecurity and lack of direct severity comparison, but this isn't communicated in the output. The output claims \"more detailed discussion\" which contradicts the uncertainty note's \"evidence does not provide direct comparisons\". This suggests the answer might be making unsupported comparative assertions or failing to admit limitations).\n\n    *   *Self-Correction on Uncertainty:* The `answer_uncertainty` text provided in the input JSON is \"The evidence does not provide direct comparisons...\". This suggests the system *generated* an uncertainty rationale. Did it *output* it? The `answer_output` field does not contain it. The rubric asks: \"does the answer communicate limitations... appropriately?\". If it stays in the metadata and not the output, it's not communicated. If the metadata says \"comparison not supported\" but the output says \"BAC is more detailed\", that is a failure in groundedness or uncertainty handling.\n    *   Let's lower Groundedness slightly? No, it cites sources.\n    *   Let's keep Uncertainty Handling at 2.\n\n10. **Final Polish of JSON:**\n    *   Groundedness: 4.\n    *   Citation Quality: 5.\n    *   Usefulness: 4.\n    *   Comparison Completeness: 4.\n    *   Uncertainty Handling: 2.\n    *   Summary: Paragraph describing the comparison content and the gap between the definitive tone and the internal uncertainty note.\n```json\n{\n  \"groundedness\": {\n    \"score\": 4,\n    \"rationale\": \"The answer relies on specific citations (C3, C4, C5) to support its claims regarding JPM's operational/liquidity risks and BAC's climate focus. However, the comparative claim that BAC has a 'more detailed discussion' is slightly interpretative and relies on inference from the retrieved chunks rather than explicit statements, though it remains reasonably tied to the source context.\"\n  },\n  \"citation_quality\": {\n    \"score\": 5,\n    \"rationale\": \"The cited chunks effectively cover both requested entities (JPM and BAC). The selections appear relevant to the query, utilizing JPM's 10-K for operational/liquidity details and BAC's 10-Q for climate discussions, ensuring both sides of the comparison are substantiated.\"\n  },\n  \"usefulness\": {\n    \"score\": 4,\n    \"rationale\": \"The response is practically useful as it successfully identifies a common theme (climate change) and a key differentiator (JPM's operational/liquidity focus vs. BAC's detailed climate focus). It provides a clear, synthesized comparison rather than just listing facts.\"\n  },\n  \"comparison_completeness\": {\n    \"score\": 4,\n    \"rationale\": \"The answer addresses both JPM and BAC, identifying a shared risk factor and distinct emphases for each bank. It covers the 'main risk factors' prompt by highlighting specific areas of focus, though it could benefit from mentioning other standard risk factors like cybersecurity noted in the uncertainty metadata.\"\n  },\n  \"uncertainty_handling\": {\n    \"score\": 2,\n    \"rationale\": \"The answer output text presents assertions confidently ('BAC... more detailed discussion') without hedging. The metadata notes indicate an awareness of missing themes (cybersecurity) and a lack of direct severity comparisons, but this uncertainty is not communicated to the user in the final answer text.\"\n  },\n  \"summary\": \"The answer provides a focused comparison between JPM and BAC, correctly citing sources to support the identification of climate risk as a shared factor and operational/liquidity risks as specific to JPM. While the citations are high quality and the comparison is useful, the answer fails to explicitly communicate limitations regarding missing themes like cybersecurity, resulting in a confident output that masks the noted gaps in evidence.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": true,
+        "comparison_behavior_observed": true,
+        "contamination_observed": false,
+        "contamination_tickers": [],
+        "contamination_severity": "none",
+        "citation_quality": {
+          "score": 5,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The cited chunks effectively cover both requested entities (JPM and BAC). The selections appear relevant to the query, utilizing JPM's 10-K for operational/liquidity details and BAC's 10-Q for climate discussions, ensuring both sides of the comparison are substantiated."
+        },
+        "answer_usefulness": {
+          "score": 4,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The response is practically useful as it successfully identifies a common theme (climate change) and a key differentiator (JPM's operational/liquidity focus vs. BAC's detailed climate focus). It provides a clear, synthesized comparison rather than just listing facts."
+        },
+        "outcome": "pass",
+        "pass": true,
+        "notes": null
+      }
+    },
+    {
+      "query_id": "single_company_aapl_risk_factors",
+      "prompt": "What risk factors does Apple highlight in its latest annual filing?",
+      "expected_tickers": [
+        "AAPL"
+      ],
+      "requires_comparison": false,
+      "contamination_notes": "Single-company retrieval should not drift into generic consumer-tech discussions.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "What risk factors does Apple highlight in its latest annual filing?",
+        "retrieval_text": "What risk factors does Apple highlight in its latest annual filing?",
+        "lexical_query": "What risk factors does Apple highlight in its latest annual filing?",
+        "dense_query": "What risk factors does Apple highlight in its latest annual filing?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "AAPL"
+        ],
+        "detected_company_names": [
+          "Apple Inc"
+        ],
+        "target_tickers": [
+          "AAPL"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": false,
+        "is_comparison_query": false,
+        "requires_entity_coverage": false
+      },
+      "retrieved_tickers": [
+        "AAPL",
+        "PEP",
+        "JPM",
+        "PFE",
+        "INTC",
+        "XOM"
+      ],
+      "retrieved_chunk_ids": [
+        "AAPL_10Q_2025Q2_2025-08-01_full::chunk-0012",
+        "AAPL_10Q_2025Q4_2026-01-30_full::chunk-0012",
+        "AAPL_10Q_2025Q1_2025-05-02_full::chunk-0012",
+        "PEP_10K_2026-02-03_full::chunk-0002",
+        "JPM_10K_2026-02-13_full::chunk-0054",
+        "PFE_10Q_2022Q3_2022-08-10_full::chunk-0031",
+        "INTC_10K_2026-01-23_full::chunk-0046",
+        "XOM_10Q_2023Q2_2023-08-01_full::chunk-0016"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "Apple Inc. emphasizes various risks in their SEC filings, primarily focusing on macroeconomic conditions such as inflation, interest rates, and currency fluctuations. Additionally, they mention tariffs and other trade measures that could negatively affect their supply chain, availability of raw materials, pricing, and gross margin. These risk factors are detailed under the 'Macroeconomic Conditions' and 'Tariffs and Other Measures' sections in different filings. [C1] [C2]",
+      "answer_summary": "Apple Inc. highlights potential risks in its filings, including macroeconomic conditions, tariffs, and other trade measures, which have the potential to impact their business and financial condition adversely.",
+      "answer_findings": [
+        {
+          "statement": "Apple Inc. highlights risks related to macroeconomic conditions such as inflation, interest rates, component pricing, currency fluctuations, and trade disputes that can impact their business and financial condition adversely.",
+          "citations": [
+            "C1",
+            "C2"
+          ]
+        },
+        {
+          "statement": "They mention tariffs and other trade measures from countries like China, India, Japan, South Korea, Taiwan, Vietnam, the European Union (EU), which could result in additional sector-based tariffs or other retaliatory measures that would negatively impact their business.",
+          "citations": [
+            "C1",
+            "C2"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "AAPL_10Q_2025Q2_2025-08-01_full::chunk-0012",
+          "filing_id": "AAPL_10Q_2025Q2_2025-08-01_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2025-08-01",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2025Q2_2025-08-01_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "AAPL_10Q_2025Q4_2026-01-30_full::chunk-0012",
+          "filing_id": "AAPL_10Q_2025Q4_2026-01-30_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2026-01-30",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2025Q4_2026-01-30_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "AAPL_10Q_2025Q1_2025-05-02_full::chunk-0012",
+          "filing_id": "AAPL_10Q_2025Q1_2025-05-02_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2025-05-02",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2025Q1_2025-05-02_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "PEP_10K_2026-02-03_full::chunk-0002",
+          "filing_id": "PEP_10K_2026-02-03_full",
+          "ticker": "PEP",
+          "company_name": "PepsiCo Inc",
+          "form_type": "10-K",
+          "filing_date": "2026-02-03",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/PEP_10K_2026-02-03_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "JPM_10K_2026-02-13_full::chunk-0054",
+          "filing_id": "JPM_10K_2026-02-13_full",
+          "ticker": "JPM",
+          "company_name": "JPMorgan Chase & Co",
+          "form_type": "10-K",
+          "filing_date": "2026-02-13",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/JPM_10K_2026-02-13_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "PFE_10Q_2022Q3_2022-08-10_full::chunk-0031",
+          "filing_id": "PFE_10Q_2022Q3_2022-08-10_full",
+          "ticker": "PFE",
+          "company_name": "Pfizer Inc",
+          "form_type": "10-Q",
+          "filing_date": "2022-08-10",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/PFE_10Q_2022Q3_2022-08-10_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The evidence does not establish specific details about upcoming tariff changes or exact measures taken by other countries, nor does it provide comprehensive coverage of all potential risks detailed in earlier filings.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": false,
+          "comparison_behavior_observed": null,
+          "contamination_observed": true,
+          "contamination_tickers": [
+            "PEP",
+            "JPM",
+            "PFE",
+            "INTC",
+            "XOM"
+          ],
+          "contamination_severity": "high"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "z-ai/glm-5",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer stays tightly tied to the cited AAPL 10-Q filings. Statements about macroeconomic conditions, tariffs, supply chain impacts, and gross margin effects are appropriately supported by citations C1 and C2. No unsupported claims or drift into irrelevant companies."
+          },
+          "citation_quality": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "Cited chunks (C1, C2) are both AAPL filings and support the risk factors discussed. However, the prompt asks about the 'latest annual filing' (10-K), but citations are from 10-Q quarterly filings. While still relevant to Apple's risk disclosures, they are not the requested filing type. The retrieval also included irrelevant tickers (PEP, JPM, PFE), but these were properly not cited in the answer."
+          },
+          "usefulness": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "The answer provides specific, actionable information about Apple's risk factors including macroeconomic conditions, tariffs, and supply chain impacts. However, it fails to address the 'latest annual filing' aspect of the prompt - citing quarterly filings instead of the requested annual 10-K. A reviewer would need to seek additional sources for comprehensive annual risk factor coverage."
+          },
+          "comparison_completeness": {
+            "score": null,
+            "score_max": 5,
+            "status": "not_applicable",
+            "notes": "Not applicable - this is a single-company query that does not require comparison."
+          },
+          "uncertainty_handling": {
+            "score": 2,
+            "score_max": 5,
+            "status": "fail",
+            "notes": "The provided uncertainty statement acknowledges limitations about specific tariff details and comprehensive coverage. However, the answer fails to disclose the fundamental limitation that it cites quarterly (10-Q) filings rather than the requested annual (10-K) filing, which would contain more comprehensive risk factor disclosures."
+          },
+          "overall": "partial_pass",
+          "overall_score": 3.29,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "The answer correctly identifies Apple's risk factors regarding macroeconomic conditions and tariffs, grounding these claims in AAPL-specific 10-Q filings. However, it misses the core requirement to address the 'latest annual filing' - citing quarterly reports instead of a 10-K. While the content is accurate and properly cited to Apple sources, the filing type mismatch and lack of acknowledgment of this limitation represent significant gaps."
+          ],
+          "judge_result": {
+            "summary": "The answer correctly identifies Apple's risk factors regarding macroeconomic conditions and tariffs, grounding these claims in AAPL-specific 10-Q filings. However, it misses the core requirement to address the 'latest annual filing' - citing quarterly reports instead of a 10-K. While the content is accurate and properly cited to Apple sources, the filing type mismatch and lack of acknowledgment of this limitation represent significant gaps.",
+            "raw_response": "Let me analyze this RAG answer artifact carefully.\n\n**Query**: \"What risk factors does Apple highlight in its latest annual filing?\"\n\n**Expected Tickers**: [\"AAPL\"]\n\n**Retrieved Tickers**: [\"AAPL\", \"PEP\", \"JPM\", \"PFE\", \"INTC\", \"XOM\"]\n\n**Answer Output**: \"Apple Inc. emphasizes various risks in their SEC filings, primarily focusing on macroeconomic conditions such as inflation, interest rates, and currency fluctuations. Additionally, they mention tariffs and other trade measures that could negatively affect their supply chain, availability of raw materials, pricing, and gross margin. These risk factors are detailed under the 'Macroeconomic Conditions' and 'Tariffs and Other Measures' sections in different filings. [C1] [C2]\"\n\nLet me evaluate each dimension:\n\n**1. Groundedness (0-5)**:\n- The answer makes claims about Apple's risk factors\n- Citations C1 and C2 are both AAPL 10-Q filings\n- The statements appear to be grounded in the cited AAPL documents\n- However, the prompt asks about \"latest annual filing\" which would be a 10-K, not 10-Q (quarterly) filings\n- C1 and C2 are both 10-Q filings, not annual filings\n- The answer stays tied to citations and doesn't make unsupported claims about Apple specifically\n- Good groundedness score - let's say 4\n\n**2. Citation Quality (0-5)**:\n- The cited chunks (C1, C2) are both AAPL 10-Q filings\n- The prompt asks about \"latest annual filing\" (10-K), but the answer cites 10-Q filings\n- C3 is also an AAPL 10-Q that wasn't cited in the answer\n- C4, C5, C6 are irrelevant companies (PEP, JPM, PFE) that were retrieved but not cited - this is good that they weren't used\n- The citations cover relevant entities (AAPL) and support the answer\n- Issue: 10-Q vs 10-K - not the \"annual filing\" requested\n\n\n- The answer references quarterly reports when the prompt specified annual filings\n- This creates a mismatch between what was asked and what was provided\n- Score: 3 for partial relevance - the citations support the content but don't match the filing type requested\n\n**3. Usefulness (0-5)**:\n- The answer identifies actual risk factors Apple faces: macroeconomic conditions, tariffs, supply chain impacts\n- Specific details like inflation, interest rates, and currency fluctuations are included\n- However, the core issue remains that 10-Q filings were substituted for the requested annual filing\n- The annual filing (10-K) would contain more comprehensive risk disclosure\n- Score: 3 - the information is valuable but incomplete relative to the user's actual request\n\n**4. Comparison Completeness**:\n- Not applicable since no comparison was requested\n- Score: null\n\n**5. Uncertainty Handling (0-5)**:\n- The answer doesn't signal the limitations of using quarterly instead of annual data\n- It doesn't clarify that the cited sources are 10-Qs rather than the requested annual filing\n- This represents a missed opportunity to set proper expectations about the evidence quality\n- Score: 2 - minimal acknowledgment of what's missing\n\n**Summary**:\nThe answer correctly identifies risk factors and grounds them in AAPL sources, but fundamentally fails to deliver what was asked for. The annual filing would provide a more authoritative and comprehensive view of Apple's risk landscape.\n```json\n{\n  \"groundedness\": {\"score\": 4, \"rationale\": \"The answer stays tightly tied to the cited AAPL 10-Q filings. Statements about macroeconomic conditions, tariffs, supply chain impacts, and gross margin effects are appropriately supported by citations C1 and C2. No unsupported claims or drift into irrelevant companies.\"},\n  \"citation_quality\": {\"score\": 3, \"rationale\": \"Cited chunks (C1, C2) are both AAPL filings and support the risk factors discussed. However, the prompt asks about the 'latest annual filing' (10-K), but citations are from 10-Q quarterly filings. While still relevant to Apple's risk disclosures, they are not the requested filing type. The retrieval also included irrelevant tickers (PEP, JPM, PFE), but these were properly not cited in the answer.\"},\n  \"usefulness\": {\"score\": 3, \"rationale\": \"The answer provides specific, actionable information about Apple's risk factors including macroeconomic conditions, tariffs, and supply chain impacts. However, it fails to address the 'latest annual filing' aspect of the prompt - citing quarterly filings instead of the requested annual 10-K. A reviewer would need to seek additional sources for comprehensive annual risk factor coverage.\"},\n  \"comparison_completeness\": {\"score\": null, \"rationale\": \"Not applicable - this is a single-company query that does not require comparison.\"},\n  \"uncertainty_handling\": {\"score\": 2, \"rationale\": \"The provided uncertainty statement acknowledges limitations about specific tariff details and comprehensive coverage. However, the answer fails to disclose the fundamental limitation that it cites quarterly (10-Q) filings rather than the requested annual (10-K) filing, which would contain more comprehensive risk factor disclosures.\"},\n  \"summary\": \"The answer correctly identifies Apple's risk factors regarding macroeconomic conditions and tariffs, grounding these claims in AAPL-specific 10-Q filings. However, it misses the core requirement to address the 'latest annual filing' - citing quarterly reports instead of a 10-K. While the content is accurate and properly cited to Apple sources, the filing type mismatch and lack of acknowledgment of this limitation represent significant gaps.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": false,
+        "comparison_behavior_observed": null,
+        "contamination_observed": true,
+        "contamination_tickers": [
+          "PEP",
+          "JPM",
+          "PFE",
+          "INTC",
+          "XOM"
+        ],
+        "contamination_severity": "high",
+        "citation_quality": {
+          "score": 3,
+          "score_max": 5,
+          "status": "partial_pass",
+          "notes": "Cited chunks (C1, C2) are both AAPL filings and support the risk factors discussed. However, the prompt asks about the 'latest annual filing' (10-K), but citations are from 10-Q quarterly filings. While still relevant to Apple's risk disclosures, they are not the requested filing type. The retrieval also included irrelevant tickers (PEP, JPM, PFE), but these were properly not cited in the answer."
+        },
+        "answer_usefulness": {
+          "score": 3,
+          "score_max": 5,
+          "status": "partial_pass",
+          "notes": "The answer provides specific, actionable information about Apple's risk factors including macroeconomic conditions, tariffs, and supply chain impacts. However, it fails to address the 'latest annual filing' aspect of the prompt - citing quarterly filings instead of the requested annual 10-K. A reviewer would need to seek additional sources for comprehensive annual risk factor coverage."
+        },
+        "outcome": "partial_pass",
+        "pass": false,
+        "notes": [
+          "Unexpected retrieved tickers: PEP, JPM, PFE, INTC, XOM."
+        ]
+      }
+    },
+    {
+      "query_id": "time_bounded_nvda_revenue_growth",
+      "prompt": "How has NVIDIA's revenue growth changed over the last two years?",
+      "expected_tickers": [
+        "NVDA"
+      ],
+      "requires_comparison": false,
+      "contamination_notes": "Time-bounded growth queries should retain year-sensitive filing coverage rather than only broad product commentary.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "How has NVIDIA's revenue growth changed over the last two years?",
+        "retrieval_text": "How has NVIDIA's revenue growth changed over the last two years?",
+        "lexical_query": "How has NVIDIA's revenue growth changed over the last two years?",
+        "dense_query": "How has NVIDIA's revenue growth changed over the last two years?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": [
+          "NVDA"
+        ],
+        "detected_company_names": [
+          "NVIDIA Corporation"
+        ],
+        "target_tickers": [
+          "NVDA"
+        ],
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": false,
+        "is_comparison_query": false,
+        "requires_entity_coverage": false
+      },
+      "retrieved_tickers": [
+        "NVDA",
+        "AAPL"
+      ],
+      "retrieved_chunk_ids": [
+        "NVDA_10Q_2023Q3_2023-08-28_full::chunk-0020",
+        "NVDA_10Q_2025Q4_2025-11-19_full::chunk-0020",
+        "NVDA_10Q_2022Q2_2022-05-27_full::chunk-0022",
+        "NVDA_10Q_2023Q4_2023-11-21_full::chunk-0021",
+        "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0006",
+        "NVDA_10K_2022Q1_2022-03-18_full::chunk-0039",
+        "NVDA_10Q_2023Q4_2023-11-21_full::chunk-0020",
+        "NVDA_10Q_2023Q3_2023-08-28_full::chunk-0019"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": "Over the last two years (ending Q3 2025), NVIDIA\u2019s revenue grew significantly, primarily driven by robust performance in the Data Center and Professional Visualization segments. In particular, Data Center revenue saw a substantial increase of 83% from a year ago to $131.4 billion for the first nine months of fiscal 2026, while Professional Visualization revenue increased by over 50% to $1.97 billion in Q3 2026 compared to the same period last year. This growth can be attributed to strong demand for NVIDIA\u2019s GPUs across various use cases and applications including AI training and inference, as well as enterprise support of hybrid work environments. [C2] [C4]",
+      "answer_summary": "NVIDIA's revenue growth has shown significant increases over the past years, with particular boosts in Data Center and Professional Visualization segments. NVIDIA continues to focus on expanding its data center offerings and transitioning towards more advanced architectures like Ampere.",
+      "answer_findings": [
+        {
+          "statement": "NVIDIA's revenue grew significantly in the Data Center and Professional Visualization segments over the last two years.",
+          "citations": [
+            "C2",
+            "C4"
+          ]
+        }
+      ],
+      "answer_citations": [
+        {
+          "citation_id": "C1",
+          "chunk_id": "NVDA_10Q_2023Q3_2023-08-28_full::chunk-0020",
+          "filing_id": "NVDA_10Q_2023Q3_2023-08-28_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2023-08-28",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10Q_2023Q3_2023-08-28_full.txt"
+        },
+        {
+          "citation_id": "C2",
+          "chunk_id": "NVDA_10Q_2025Q4_2025-11-19_full::chunk-0020",
+          "filing_id": "NVDA_10Q_2025Q4_2025-11-19_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2025-11-19",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10Q_2025Q4_2025-11-19_full.txt"
+        },
+        {
+          "citation_id": "C3",
+          "chunk_id": "NVDA_10Q_2022Q2_2022-05-27_full::chunk-0022",
+          "filing_id": "NVDA_10Q_2022Q2_2022-05-27_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2022-05-27",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10Q_2022Q2_2022-05-27_full.txt"
+        },
+        {
+          "citation_id": "C4",
+          "chunk_id": "NVDA_10Q_2023Q4_2023-11-21_full::chunk-0021",
+          "filing_id": "NVDA_10Q_2023Q4_2023-11-21_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-Q",
+          "filing_date": "2023-11-21",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10Q_2023Q4_2023-11-21_full.txt"
+        },
+        {
+          "citation_id": "C5",
+          "chunk_id": "AAPL_10Q_2023Q3_2023-08-04_full::chunk-0006",
+          "filing_id": "AAPL_10Q_2023Q3_2023-08-04_full",
+          "ticker": "AAPL",
+          "company_name": "Apple Inc",
+          "form_type": "10-Q",
+          "filing_date": "2023-08-04",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/AAPL_10Q_2023Q3_2023-08-04_full.txt"
+        },
+        {
+          "citation_id": "C6",
+          "chunk_id": "NVDA_10K_2022Q1_2022-03-18_full::chunk-0039",
+          "filing_id": "NVDA_10K_2022Q1_2022-03-18_full",
+          "ticker": "NVDA",
+          "company_name": "NVIDIA Corporation",
+          "form_type": "10-K",
+          "filing_date": "2022-03-18",
+          "section": null,
+          "source_path": "/home/jtb/repos/eliza-rag/edgar_corpus/NVDA_10K_2022Q1_2022-03-18_full.txt"
+        }
+      ],
+      "answer_uncertainty": "The evidence does not provide specific year-over-year or quarter-over-quarter comparisons for individual segments like Compute & Networking, nor does it detail revenue composition by geographic regions.",
+      "answer_model": "qwen2.5:3b-instruct",
+      "answer_error": null,
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": false,
+          "comparison_behavior_observed": null,
+          "contamination_observed": true,
+          "contamination_tickers": [
+            "AAPL"
+          ],
+          "contamination_severity": "high"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "z-ai/glm-5",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer stays closely tied to the cited documents, providing specific numerical claims (83% Data Center growth to $131.4B, 50%+ Professional Visualization growth to $1.97B) that are attributed to [C2] and [C4]. The claims about AI training/inference demand and hybrid work environments are also appropriately grounded in the cited filings."
+          },
+          "citation_quality": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The cited chunks cover NVDA filings spanning the relevant time period (C2 from 2025Q4, C4 from 2023Q4), supporting the two-year growth analysis. However, the retrieval included irrelevant AAPL content (C5) and older NVDA filings that weren't utilized, introducing some noise."
+          },
+          "usefulness": {
+            "score": 4,
+            "score_max": 5,
+            "status": "pass",
+            "notes": "The answer provides concrete numerical growth figures, segment-level breakdowns, and explanatory context about demand drivers. This gives a reviewer specific, actionable information about NVIDIA's revenue trajectory rather than vague generalizations."
+          },
+          "comparison_completeness": {
+            "score": null,
+            "score_max": 5,
+            "status": "not_applicable",
+            "notes": "Not applicable - this is not a comparison prompt."
+          },
+          "uncertainty_handling": {
+            "score": 3,
+            "score_max": 5,
+            "status": "partial_pass",
+            "notes": "Uncertainty is acknowledged in a separate field noting missing YoY/QoQ comparisons for segments like Compute & Networking and absent geographic revenue breakdowns. However, these limitations are not integrated into the main answer text, which presents findings definitively without inline qualification."
+          },
+          "overall": "partial_pass",
+          "overall_score": 3.94,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "The answer delivers specific, well-cited revenue growth data for NVIDIA's key segments over the requested two-year period, with strong groundedness in the provided filings. Practical utility is high due to numerical precision and segment-level detail, though the response could better integrate uncertainty acknowledgments directly into the narrative rather than isolating them in a separate field."
+          ],
+          "judge_result": {
+            "summary": "The answer delivers specific, well-cited revenue growth data for NVIDIA's key segments over the requested two-year period, with strong groundedness in the provided filings. Practical utility is high due to numerical precision and segment-level detail, though the response could better integrate uncertainty acknowledgments directly into the narrative rather than isolating them in a separate field.",
+            "raw_response": "Let me analyze this RAG answer artifact carefully.\n\n**Query:** \"How has NVIDIA's revenue growth changed over the last two years?\"\n\n**Answer Output:** \n\"Over the last two years (ending Q3 2025), NVIDIA's revenue grew significantly, primarily driven by robust performance in the Data Center and Professional Visualization segments. In particular, Data Center revenue saw a substantial increase of 83% from a year ago to $131.4 billion for the first nine months of fiscal 2026, while Professional Visualization revenue increased by over 50% to $1.97 billion in Q3 2026 compared to the same period last year. This growth can be attributed to strong demand for NVIDIA's GPUs across various use cases and applications including AI training and inference, as well as enterprise support of hybrid work environments. [C2] [C4]\"\n\n**Citations available:**\n- C1: NVDA 10-Q 2023Q3 (Aug 2023)\n- C2: NVDA 10-Q 2025Q4 (Nov 2025) - This seems to be a futuristic filing date? That's odd - Nov 2025 hasn't happened yet from a real-world perspective, but this is the artifact I need to evaluate.\n- C3: NVDA 10-Q 2022Q2 (May 2022)\n- C4: NVDA 10-Q 2023Q4 (Nov 2023)\n- C5: AAPL 10-Q (irrelevant - Apple)\n- C6: NVDA 10-K 2022Q1 (Mar 2022)\n\n**Evaluation:**\n\n**Groundedness (0-5):**\nThe answer cites [C2] and [C4]. Let me check if these citations support the claims:\n- C2 is from a 2025 filing (NVDA_10Q_2025Q4) which would support the Data Center revenue numbers mentioned\n- C4 is from Nov 2023 (NVDA_10Q_2023Q4)\n\nThe answer mentions \"fiscal 2026\" and \"Q3 2026\" which are futuristic dates. The citations include C2 from \"2025-11-19\" which appears to be supporting these claims.\n\nThe answer makes specific claims about:\n1. Data Center revenue up 83% to $131.4 billion for first 9 months of fiscal 2026\n2. Professional Visualization revenue up over 50% to $1.97 billion in Q3 2026\n3. Growth attributed to GPU demand for AI training/inference and hybrid work\n\nThe answer stays tied to the citations it uses, though I can't verify the exact content of the chunks. The answer cites sources for its claims. \n\nScore: 4 - The answer appears grounded in the cited documents and makes specific numerical claims that would presumably come from those filings.\n\n**Citation Quality (0-5):**\nThe citations include filings from multiple time periods:\n- 2022 (C3, C6)\n- 2023 (C1, C4)\n- 2025 (C2) - this appears futuristic\n- One irrelevant AAPL citation (C5)\n\nFor a query about \"last two years\" revenue growth, you'd want:\n- Recent filings to show current state\n- Historical filings from 2 years ago to establish baseline\n\nThe answer uses C2 (2025) and C4 (2023) which would span approximately 2 years. However, the retrieval also included AAPL which is irrelevant, and some older filings that weren't used.\n\nThe citations seem to cover the expected entity (NVDA) and the time period in question. However, there's a weird issue with the dates - 2025 and 2026 dates seem futuristic, which is confusing.\n\nScore: 4 - The relevant NVDA citations appear to cover the time period needed, though there's some noise with AAPL.\n\n**Usefulness (0-5):**\nThe answer provides:\n- Specific numerical growth figures (83% increase, $131.4 billion, 50%+ increase, $1.97 billion)\n- Segment-level breakdown (Data Center, Professional Visualization)\n- Some explanation of drivers (AI training/inference, hybrid work)\n\nHowever, the query asks about \"last two years\" and the answer gives Q3 2025/fiscal 2026 figures. The answer is specific and numerical, making it practically useful for understanding revenue growth trends.\n\nScore: 4 - Specific numbers and segment breakdowns make this useful for a reviewer.\n\n**Comparison Completeness:**\nNot applicable - requires_comparison is false.\n\nScore: null\n\n**Uncertainty Handling (0-5):**\nThe answer_uncertainty field states: \"The evidence does not provide specific year-over-year or quarter-over-quarter comparisons for individual segments like Compute & Networking, nor does it detail revenue composition by geographic regions.\"\n\nThis is good - it acknowledges limitations in the data. However, the answer itself doesn't explicitly communicate these uncertainties inline - it's in a separate field. The answer makes definitive statements without qualifying the limitations about missing YoY comparisons or geographic data.\n\nScore: 3 - The uncertainty is documented but not integrated into the main answer text.\n\n**Summary:**\nThe answer provides specific, numerical revenue growth data for NVIDIA's Data Center and Professional Visualization segments with appropriate citations. The response is grounded in the provided filings and gives segment-level detail that answers the core query. However, uncertainties are noted separately rather than integrated into the response, and some citation noise exists with irrelevant AAPL content.\n\nLet me finalize the scores:\n\n- Groundedness: 4 (stays tied to citations, specific claims)\n- Citation Quality: 4 (covers expected entities, supports answer, some irrelevant noise)\n- Usefulness: 4 (specific, practical, segment-level detail)\n- Comparison Completeness: null (not applicable)\n- Uncertainty Handling: 3 (documented but not integrated inline)\n```json\n{\n  \"groundedness\": {\"score\": 4, \"rationale\": \"The answer stays closely tied to the cited documents, providing specific numerical claims (83% Data Center growth to $131.4B, 50%+ Professional Visualization growth to $1.97B) that are attributed to [C2] and [C4]. The claims about AI training/inference demand and hybrid work environments are also appropriately grounded in the cited filings.\"},\n  \"citation_quality\": {\"score\": 4, \"rationale\": \"The cited chunks cover NVDA filings spanning the relevant time period (C2 from 2025Q4, C4 from 2023Q4), supporting the two-year growth analysis. However, the retrieval included irrelevant AAPL content (C5) and older NVDA filings that weren't utilized, introducing some noise.\"},\n  \"usefulness\": {\"score\": 4, \"rationale\": \"The answer provides concrete numerical growth figures, segment-level breakdowns, and explanatory context about demand drivers. This gives a reviewer specific, actionable information about NVIDIA's revenue trajectory rather than vague generalizations.\"},\n  \"comparison_completeness\": {\"score\": null, \"rationale\": \"Not applicable - this is not a comparison prompt.\"},\n  \"uncertainty_handling\": {\"score\": 3, \"rationale\": \"Uncertainty is acknowledged in a separate field noting missing YoY/QoQ comparisons for segments like Compute & Networking and absent geographic revenue breakdowns. However, these limitations are not integrated into the main answer text, which presents findings definitively without inline qualification.\"},\n  \"summary\": \"The answer delivers specific, well-cited revenue growth data for NVIDIA's key segments over the requested two-year period, with strong groundedness in the provided filings. Practical utility is high due to numerical precision and segment-level detail, though the response could better integrate uncertainty acknowledgments directly into the narrative rather than isolating them in a separate field.\"\n}\n```"
+          }
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": false,
+        "comparison_behavior_observed": null,
+        "contamination_observed": true,
+        "contamination_tickers": [
+          "AAPL"
+        ],
+        "contamination_severity": "high",
+        "citation_quality": {
+          "score": 4,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The cited chunks cover NVDA filings spanning the relevant time period (C2 from 2025Q4, C4 from 2023Q4), supporting the two-year growth analysis. However, the retrieval included irrelevant AAPL content (C5) and older NVDA filings that weren't utilized, introducing some noise."
+        },
+        "answer_usefulness": {
+          "score": 4,
+          "score_max": 5,
+          "status": "pass",
+          "notes": "The answer provides concrete numerical growth figures, segment-level breakdowns, and explanatory context about demand drivers. This gives a reviewer specific, actionable information about NVIDIA's revenue trajectory rather than vague generalizations."
+        },
+        "outcome": "partial_pass",
+        "pass": false,
+        "notes": [
+          "Unexpected retrieved tickers: AAPL."
+        ]
+      }
+    },
+    {
+      "query_id": "sector_regulatory_banks_capital",
+      "prompt": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+      "expected_tickers": [
+        "JPM",
+        "BAC"
+      ],
+      "requires_comparison": false,
+      "contamination_notes": "Sector query may retrieve multiple banks, but should stay within relevant banking and regulatory context.",
+      "filters": null,
+      "structured_query": {
+        "raw_query": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "retrieval_text": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "lexical_query": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "dense_query": "What regulatory and capital-related risks are large U.S. banks discussing in recent filings?",
+        "expansion_terms": [],
+        "normalized_tickers": null,
+        "detected_tickers": null,
+        "detected_company_names": null,
+        "target_tickers": null,
+        "filing_date_from": null,
+        "filing_date_to": null,
+        "is_multi_company": false,
+        "is_comparison_query": false,
+        "requires_entity_coverage": false
+      },
+      "retrieved_tickers": [
+        "MS",
+        "GS",
+        "NVDA",
+        "V",
+        "JPM",
+        "BAC"
+      ],
+      "retrieved_chunk_ids": [
+        "MS_10K_2026-02-19_full::chunk-0009",
+        "GS_10K_2025-02-27_full::chunk-0019",
+        "MS_10K_2026-02-19_full::chunk-0010",
+        "GS_10K_2025-02-27_full::chunk-0018",
+        "NVDA_10Q_2025Q4_2025-11-19_full::chunk-0022",
+        "V_10K_2025-11-06_full::chunk-0023",
+        "JPM_10Q_2025Q1_2025-05-01_full::chunk-0025",
+        "BAC_10K_2025-02-25_full::chunk-0193"
+      ],
+      "retrieval_result_count": 8,
+      "answer_output": null,
+      "answer_summary": null,
+      "answer_findings": null,
+      "answer_citations": null,
+      "answer_uncertainty": null,
+      "answer_model": null,
+      "answer_error": "Model response must include a non-empty `findings` list.",
+      "scoring": {
+        "retrieval": {
+          "expected_ticker_coverage": true,
+          "comparison_behavior_required": false,
+          "comparison_behavior_observed": null,
+          "contamination_observed": true,
+          "contamination_tickers": [
+            "MS",
+            "GS",
+            "NVDA",
+            "V"
+          ],
+          "contamination_severity": "high"
+        },
+        "answer_quality": {
+          "evaluated": true,
+          "methodology": {
+            "method": "llm_judge_openrouter_quantitative",
+            "judge_assisted": true,
+            "provider": "openrouter",
+            "model": "z-ai/glm-5",
+            "rubric_version": "phase_10_llm_judge_v2",
+            "rubric_path": "eval/answer_judging_rubric.md",
+            "prompt_path": "prompts/eval_judge_prompt.txt",
+            "score_range": {
+              "min": 0,
+              "max": 5
+            },
+            "aggregation": {
+              "type": "weighted_average",
+              "weights": {
+                "groundedness": 0.3,
+                "citation_quality": 0.25,
+                "usefulness": 0.25,
+                "comparison_completeness": 0.15,
+                "uncertainty_handling": 0.05
+              }
+            }
+          },
+          "groundedness": {
+            "score": 0,
+            "score_max": 5,
+            "status": "error",
+            "notes": "Model response must include a non-empty `findings` list."
+          },
+          "citation_quality": {
+            "score": 0,
+            "score_max": 5,
+            "status": "error",
+            "observed_citation_ids": [],
+            "observed_tickers": [],
+            "notes": "Model response must include a non-empty `findings` list."
+          },
+          "usefulness": {
+            "score": 0,
+            "score_max": 5,
+            "status": "error",
+            "notes": "Model response must include a non-empty `findings` list."
+          },
+          "comparison_completeness": {
+            "score": null,
+            "score_max": 5,
+            "status": "not_applicable",
+            "notes": "Answer generation failed."
+          },
+          "uncertainty_handling": {
+            "score": 0,
+            "score_max": 5,
+            "status": "error",
+            "notes": "Model response must include a non-empty `findings` list."
+          },
+          "overall": "fail",
+          "overall_score": 0.0,
+          "overall_score_max": 5,
+          "aggregation": {
+            "type": "weighted_average",
+            "weights_used": {
+              "groundedness": 0.3,
+              "citation_quality": 0.25,
+              "usefulness": 0.25,
+              "uncertainty_handling": 0.05
+            }
+          },
+          "notes": [
+            "Model response must include a non-empty `findings` list."
+          ],
+          "judge_result": null
+        },
+        "expected_ticker_coverage": true,
+        "comparison_behavior_required": false,
+        "comparison_behavior_observed": null,
+        "contamination_observed": true,
+        "contamination_tickers": [
+          "MS",
+          "GS",
+          "NVDA",
+          "V"
+        ],
+        "contamination_severity": "high",
+        "citation_quality": {
+          "score": 0,
+          "score_max": 5,
+          "status": "error",
+          "observed_citation_ids": [],
+          "observed_tickers": [],
+          "notes": "Model response must include a non-empty `findings` list."
+        },
+        "answer_usefulness": {
+          "score": 0,
+          "score_max": 5,
+          "status": "error",
+          "notes": "Model response must include a non-empty `findings` list."
+        },
+        "outcome": "fail",
+        "pass": false,
+        "notes": [
+          "Unexpected retrieved tickers: MS, GS, NVDA, V.",
+          "Answer generation error: Model response must include a non-empty `findings` list."
+        ]
+      }
+    }
+  ],
+  "build_manifest": {
+    "manifest_version": 1,
+    "chunking": {
+      "chunk_size_tokens": 800,
+      "chunk_overlap_tokens": 100
+    },
+    "tables": {
+      "lexical": "filing_chunks",
+      "dense": "filing_chunks_dense"
+    },
+    "dense_index": {
+      "embedding_model": "hashed_v1",
+      "embedding_dimension": 256,
+      "metric": "cosine"
+    },
+    "reranker": {
+      "default": "bge-reranker-v2-m3",
+      "candidate_pool": 12,
+      "enabled_by_default": false
+    },
+    "artifacts": {
+      "corpus_manifest": "edgar_corpus/manifest.json",
+      "chunk_records": "artifacts/chunk_records.jsonl",
+      "dense_index_metadata": "artifacts/dense_index_metadata.json",
+      "golden_eval_set": "eval/golden_queries.json",
+      "final_prompt_template": "prompts/final_answer_prompt.txt"
+    }
+  },
+  "summary": {
+    "pass": 2,
+    "partial_pass": 2,
+    "fail": 2
+  }
+}
