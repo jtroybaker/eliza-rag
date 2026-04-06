@@ -126,6 +126,8 @@ The visualization that helps tell that story is:
 
 - `eval/provider_eval_visualization_judged.png`
 
+![Judged evaluation visualization](eval/provider_eval_visualization_judged.png)
+
 It is useful because it makes the relative pattern across configurations easy to scan alongside the underlying saved artifacts.
 
 ## Maintainer Notes
