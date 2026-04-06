@@ -105,28 +105,28 @@ For the compact walkthrough version, see `ARCHITECTURE.md`.
 
 ## Evaluation Story
 
-The primary discussion artifact is:
+This repo evaluates the system with a small frozen query set in `eval/golden_queries.json` and a bounded set of retrieval and reranking configurations. That approach fits the project well: the goal here is not leaderboard scale, but a reviewer-readable comparison of how retrieval choices affect grounded answers over the same questions and saved corpus state.
 
-- `eval/provider_eval_visualization_judged.png`
+The evidence is preserved in layers so the evaluation can be inspected directly:
 
-Use it as a presentation aid, not as the evidence source.
+- raw `*_answer.json` artifacts show the actual answer behavior for each saved run
+- `*_answer_judged.json` overlays add a consistent interpretation layer on top of those answers
+- read-only reports and the judged visualization summarize those artifacts so differences across configurations are easier to compare
 
-The intended interpretation is:
-
-- the repo freezes a small evaluation slice in `eval/golden_queries.json`
-- retrieval and reranking components vary in bounded ways across saved runs
-- raw `*_answer.json` artifacts remain the main answer-behavior evidence
-- `*_answer_judged.json` overlays add an interpretation layer on top of those saved answers
-- the judged visualization makes tradeoffs easier to discuss live, but it should not be treated as stronger evidence than the raw saved artifacts underneath it
-
-Current judged summary from `eval/provider_eval_report_judged.md`:
+The current judged summary from `eval/provider_eval_report_judged.md` shows a clear spread across the saved variants:
 
 - Snowflake + `bge-reranker-v2-m3`: `4 pass / 1 partial_pass / 1 fail`
 - `hashed_v1` + `bge-reranker-v2-m3`: `1 pass / 5 partial_pass / 0 fail`
 - `hashed_v1` + `bge-reranker-base`: `2 pass / 2 partial_pass / 2 fail`
 - Snowflake + `bge-reranker-base`: `2 pass / 3 partial_pass / 1 fail`
 
-The most useful live-demo takeaway is not that one judged score is definitive. It is that the repo preserves raw answers, judged overlays, and read-only reports separately so retrieval and answer tradeoffs can be inspected instead of hand-waved.
+Taken together, those saved runs suggest that the Snowflake retriever paired with `bge-reranker-v2-m3` produced the strongest judged behavior in this evaluation slice, while the other combinations more often degraded to partial passes or failures. For a reviewer, the point is not a single definitive score; it is that the repo makes the retrieval tradeoffs visible and auditable through stored answers, overlays, and reports rather than through claims alone.
+
+The visualization that helps tell that story is:
+
+- `eval/provider_eval_visualization_judged.png`
+
+It is useful because it makes the relative pattern across configurations easy to scan alongside the underlying saved artifacts.
 
 ## Maintainer Notes
 
@@ -143,4 +143,3 @@ uv run eliza-rag-storage package-archive
 
 - `ARCHITECTURE.md`: compact pipeline walkthrough for live explanation
 - `eval/README.md`: saved eval artifacts, exact eval commands, and reporting outputs
-- `LIMITATIONS.md`: known caveats and interpretation constraints
