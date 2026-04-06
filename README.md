@@ -1,8 +1,8 @@
 # eliza-rag
 
-Portable SEC filings RAG demo optimized for a short reviewer path: restore a prebuilt local index, ask a question, inspect grounded citations, and discuss the saved evaluation artifacts.
+Portable SEC filings RAG demo: restore a prebuilt local index, ask a question, inspect grounded citations, and discuss the saved evaluation artifacts.
 
-The main demo contract is intentionally simple:
+The main demo contract is:
 
 1. clone the repo
 2. restore the published LanceDB archive
