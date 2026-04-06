@@ -115,6 +115,13 @@ def main() -> None:
     else:
         enable_rerank = True
 
+    def _emit_status(message: str) -> None:
+        print(f"[eliza-rag] {message}", file=sys.stderr)
+
+    _emit_status(
+        f"Starting answer run with mode `{args.mode}` and provider `{settings.llm_provider}`."
+    )
+
     try:
         response = generate_answer(
             settings,
@@ -126,6 +133,7 @@ def main() -> None:
             enable_rerank=enable_rerank,
             reranker=args.reranker,
             rerank_candidate_pool=args.rerank_candidate_pool,
+            progress_callback=_emit_status,
         )
     except (DenseIndexNotReadyError, LexicalIndexNotReadyError) as exc:
         print(str(exc), file=sys.stderr)

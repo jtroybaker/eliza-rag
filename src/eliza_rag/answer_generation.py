@@ -4,6 +4,7 @@ import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 from urllib import error, request
 from urllib.parse import urlsplit
 
@@ -279,7 +280,10 @@ def generate_answer(
     reranker: str | None = None,
     rerank_candidate_pool: int | None = None,
     client: AnswerBackend | None = None,
+    progress_callback: Callable[[str], None] | None = None,
 ) -> AnswerResponse:
+    if progress_callback:
+        progress_callback("Analyzing query and retrieving evidence...")
     try:
         retrieval_results = retrieve(
             settings,
@@ -298,9 +302,17 @@ def generate_answer(
     if not retrieval_results:
         raise AnswerGenerationError("No retrieval results were returned for the supplied question.")
 
+    if progress_callback:
+        progress_callback("Building grounded prompt...")
     prompt_package = build_prompt_package(settings, question, retrieval_results)
+    if progress_callback:
+        progress_callback(
+            f"Calling {settings.llm_provider} backend with model `{settings.llm_model}`..."
+        )
     active_client = client or build_answer_backend_client(settings)
     raw_model_response = active_client.generate(prompt_package.prompt)
+    if progress_callback:
+        progress_callback("Validating model response and citations...")
     parsed_response = parse_model_response(raw_model_response, prompt_package.citations)
 
     return AnswerResponse(

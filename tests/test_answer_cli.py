@@ -9,6 +9,14 @@ from eliza_rag.answer_cli import main
 from eliza_rag.models import AnswerCitation, AnswerFinding, AnswerResponse, RetrievalResult
 
 
+def _settings_stub():
+    return type(
+        "SettingsStub",
+        (),
+        {"llm_provider": "openai"},
+    )()
+
+
 def _response() -> AnswerResponse:
     retrieval_result = RetrievalResult(
         chunk_id="aapl-001",
@@ -61,7 +69,7 @@ def test_answer_cli_default_output_is_simplified(
 ) -> None:
     monkeypatch.setattr(
         "eliza_rag.answer_cli.get_settings",
-        lambda: object(),
+        _settings_stub,
     )
     monkeypatch.setattr(
         "eliza_rag.answer_cli.generate_answer",
@@ -80,6 +88,7 @@ def test_answer_cli_default_output_is_simplified(
     assert "Summary:" not in captured.out
     assert "Findings:" not in captured.out
     assert "Model:" not in captured.out
+    assert "Starting answer run" in captured.err
 
 
 def test_answer_cli_verbose_output_includes_extra_sections(
@@ -88,7 +97,7 @@ def test_answer_cli_verbose_output_includes_extra_sections(
 ) -> None:
     monkeypatch.setattr(
         "eliza_rag.answer_cli.get_settings",
-        lambda: object(),
+        _settings_stub,
     )
     monkeypatch.setattr(
         "eliza_rag.answer_cli.generate_answer",
@@ -115,7 +124,7 @@ def test_answer_cli_json_output_is_unchanged(
     response = _response()
     monkeypatch.setattr(
         "eliza_rag.answer_cli.get_settings",
-        lambda: object(),
+        _settings_stub,
     )
     monkeypatch.setattr(
         "eliza_rag.answer_cli.generate_answer",
@@ -132,6 +141,7 @@ def test_answer_cli_json_output_is_unchanged(
     payload = json.loads(captured.out)
     assert payload["summary"] == response.summary
     assert payload["answer"] == response.answer
+    assert "Starting answer run" in captured.err
 
 
 def test_answer_cli_defaults_to_recommended_demo_path(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -141,7 +151,7 @@ def test_answer_cli_defaults_to_recommended_demo_path(monkeypatch: pytest.Monkey
         observed.update(kwargs)
         return _response()
 
-    monkeypatch.setattr("eliza_rag.answer_cli.get_settings", lambda: object())
+    monkeypatch.setattr("eliza_rag.answer_cli.get_settings", _settings_stub)
     monkeypatch.setattr("eliza_rag.answer_cli.generate_answer", _fake_generate_answer)
     monkeypatch.setattr(
         "sys.argv",
@@ -161,7 +171,7 @@ def test_answer_cli_forwards_rerank_arguments(monkeypatch: pytest.MonkeyPatch) -
         observed.update(kwargs)
         return _response()
 
-    monkeypatch.setattr("eliza_rag.answer_cli.get_settings", lambda: object())
+    monkeypatch.setattr("eliza_rag.answer_cli.get_settings", _settings_stub)
     monkeypatch.setattr("eliza_rag.answer_cli.generate_answer", _fake_generate_answer)
     monkeypatch.setattr(
         "sys.argv",
@@ -190,7 +200,7 @@ def test_answer_cli_can_disable_reranking(monkeypatch: pytest.MonkeyPatch) -> No
         observed.update(kwargs)
         return _response()
 
-    monkeypatch.setattr("eliza_rag.answer_cli.get_settings", lambda: object())
+    monkeypatch.setattr("eliza_rag.answer_cli.get_settings", _settings_stub)
     monkeypatch.setattr("eliza_rag.answer_cli.generate_answer", _fake_generate_answer)
     monkeypatch.setattr(
         "sys.argv",
@@ -200,3 +210,22 @@ def test_answer_cli_can_disable_reranking(monkeypatch: pytest.MonkeyPatch) -> No
     main()
 
     assert observed["enable_rerank"] is False
+
+
+def test_answer_cli_passes_progress_callback(monkeypatch: pytest.MonkeyPatch) -> None:
+    observed: dict[str, object] = {}
+
+    def _fake_generate_answer(*args, **kwargs):
+        observed.update(kwargs)
+        return _response()
+
+    monkeypatch.setattr("eliza_rag.answer_cli.get_settings", _settings_stub)
+    monkeypatch.setattr("eliza_rag.answer_cli.generate_answer", _fake_generate_answer)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["eliza-rag-answer", "What risk factors does Apple describe?"],
+    )
+
+    main()
+
+    assert callable(observed["progress_callback"])

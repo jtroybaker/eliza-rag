@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 
 
 def _repo_root() -> Path:
@@ -14,6 +14,14 @@ def _repo_root() -> Path:
 
 def _env_path(name: str, default: Path) -> Path:
     return Path(os.getenv(name, default)).expanduser().resolve()
+
+
+def _first_non_empty(*names: str) -> str | None:
+    for name in names:
+        value = os.getenv(name)
+        if value is not None and value.strip():
+            return value
+    return None
 
 
 @dataclass(frozen=True, slots=True)
@@ -97,8 +105,13 @@ class Settings:
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     repo_root = _repo_root()
-    load_dotenv(repo_root / ".env")
-    load_dotenv(repo_root / ".env.local", override=True)
+    for name, value in {
+        **dotenv_values(repo_root / ".env"),
+        **dotenv_values(repo_root / ".env.local"),
+        **os.environ,
+    }.items():
+        if value is not None:
+            os.environ[name] = value
     data_dir = _env_path("ELIZA_RAG_DATA_DIR", repo_root / "data")
     artifacts_dir = _env_path("ELIZA_RAG_ARTIFACTS_DIR", repo_root / "artifacts")
     prompts_dir = repo_root / "prompts"
@@ -149,6 +162,35 @@ def get_settings() -> Settings:
         or default_base_urls.get(judge_provider, default_base_urls["openrouter"])
     )
     judge_model = os.getenv("ELIZA_RAG_JUDGE_MODEL", "qwen/qwen3.6-plus:free")
+    llm_api_key = {
+        "openai": _first_non_empty(
+            "ELIZA_RAG_OPENAI_API_KEY",
+            "OPENAI_API_KEY",
+            "ELIZA_RAG_LLM_API_KEY",
+        ),
+        "openrouter": _first_non_empty(
+            "ELIZA_RAG_OPENROUTER_API_KEY",
+            "OPENROUTER_API_KEY",
+            "ELIZA_RAG_LLM_API_KEY",
+        ),
+    }.get(
+        llm_provider,
+        _first_non_empty(
+            "ELIZA_RAG_LLM_API_KEY",
+            "ELIZA_RAG_OPENAI_API_KEY",
+            "OPENAI_API_KEY",
+            "ELIZA_RAG_OPENROUTER_API_KEY",
+            "OPENROUTER_API_KEY",
+        ),
+    )
+    judge_api_key = _first_non_empty(
+        "ELIZA_RAG_JUDGE_API_KEY",
+        "ELIZA_RAG_OPENROUTER_API_KEY",
+        "OPENROUTER_API_KEY",
+        "ELIZA_RAG_LLM_API_KEY",
+        "ELIZA_RAG_OPENAI_API_KEY",
+        "OPENAI_API_KEY",
+    )
 
     return Settings(
         repo_root=repo_root,
@@ -206,16 +248,11 @@ def get_settings() -> Settings:
         dense_index_metric=os.getenv("ELIZA_RAG_DENSE_INDEX_METRIC", "cosine"),
         llm_provider=llm_provider,
         llm_base_url=llm_base_url,
-        llm_api_key=os.getenv("ELIZA_RAG_LLM_API_KEY") or os.getenv("OPENAI_API_KEY"),
+        llm_api_key=llm_api_key,
         llm_model=llm_model,
         judge_provider=judge_provider,
         judge_base_url=judge_base_url,
-        judge_api_key=(
-            os.getenv("ELIZA_RAG_JUDGE_API_KEY")
-            or os.getenv("OPENROUTER_API_KEY")
-            or os.getenv("ELIZA_RAG_LLM_API_KEY")
-            or os.getenv("OPENAI_API_KEY")
-        ),
+        judge_api_key=judge_api_key,
         judge_model=judge_model,
         local_llm_runtime=os.getenv("ELIZA_RAG_LOCAL_LLM_RUNTIME", "ollama").strip().lower(),
         local_llm_runtime_command=os.getenv("ELIZA_RAG_LOCAL_LLM_RUNTIME_COMMAND", "ollama"),

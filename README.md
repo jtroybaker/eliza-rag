@@ -45,13 +45,33 @@ uv run eliza-rag-answer "What are the primary risk factors facing Apple, Tesla, 
 
 ### Hosted LLM Path
 
-If you already have an API key, you can skip Ollama:
+If you already have an API key in `.env.local`, you can skip Ollama.
+
+Recommended `.env.local` entries:
+
+```bash
+ELIZA_RAG_OPENAI_API_KEY=your_openai_key_here
+ELIZA_RAG_OPENROUTER_API_KEY=your_openrouter_key_here
+```
+
+Then choose one hosted provider:
+
+OpenAI:
 
 ```bash
 export ELIZA_RAG_LLM_PROVIDER=openai
-export ELIZA_RAG_LLM_API_KEY=your_key_here
 uv run eliza-rag-answer "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?"
 ```
+
+OpenRouter:
+
+```bash
+export ELIZA_RAG_LLM_PROVIDER=openrouter
+export ELIZA_RAG_LLM_MODEL=openai/gpt-5-mini
+uv run eliza-rag-answer "What are the primary risk factors facing Apple, Tesla, and JPMorgan, and how do they compare?"
+```
+
+The repo still accepts the older shared hosted-answer variable `ELIZA_RAG_LLM_API_KEY`, but reviewer setup should prefer the provider-specific keys above.
 
 Useful follow-up commands:
 
