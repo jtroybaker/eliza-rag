@@ -9,6 +9,47 @@ The main demo contract is:
 3. choose a local or hosted LLM
 4. run one answer command
 
+## Requirements And Assumptions
+
+This repo assumes the reviewer is running on a reasonably current macOS or Linux machine with:
+
+- Python 3.12 or newer
+- `uv` available on the command line
+- internet access for the initial dependency install, archive download, and any first-run model downloads
+- enough local disk space for the repo, restored LanceDB archive, and any local model artifacts
+
+If you plan to use the local LLM path, it also assumes:
+
+- Ollama can be installed and run on the machine
+- the machine has enough CPU, RAM, and disk for the selected Ollama model and retrieval-time model downloads
+
+Windows is not the primary target environment for this demo, but a reasonable best-effort path is:
+
+- use PowerShell or Git Bash
+- install `uv` using the official Windows instructions
+- prefer the hosted LLM path first
+- treat Ollama and local-model setup on Windows as less tested than macOS or Linux
+
+If `uv` is not installed yet, install it first.
+
+macOS and Linux:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Then restart your shell, or confirm it is available:
+
+```bash
+uv --version
+```
+
 ## Reviewer Quickstart
 
 Install dependencies:
