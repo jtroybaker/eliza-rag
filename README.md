@@ -20,7 +20,7 @@ uv sync
 Restore the prebuilt retrieval state from a GitHub Release archive:
 
 ```bash
-export ELIZA_RAG_LANCEDB_ARCHIVE_URL=https://github.com/YOUR_ORG/YOUR_REPO/releases/download/v1.0.0/lancedb-demo.zip
+export ELIZA_RAG_LANCEDB_ARCHIVE_URL=https://github.com/jtroybaker/eliza-rag/releases/download/v1.0.0/lancedb-demo.zip
 uv run eliza-rag-storage fetch-archive
 ```
 
