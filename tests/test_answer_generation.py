@@ -327,17 +327,54 @@ def test_parse_model_response_accepts_prose_wrapped_json(tmp_path: Path) -> None
     assert parsed["summary"] == "test"
 
 
-def test_parse_model_response_requires_non_empty_findings(tmp_path: Path) -> None:
+def test_parse_model_response_allows_empty_findings(tmp_path: Path) -> None:
     settings = _settings(tmp_path)
     prompt_package = build_prompt_package(settings, "question", _retrieval_results())
 
-    with pytest.raises(AnswerGenerationError, match="non-empty `findings` list"):
+    parsed = parse_model_response(
+        """
+        {
+          "summary": "test",
+          "answer": "Apple faces concentration risk [C1].",
+          "findings": [],
+          "uncertainty": "none"
+        }
+        """,
+        prompt_package.citations,
+    )
+
+    assert parsed["findings"] == []
+
+
+def test_parse_model_response_allows_missing_findings(tmp_path: Path) -> None:
+    settings = _settings(tmp_path)
+    prompt_package = build_prompt_package(settings, "question", _retrieval_results())
+
+    parsed = parse_model_response(
+        """
+        {
+          "summary": "test",
+          "answer": "Apple faces concentration risk [C1].",
+          "uncertainty": "none"
+        }
+        """,
+        prompt_package.citations,
+    )
+
+    assert parsed["findings"] == []
+
+
+def test_parse_model_response_requires_findings_list_when_present(tmp_path: Path) -> None:
+    settings = _settings(tmp_path)
+    prompt_package = build_prompt_package(settings, "question", _retrieval_results())
+
+    with pytest.raises(AnswerGenerationError, match="`findings` must be a list"):
         parse_model_response(
             """
             {
               "summary": "test",
               "answer": "Apple faces concentration risk [C1].",
-              "findings": [],
+              "findings": "not-a-list",
               "uncertainty": "none"
             }
             """,

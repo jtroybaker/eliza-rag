@@ -396,8 +396,10 @@ def parse_model_response(
 
     citation_ids = {citation.citation_id for citation in citations}
     findings_payload = payload.get("findings")
-    if not isinstance(findings_payload, list) or not findings_payload:
-        raise AnswerGenerationError("Model response must include a non-empty `findings` list.")
+    if findings_payload is None:
+        findings_payload = []
+    if not isinstance(findings_payload, list):
+        raise AnswerGenerationError("Model response `findings` must be a list when present.")
 
     findings: list[AnswerFinding] = []
     for item in findings_payload:
@@ -451,9 +453,6 @@ def parse_model_response(
             )
     elif len(known_answer_citations) != len(answer_citations):
         normalized_answer = _strip_unknown_inline_citations(normalized_answer, citation_ids)
-
-    if not findings:
-        raise AnswerGenerationError("Model response must include at least one finding with known citation ids.")
 
     return {
         "answer": normalized_answer,

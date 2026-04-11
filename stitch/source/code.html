@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Editorial Intelligence</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Manrope:wght@200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#e0e3e7",
+                    "outline": "#ac8889",
+                    "inverse-on-surface": "#2e3133",
+                    "on-surface": "#e1e2e5",
+                    "secondary-fixed": "#ffdadb",
+                    "secondary-container": "#b50036",
+                    "inverse-primary": "#be0037",
+                    "secondary-fixed-dim": "#ffb2b7",
+                    "secondary": "#ffb2b7",
+                    "surface-container-highest": "#323537",
+                    "surface-container-high": "#272a2c",
+                    "error": "#ffb4ab",
+                    "primary": "#ffb3b6",
+                    "background": "#111416",
+                    "on-surface-variant": "#e5bdbe",
+                    "on-secondary-container": "#ffc2c4",
+                    "on-secondary-fixed": "#40000d",
+                    "on-tertiary-fixed-variant": "#44474b",
+                    "on-background": "#e1e2e5",
+                    "on-tertiary": "#2d3134",
+                    "on-primary-fixed": "#40000c",
+                    "surface-variant": "#323537",
+                    "primary-fixed": "#ffdada",
+                    "surface-container-low": "#191c1e",
+                    "surface-tint": "#ffb3b6",
+                    "surface-container": "#1d2022",
+                    "primary-container": "#e11d48",
+                    "on-primary-container": "#fffaf9",
+                    "on-primary": "#68001a",
+                    "on-secondary-fixed-variant": "#92002a",
+                    "on-tertiary-fixed": "#181c1f",
+                    "primary-fixed-dim": "#ffb3b6",
+                    "tertiary-container": "#717478",
+                    "on-error-container": "#ffdad6",
+                    "tertiary": "#c4c7cb",
+                    "on-tertiary-container": "#fafbff",
+                    "on-secondary": "#67001b",
+                    "outline-variant": "#5c3f40",
+                    "on-error": "#690005",
+                    "surface-bright": "#37393c",
+                    "surface-container-lowest": "#0c0f11",
+                    "on-primary-fixed-variant": "#920028",
+                    "surface": "#111416",
+                    "tertiary-fixed-dim": "#c4c7cb",
+                    "surface-dim": "#111416",
+                    "inverse-surface": "#e1e2e5",
+                    "error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "xxl": "1.25rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Newsreader", "serif"],
+                    "body": ["Manrope", "sans-serif"],
+                    "label": ["Manrope", "sans-serif"]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        body {
+            background-color: #111416;
+            color: #e1e2e5;
+            font-family: 'Manrope', sans-serif;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(29, 32, 34, 0.7);
+            backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="min-h-screen selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar Cluster -->
+<header class="fixed top-0 z-50 flex justify-between items-center w-full px-8 py-6 bg-[#111416]/70 backdrop-blur-xl">
+<div class="flex items-center gap-4">
+<span class="text-3xl font-serif italic text-[#E1E2E5]">Editorial Intelligence</span>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<nav class="flex gap-6">
+<a class="text-[#E1E2E5] font-bold border-b-2 border-[#E11D48] hover:text-[#FFB3B6] transition-colors duration-300" href="#">Synthesize</a>
+<a class="text-[#8E9193] font-medium hover:text-[#FFB3B6] transition-colors duration-300" href="#">Research</a>
+<a class="text-[#8E9193] font-medium hover:text-[#FFB3B6] transition-colors duration-300" href="#">Sources</a>
+<a class="text-[#8E9193] font-medium hover:text-[#FFB3B6] transition-colors duration-300" href="#">Archive</a>
+</nav>
+<div class="flex items-center gap-4 ml-4">
+<span class="text-xs font-label uppercase tracking-widest text-on-surface-variant">Local Runtime</span>
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">settings</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors">account_circle</span>
+</div>
+</div>
+</div>
+</header>
+<div class="flex h-screen pt-24 overflow-hidden">
+<!-- SideNavBar - Desktop -->
+<aside class="hidden md:flex flex-col h-full py-8 gap-6 bg-[#111416] w-64 shrink-0">
+<div class="px-8 mb-4">
+<h2 class="font-headline text-2xl text-[#E1E2E5]">Intelligence</h2>
+<p class="text-[0.65rem] font-label uppercase tracking-[0.2em] text-on-surface-variant mt-1">V1.0.4 Local</p>
+</div>
+<button class="mx-6 py-3 px-4 rounded-xl bg-primary-container text-on-primary-container font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Thread
+            </button>
+<nav class="flex flex-col gap-1 mt-4">
+<div class="flex items-center gap-4 text-[#FFB3B6] border-l-2 border-[#E11D48] pl-6 py-2 cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="text-[0.75rem] font-label uppercase tracking-wider">Synthesize</span>
+</div>
+<div class="flex items-center gap-4 text-[#8E9193] pl-6 py-2 hover:bg-[#1D2022] hover:text-[#E1E2E5] transition-all cursor-pointer">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[0.75rem] font-label uppercase tracking-wider">Research</span>
+</div>
+<div class="flex items-center gap-4 text-[#8E9193] pl-6 py-2 hover:bg-[#1D2022] hover:text-[#E1E2E5] transition-all cursor-pointer">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="text-[0.75rem] font-label uppercase tracking-wider">Sources</span>
+</div>
+<div class="flex items-center gap-4 text-[#8E9193] pl-6 py-2 hover:bg-[#1D2022] hover:text-[#E1E2E5] transition-all cursor-pointer">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="text-[0.75rem] font-label uppercase tracking-wider">Archive</span>
+</div>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex overflow-hidden">
+<!-- Left Column: The Input Engine -->
+<section class="w-1/2 flex flex-col p-8 overflow-y-auto border-r border-transparent bg-surface-container-low">
+<div class="max-w-xl mx-auto w-full">
+<header class="mb-12">
+<h1 class="font-headline text-5xl leading-tight mb-4 italic">Editorial Intelligence</h1>
+<p class="font-body text-on-surface-variant text-lg leading-relaxed opacity-80">
+                            Harnessing production-grade retrieval augmented generation for deep synthesis and cinematic narrative analysis.
+                        </p>
+</header>
+<div class="space-y-8">
+<!-- Setup & Runtime -->
+<div class="grid grid-cols-2 gap-4">
+<div class="p-6 rounded-xxl bg-surface-container-lowest border border-outline-variant/10 group hover:border-primary/20 transition-all">
+<span class="text-[0.65rem] font-label uppercase tracking-widest text-on-surface-variant block mb-4">Environment</span>
+<button class="w-full py-2 bg-surface-container-high rounded-lg text-on-surface font-semibold hover:bg-surface-container-highest transition-colors">Setup Archive</button>
+</div>
+<div class="p-6 rounded-xxl bg-surface-container-lowest border border-outline-variant/10">
+<span class="text-[0.65rem] font-label uppercase tracking-widest text-on-surface-variant block mb-4">Local Runtime</span>
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+<span class="text-sm font-body font-medium">Ollama: Ready</span>
+</div>
+<p class="text-[10px] text-on-surface-variant mt-2 font-mono">/usr/local/bin/ollama</p>
+</div>
+</div>
+<!-- Provider Choice -->
+<div>
+<span class="text-[0.65rem] font-label uppercase tracking-widest text-on-surface-variant block mb-3">Model Provider</span>
+<div class="inline-flex p-1 bg-surface-container-lowest rounded-full">
+<button class="px-6 py-2 rounded-full bg-surface-container-high text-primary text-xs font-bold transition-all">Local</button>
+<button class="px-6 py-2 rounded-full text-on-surface-variant text-xs font-bold hover:text-on-surface transition-all">Hosted</button>
+</div>
+</div>
+<!-- Main Query -->
+<div class="relative">
+<label class="text-[0.65rem] font-label uppercase tracking-widest text-on-surface-variant block mb-3">Your Thesis</label>
+<textarea class="w-full bg-surface-container-high rounded-xxl p-6 text-on-surface border border-transparent focus:border-primary/40 focus:ring-0 min-h-[160px] resize-none font-body text-lg leading-relaxed placeholder:text-on-surface-variant/30" placeholder="Ask your question... Explore the intersections of technology and modern editorial design."></textarea>
+</div>
+<!-- Flow Controls -->
+<div class="grid grid-cols-2 gap-6">
+<div>
+<label class="text-[0.65rem] font-label uppercase tracking-widest text-on-surface-variant block mb-3">Run Mode</label>
+<div class="flex gap-2 p-1 bg-surface-container-lowest rounded-xl">
+<button class="flex-1 py-2 rounded-lg bg-surface-container-high text-xs font-bold text-on-surface">Answer</button>
+<button class="flex-1 py-2 rounded-lg text-xs font-bold text-on-surface-variant hover:text-on-surface transition-colors">Search</button>
+</div>
+</div>
+<div>
+<label class="text-[0.65rem] font-label uppercase tracking-widest text-on-surface-variant block mb-3">Retrieval</label>
+<div class="flex items-center justify-between px-4 py-2 bg-surface-container-lowest rounded-xl">
+<span class="text-[10px] font-label uppercase text-on-surface-variant">Rerank</span>
+<div class="w-10 h-5 bg-primary-container rounded-full relative">
+<div class="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action -->
+<button class="w-full py-6 bg-primary-container rounded-xxl text-on-primary-container font-headline text-2xl italic tracking-wide hover:scale-[1.01] active:scale-[0.99] transition-all shadow-2xl shadow-primary/10 group">
+                            Synthesize Results
+                            <span class="material-symbols-outlined align-middle ml-2 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Right Column: The Intelligence Output -->
+<section class="w-1/2 flex flex-col p-8 overflow-y-auto bg-surface">
+<div class="max-w-2xl mx-auto w-full">
+<header class="flex items-center justify-between mb-8 pb-4 border-b border-outline-variant/10">
+<h2 class="font-headline text-2xl tracking-tight">Status &amp; Results</h2>
+<span class="text-[10px] font-label uppercase tracking-widest px-3 py-1 bg-primary/10 text-primary rounded-full border border-primary/20">Session Active</span>
+</header>
+<!-- Status Area -->
+<div class="mb-10">
+<div class="glass-panel p-4 rounded-xl border-l-4 border-primary flex items-start gap-4">
+<span class="material-symbols-outlined text-primary mt-0.5">info</span>
+<div class="flex-1">
+<h4 class="text-xs font-bold text-on-surface uppercase tracking-wider mb-1">Synthesizing Narrative</h4>
+<p class="text-sm text-on-surface-variant leading-normal">Cross-referencing 14 documents from the 2024 editorial archive. Reranking complete.</p>
+<div class="w-full h-1 bg-surface-container-high rounded-full mt-3 overflow-hidden">
+<div class="h-full bg-primary-container w-[72%]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Results Area -->
+<article class="space-y-12">
+<!-- Main Result Item -->
+<div>
+<h3 class="font-headline text-3xl mb-6 leading-snug">The Confluence of Tech and Typography</h3>
+<div class="font-body text-lg leading-[1.8] text-on-surface/90 space-y-6">
+<p>
+                                    Based on the retrieved sources, the current trend in digital editorial design shifts away from the utility-first SaaS aesthetic toward "Cinematic Curation." This approach leverages high-contrast serif headers—specifically like <span class="text-primary italic">Newsreader</span>—to anchor complex data streams.
+                                </p>
+<p>
+                                    Systems utilizing local inference (Ollama) have shown a 24% increase in processing latency but provide a significant advantage in data sovereignty for proprietary research archives.
+                                </p>
+</div>
+</div>
+<!-- Citations Bento Grid -->
+<div class="grid grid-cols-1 gap-4">
+<div class="p-6 rounded-xxl bg-surface-container-low border-l-2 border-primary group hover:bg-surface-container transition-colors">
+<div class="flex justify-between items-start mb-3">
+<span class="text-[10px] font-label uppercase tracking-widest text-primary font-bold">[Source 01]</span>
+<span class="text-[10px] text-on-surface-variant font-mono">Sim. 0.89</span>
+</div>
+<h4 class="font-headline text-lg mb-2">Editorial Frameworks in the AI Era</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed mb-4 italic">"...the integration of large language models within the design workflow necessitates a shift in how we structure visual hierarchy..."</p>
+<div class="flex gap-4">
+<span class="text-[10px] font-label uppercase text-on-surface-variant/60">Doc: research_v2.pdf</span>
+<span class="text-[10px] font-label uppercase text-on-surface-variant/60">Page: 14</span>
+</div>
+</div>
+<div class="p-6 rounded-xxl bg-surface-container-low border-l-2 border-outline-variant/30 group hover:bg-surface-container transition-colors">
+<div class="flex justify-between items-start mb-3">
+<span class="text-[10px] font-label uppercase tracking-widest text-on-surface-variant font-bold">[Source 02]</span>
+<span class="text-[10px] text-on-surface-variant font-mono">Sim. 0.74</span>
+</div>
+<h4 class="font-headline text-lg mb-2">Typography and Information Density</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed mb-4 italic">"...serif typefaces act as a cognitive anchor when users are navigating high-volume generated content..."</p>
+<div class="flex gap-4">
+<span class="text-[10px] font-label uppercase text-on-surface-variant/60">Doc: design_trends.epub</span>
+<span class="text-[10px] font-label uppercase text-on-surface-variant/60">Page: 08</span>
+</div>
+</div>
+</div>
+</article>
+</div>
+</section>
+</main>
+</div>
+<!-- Background Decoration -->
+<div class="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+<div class="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-primary/5 blur-[120px] rounded-full"></div>
+<div class="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-surface-container-highest/10 blur-[100px] rounded-full"></div>
+</div>
+</body></html>

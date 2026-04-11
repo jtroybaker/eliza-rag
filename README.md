@@ -121,6 +121,21 @@ uv run eliza-rag-search "Compare the main risk factors facing Apple and Tesla" -
 uv run eliza-rag-answer "How has NVIDIA's revenue and growth outlook changed over the last two years?" --json
 ```
 
+### One-Page Frontend
+
+If you want the demo flow without operating in the CLI, run the Streamlit app:
+
+```bash
+uv run streamlit run streamlit_app.py
+```
+
+The page wraps the same repo flows:
+
+- restore the published archive
+- check or prepare the Ollama local runtime
+- run retrieval-only search
+- run the full grounded answer flow
+
 ## What The Project Does
 
 This repo answers business questions over SEC filings with a local retrieval stack and one final answer-generation call.
@@ -185,4 +200,5 @@ uv run eliza-rag-storage package-archive
 ## Further Reading
 
 - `ARCHITECTURE.md`: compact pipeline walkthrough for live explanation
+- `docs/streamlit-packet/README.md`: full educational packet for how the Streamlit app works from the ground up
 - `eval/README.md`: saved eval artifacts, exact eval commands, and reporting outputs

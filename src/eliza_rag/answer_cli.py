@@ -93,7 +93,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--verbose",
         action="store_true",
-        help="Include summary, findings, and metadata in the terminal output.",
+        help="Include findings, uncertainty, and metadata in the terminal output.",
+    )
+    parser.add_argument(
+        "--include-summary",
+        action="store_true",
+        help="Include the model-generated summary in terminal or JSON output.",
     )
     return parser
 
@@ -143,11 +148,18 @@ def main() -> None:
         raise SystemExit(2) from exc
 
     if args.json:
-        print(json.dumps(response.to_dict(), indent=2))
+        payload = response.to_dict()
+        if not args.include_summary:
+            payload.pop("summary", None)
+        print(json.dumps(payload, indent=2))
         return
 
     print("Answer:")
     print(response.answer)
+    if args.include_summary:
+        print()
+        print("Summary:")
+        print(response.summary)
     print()
     print("Citations:")
     for citation in response.citations:
@@ -164,9 +176,6 @@ def main() -> None:
     print(f"Question: {response.question}")
     print(f"Model: {response.model}")
     print(f"Retrieval mode: {response.retrieval_mode}")
-    print()
-    print("Summary:")
-    print(response.summary)
     print()
     print("Findings:")
     for finding in response.findings:
