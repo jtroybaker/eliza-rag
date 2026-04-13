@@ -52,18 +52,36 @@ uv --version
 
 ## Reviewer Quickstart
 
-Install dependencies:
+Complete this preflight once before you try the CLI or the Streamlit app. The Streamlit UI assumes the archive location and provider credentials are already configured; it is not the place where first-time setup should begin.
+
+Use `.env.local` as the single reviewer configuration file. Put the archive URL there, and also put any hosted provider API keys there so the same settings are picked up by both the CLI and Streamlit.
+
+1. Install dependencies:
 
 ```bash
 uv sync
 ```
 
-Restore the prebuilt retrieval state from a GitHub Release archive:
+2. Create `.env.local` in the repo root and put all required reviewer configuration there before you launch anything:
 
 ```bash
-export ELIZA_RAG_LANCEDB_ARCHIVE_URL=https://github.com/jtroybaker/eliza-rag/releases/download/v1.0.0/lancedb-demo.zip
+cat > .env.local <<'EOF'
+ELIZA_RAG_LANCEDB_ARCHIVE_URL=https://github.com/jtroybaker/eliza-rag/releases/download/v1.0.0/lancedb-demo.zip
+# Uncomment one or both if you plan to use a hosted provider.
+# ELIZA_RAG_OPENAI_API_KEY=your_openai_key_here
+# ELIZA_RAG_OPENROUTER_API_KEY=your_openrouter_key_here
+EOF
+```
+
+`get_settings()` automatically loads `.env` and `.env.local`, so this is the most reliable way to make the same configuration available to the CLI and Streamlit. If you plan to use hosted OpenAI or OpenRouter, this is where those API keys should go.
+
+3. Restore the prebuilt retrieval state:
+
+```bash
 uv run eliza-rag-storage fetch-archive
 ```
+
+4. Choose one answer-generation path and finish its setup before you run the app:
 
 ### Local LLM Path
 
@@ -86,7 +104,7 @@ uv run eliza-rag-answer "What are the primary risk factors facing Apple, Tesla, 
 
 ### Hosted LLM Path
 
-If you already have an API key in `.env.local`, you can skip Ollama.
+If you already have a hosted provider API key in `.env.local`, you can skip Ollama.
 
 Recommended `.env.local` entries:
 
@@ -114,6 +132,8 @@ uv run eliza-rag-answer "What are the primary risk factors facing Apple, Tesla, 
 
 The repo still accepts the older shared hosted-answer variable `ELIZA_RAG_LLM_API_KEY`, but reviewer setup should prefer the provider-specific keys above.
 
+If you launch Streamlit without those keys in `.env.local`, the hosted provider options will not appear as runnable choices in the UI.
+
 Useful follow-up commands:
 
 ```bash
@@ -123,13 +143,22 @@ uv run eliza-rag-answer "How has NVIDIA's revenue and growth outlook changed ove
 
 ### One-Page Frontend
 
-If you want the demo flow without operating in the CLI, run the Streamlit app:
+Only launch Streamlit after the preflight above is complete:
+
+- `uv sync` finished successfully
+- `.env.local` contains `ELIZA_RAG_LANCEDB_ARCHIVE_URL`
+- `uv run eliza-rag-storage fetch-archive` completed successfully
+- you have either prepared Ollama locally or added the hosted provider API key you plan to use
+
+Then run the app:
 
 ```bash
 uv run streamlit run streamlit_app.py
 ```
 
-The page wraps the same repo flows:
+If any of those steps are skipped, the UI will not "just work". In particular, `Restore Archive` depends on `ELIZA_RAG_LANCEDB_ARCHIVE_URL` already being present in `.env.local` or the launching shell.
+
+After preflight, the page wraps the same repo flows:
 
 - restore the published archive
 - check or prepare the Ollama local runtime
@@ -201,4 +230,5 @@ uv run eliza-rag-storage package-archive
 
 - `ARCHITECTURE.md`: compact pipeline walkthrough for live explanation
 - `docs/streamlit-packet/README.md`: full educational packet for how the Streamlit app works from the ground up
+- `docs/agents/README.md`: agent-facing plans, handoffs, kanban notes, and prompt-iteration history
 - `eval/README.md`: saved eval artifacts, exact eval commands, and reporting outputs

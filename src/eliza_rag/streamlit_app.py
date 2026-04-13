@@ -29,18 +29,24 @@ RERANKER_OPTIONS = (BGE_RERANKER_V2_M3, BGE_RERANKER_BASE, HEURISTIC_RERANKER)
 
 
 def main() -> None:
+    # Page configuration must be set before most other Streamlit calls.
     st.set_page_config(
         page_title="Editorial Intelligence",
         page_icon="◆",
         layout="wide",
         initial_sidebar_state="collapsed",
     )
+    # Apply the custom visual design, then initialize any state this page expects.
     _apply_chromatic_editorial_theme()
     _init_state()
 
+    # Load the base application settings once for this script run.
     base_settings = get_settings()
+    # Build the provider list shown in the radio buttons from the available env/config.
     provider_options = _available_provider_settings(base_settings)
 
+    # Streamlit can render raw HTML when `unsafe_allow_html=True`, which this app
+    # uses for styled headers and cards.
     st.markdown(
         """
         <div class="app-shell">
@@ -56,6 +62,7 @@ def main() -> None:
         unsafe_allow_html=True,
     )
 
+    # The page is split into a left workflow column and a right results column.
     left_col, right_col = st.columns([1.05, 0.95], gap="large")
 
     with left_col:
@@ -67,15 +74,19 @@ def main() -> None:
             """,
             unsafe_allow_html=True,
         )
+        # Render setup/status controls first, then the query controls, then the form.
         _render_setup_panel(base_settings)
         selected_settings, mode, rerank, reranker, show_summary = _render_query_controls(provider_options)
         _render_query_form(selected_settings, mode, rerank, reranker, show_summary)
 
     with right_col:
+        # The results panel only reads from session state, so it can survive reruns.
         _render_results_panel()
 
 
 def _init_state() -> None:
+    # Streamlit reruns the script top-to-bottom on every interaction, so the
+    # result pane reads from session state instead of relying on local variables.
     st.session_state.setdefault("run_payload", None)
     st.session_state.setdefault("run_error", None)
     st.session_state.setdefault("run_logs", [])
@@ -86,6 +97,8 @@ def _init_state() -> None:
 
 
 def _available_provider_settings(base: Settings) -> dict[str, Settings]:
+    # Always expose a local path, then add hosted options only when their API
+    # keys are present so the radio group only shows runnable configurations.
     options: dict[str, Settings] = {
         "Local Ollama": replace(
             base,
@@ -126,24 +139,35 @@ def _available_provider_settings(base: Settings) -> dict[str, Settings]:
 
 
 def _render_setup_panel(settings: Settings) -> None:
+    # This section shows whether the local data artifacts and Ollama runtime are ready.
     st.markdown('<div class="section-label">Setup</div>', unsafe_allow_html=True)
     status = index_status(settings)
     lexical_ready = bool(status["lexical"]["table_exists"])
     dense_ready = bool(status["dense"]["table_exists"])
+    archive_configured = bool(settings.lancedb_archive_url)
 
+    # Use two columns so archive setup and local runtime setup sit side-by-side.
     setup_col, runtime_col = st.columns(2, gap="medium")
     with setup_col:
+        environment_detail = (
+            "Lexical and dense artifacts are checked from the local LanceDB path."
+            if lexical_ready and dense_ready
+            else (
+                "Restore the published archive before running the demo path."
+                if archive_configured
+                else "Set ELIZA_RAG_LANCEDB_ARCHIVE_URL in .env.local before using this app."
+            )
+        )
         st.markdown(
             _metric_card(
                 "Environment",
                 "Archive ready" if lexical_ready else "Archive missing",
-                "Lexical and dense artifacts are checked from the local LanceDB path."
-                if lexical_ready and dense_ready
-                else "Restore the published archive before running the demo path.",
+                environment_detail,
             ),
             unsafe_allow_html=True,
         )
-        if st.button("Restore Archive", use_container_width=True):
+        # Buttons return True only on the run where the user clicked them.
+        if st.button("Restore Archive", use_container_width=True, disabled=not archive_configured):
             try:
                 with st.spinner("Restoring the published LanceDB archive..."):
                     st.session_state.setup_payload = fetch_lancedb_archive(settings)
@@ -151,9 +175,18 @@ def _render_setup_panel(settings: Settings) -> None:
             except Exception as exc:  # pragma: no cover
                 st.session_state.setup_payload = None
                 st.session_state.setup_error = str(exc)
+            # Force the right-hand status card to redraw from stored state after
+            # the button interaction completes.
             st.rerun()
+        if not archive_configured:
+            st.info(
+                "Before launching Streamlit, add "
+                "`ELIZA_RAG_LANCEDB_ARCHIVE_URL=...` to `.env.local` or export it in the shell "
+                "where you run `uv run streamlit run streamlit_app.py`."
+            )
 
     with runtime_col:
+        # Build the local runtime manager on each run, then ask it for the current status.
         manager = build_local_runtime_manager(settings)
         runtime_status = manager.status()
         runtime_label = (
@@ -174,6 +207,7 @@ def _render_setup_panel(settings: Settings) -> None:
             _metric_card("Local Runtime", runtime_label, runtime_detail),
             unsafe_allow_html=True,
         )
+        # Nesting columns is a common Streamlit pattern for lining up button groups.
         status_button_col, prepare_button_col = st.columns(2, gap="small")
         with status_button_col:
             if st.button("Check Runtime", use_container_width=True):
@@ -185,6 +219,8 @@ def _render_setup_panel(settings: Settings) -> None:
                 try:
                     with st.spinner("Preparing Ollama and warming retrieval models..."):
                         prepared = manager.prepare(pull=True)
+                        # Warm the embedding and reranker stack here so the
+                        # first real query does not pay the cold-start cost.
                         retrieval_warmup = warm_retrieval_models(settings)
                     st.session_state.runtime_payload = {
                         **_runtime_payload(prepared),
@@ -196,6 +232,7 @@ def _render_setup_panel(settings: Settings) -> None:
                     st.session_state.runtime_error = str(exc)
                 st.rerun()
 
+    # These messages render below the cards after the latest setup/runtime action.
     if st.session_state.setup_error:
         st.error(st.session_state.setup_error)
     elif st.session_state.setup_payload:
@@ -214,6 +251,8 @@ def _render_setup_panel(settings: Settings) -> None:
 def _render_query_controls(
     provider_options: dict[str, Settings],
 ) -> tuple[Settings, str, bool, str, bool]:
+    # This helper returns the current UI selections so `main()` can pass them
+    # into the form handler without storing every control in extra variables.
     st.markdown('<div class="section-label">Ask</div>', unsafe_allow_html=True)
     provider_label = st.radio(
         "Provider",
@@ -223,6 +262,7 @@ def _render_query_controls(
     )
     selected_settings = provider_options[provider_label]
 
+    # Basic retrieval settings stay visible; less common knobs go in an expander.
     mode_col, rerank_col = st.columns(2, gap="medium")
     with mode_col:
         mode = st.selectbox(
@@ -238,6 +278,8 @@ def _render_query_controls(
             help="The recommended reviewer path keeps reranking enabled.",
         )
 
+    # Expanders are useful when you want advanced controls available without
+    # making the default layout feel busy.
     with st.expander("Advanced options", expanded=False):
         reranker = st.selectbox(
             "Reranker",
@@ -264,6 +306,8 @@ def _render_query_form(
     reranker: str,
     show_summary: bool,
 ) -> None:
+    # Widgets inside `st.form(...)` do not trigger work immediately; Streamlit
+    # waits until the submit button is pressed.
     with st.form("query-form", clear_on_submit=False):
         question = st.text_area(
             "Your thesis",
@@ -283,6 +327,8 @@ def _render_query_form(
             type="primary",
         )
 
+    # After a form submission, Streamlit reruns the script and `submitted` is
+    # only True during that rerun.
     if not submitted:
         return
 
@@ -293,17 +339,23 @@ def _render_query_form(
         st.rerun()
 
     logs: list[str] = []
+    # This placeholder lets the callback replace the status area as progress updates arrive.
     status_placeholder = st.empty()
 
     def _progress(message: str) -> None:
         logs.append(message)
         status_placeholder.markdown(_status_banner(message), unsafe_allow_html=True)
 
+    # Filters start empty here, but `analyze_query(...)` can enrich them based
+    # on the user question before retrieval runs.
     filters = RetrievalFilters()
     try:
         with st.spinner("Running the RAG flow..."):
+            # Keep the analyzed query in the payload for post-run inspection even
+            # when the user chooses the full answer flow.
             structured_query = analyze_query(question, filters=filters, settings=settings).to_dict()
             if run_mode == "Answer":
+                # The answer path does retrieval plus answer generation.
                 response = generate_answer(
                     settings,
                     question,
@@ -327,6 +379,7 @@ def _render_query_form(
                     "response": response_payload,
                 }
             else:
+                # The search path stops after retrieval and shows raw evidence chunks.
                 _progress("Analyzing query and retrieving evidence...")
                 results = retrieve(
                     settings,
@@ -345,6 +398,8 @@ def _render_query_form(
                     "index_status": index_status(settings),
                     "results": [result.to_dict() for result in results],
                 }
+        # Persist a normalized payload so the results column can render entirely
+        # from session state on the next Streamlit rerun.
         st.session_state.run_payload = payload
         st.session_state.run_error = None
         st.session_state.run_logs = logs
@@ -356,13 +411,17 @@ def _render_query_form(
         RuntimeError,
         ValueError,
     ) as exc:
+        # Save the error into session state so the right column can render it after rerun.
         st.session_state.run_payload = None
         st.session_state.run_error = str(exc)
         st.session_state.run_logs = logs
+    # Rerun so the result panel redraws from the stored payload or error.
     st.rerun()
 
 
 def _render_results_panel() -> None:
+    # This panel is intentionally passive: it only displays whatever the latest
+    # run stored in session state.
     st.markdown(
         """
         <div class="results-header">
@@ -383,6 +442,7 @@ def _render_results_panel() -> None:
 
     payload = st.session_state.run_payload
     if payload is None:
+        # Show a guided empty state before the first successful run.
         st.markdown(
             """
             <div class="empty-state">
@@ -397,6 +457,7 @@ def _render_results_panel() -> None:
         )
         return
 
+    # Keep the raw run metadata collapsible so the main results stay readable.
     with st.expander("Run metadata", expanded=False):
         st.json(
             {
@@ -416,6 +477,8 @@ def _render_results_panel() -> None:
 
 
 def _render_answer_payload(response: dict[str, Any], *, show_summary: bool) -> None:
+    # The answer view combines generated prose with any structured fields the
+    # answer model returned.
     st.markdown(
         """
         <div class="result-prose">
@@ -448,6 +511,7 @@ def _render_answer_payload(response: dict[str, Any], *, show_summary: bool) -> N
         )
 
     if findings:
+        # Build the `<li>` elements as HTML because this app styles result cards directly.
         finding_items = "".join(
             f"<li>{html.escape(item['statement'])}</li>"
             for item in findings
@@ -478,6 +542,8 @@ def _render_answer_payload(response: dict[str, Any], *, show_summary: bool) -> N
     citations = response.get("citations") or []
     if citations:
         st.markdown('<div class="section-label">Evidence</div>', unsafe_allow_html=True)
+        # Answer citations are compact, so map them back to the retrieved chunks
+        # to recover chunk text and scoring metadata for the expander view.
         retrieval_by_chunk_id = {
             str(result.get("chunk_id")): result
             for result in retrieval_results
@@ -491,6 +557,7 @@ def _render_answer_payload(response: dict[str, Any], *, show_summary: bool) -> N
 
 
 def _render_search_payload(results: list[dict[str, Any]]) -> None:
+    # Search mode is simpler than answer mode: it only shows retrieved evidence.
     if not results:
         st.warning("No retrieval results were returned for this query.")
         return
@@ -499,6 +566,8 @@ def _render_search_payload(results: list[dict[str, Any]]) -> None:
 
 
 def _render_result_expanders(results: list[dict[str, Any]]) -> None:
+    # Each result gets its own expander so the page stays compact until the user
+    # opens a specific filing chunk.
     for result in results:
         company = result.get("company_name") or result.get("ticker") or "Unknown issuer"
         section = _evidence_section_label(result)
@@ -516,6 +585,7 @@ def _render_result_expanders(results: list[dict[str, Any]]) -> None:
 
 
 def _metric_card(title: str, value: str, detail: str) -> str:
+    # Small HTML helper so the setup panel can reuse the same card structure.
     return f"""
     <div class="metric-card">
       <div class="card-label">{html.escape(title)}</div>
@@ -526,6 +596,7 @@ def _metric_card(title: str, value: str, detail: str) -> str:
 
 
 def _citation_card(citation: dict[str, Any]) -> str:
+    # Citation cards summarize the filing metadata before the full chunk text below.
     label = html.escape(citation.get("citation_id") or "Source")
     company = html.escape(citation.get("company_name") or citation.get("ticker") or "Unknown issuer")
     section = html.escape(_evidence_section_label(citation))
@@ -545,6 +616,8 @@ def _citation_card(citation: dict[str, Any]) -> str:
 
 
 def _render_citation_expander(citation: dict[str, Any], result: dict[str, Any] | None) -> None:
+    # Citations come from the answer model; the matching retrieval result may
+    # add rank, scores, and the original chunk text.
     citation_id = str(citation.get("citation_id") or "Source")
     company = citation.get("company_name") or citation.get("ticker") or "Unknown issuer"
     section = _evidence_section_label(result or citation)
@@ -569,6 +642,8 @@ def _render_citation_expander(citation: dict[str, Any], result: dict[str, Any] |
 
         metadata = dict(citation)
         if result:
+            # Fill gaps in model-emitted citation metadata with retrieval-side
+            # fields that are useful for debugging and demo inspection.
             for key in (
                 "chunk_index",
                 "section_path",
@@ -588,6 +663,8 @@ def _render_citation_expander(citation: dict[str, Any], result: dict[str, Any] |
 
 
 def _evidence_section_label(payload: dict[str, Any]) -> str:
+    # Prefer the most specific section label available, with predictable
+    # fallbacks when filings are missing section metadata.
     section = _clean_evidence_value(payload.get("section"))
     section_path = _clean_evidence_value(payload.get("section_path"))
     form_type = _clean_evidence_value(payload.get("form_type"))
@@ -609,6 +686,7 @@ def _evidence_section_label(payload: dict[str, Any]) -> str:
 
 
 def _clean_evidence_value(value: Any) -> str | None:
+    # Normalize placeholder values so the label helper can fall back cleanly.
     if not isinstance(value, str):
         return None
     stripped = value.strip()
@@ -620,6 +698,8 @@ def _clean_evidence_value(value: Any) -> str | None:
 
 
 def _paragraphs(text: str) -> str:
+    # Convert plain-text answer blocks into escaped HTML paragraphs so the
+    # custom card styling can render model output safely.
     parts = [segment.strip() for segment in text.split("\n") if segment.strip()]
     if not parts:
         return "<p>No answer text returned.</p>"
@@ -627,6 +707,7 @@ def _paragraphs(text: str) -> str:
 
 
 def _runtime_payload(status: Any) -> dict[str, Any]:
+    # Convert the runtime status object into plain JSON-friendly data for `st.json(...)`.
     return {
         "runtime": status.runtime,
         "command": status.command,
@@ -639,6 +720,7 @@ def _runtime_payload(status: Any) -> dict[str, Any]:
 
 
 def _status_banner(message: str) -> str:
+    # Another small HTML helper used for live progress updates and the last-run status.
     return f"""
     <div class="status-banner">
       <div class="status-dot"></div>
@@ -651,6 +733,8 @@ def _status_banner(message: str) -> str:
 
 
 def _apply_chromatic_editorial_theme() -> None:
+    # The app uses inline CSS so `streamlit run streamlit_app.py` stays
+    # self-contained without a separate frontend asset pipeline.
     st.markdown(
         """
         <style>
