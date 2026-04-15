@@ -8,7 +8,7 @@ This handoff is for the next agent after:
 
 - live execution testing
 - local Ollama answer-path stabilization
-- the fixes captured in `ANSWER_PIPELINE_FIXES.md`
+- the fixes captured in `docs/agents/ANSWER_PIPELINE_FIXES.md`
 
 That agent should:
 
@@ -25,18 +25,18 @@ Read these files first:
 - `agents.md`
 - `DECISIONS.md`
 - `LIMITATIONS.md`
-- `IMPLEMENTATION_KANBAN.md`
+- `docs/agents/IMPLEMENTATION_KANBAN.md`
 - `README.md`
-- `ANSWER_PIPELINE_FIXES.md`
+- `docs/agents/ANSWER_PIPELINE_FIXES.md`
 - `PHASE_05_SESSION_HANDOFF.md`
 - `PHASE_05_HANDOFF.md`
 - `PHASE_05_CLEANUP_HANDOFF.md`
 - `PHASE_05_BACKEND_EXPANSION_HANDOFF.md`
 - `PHASE_05_LOCAL_FALLBACK_FOLLOWUP_HANDOFF.md`
-- `INDEX_PORTABILITY_HANDOFF.md`
+- `docs/agents/INDEX_PORTABILITY_HANDOFF.md`
 - `LIVE_DEMO_EXECUTION_STEPS.md`
 
-Treat `ANSWER_PIPELINE_FIXES.md` as the authoritative summary of what broke during testing and what was fixed.
+Treat `docs/agents/ANSWER_PIPELINE_FIXES.md` as the authoritative summary of what broke during testing and what was fixed.
 
 If the user provides any final live-test notes beyond that file, use them as the highest-priority new input.
 
@@ -86,7 +86,7 @@ Examples:
 
 - Ollama path no longer returns parseable grounded output
 - hosted backend path now fails
-- a fix described in `ANSWER_PIPELINE_FIXES.md` is missing or broken again
+- a fix described in `docs/agents/ANSWER_PIPELINE_FIXES.md` is missing or broken again
 
 Then the next phase should be:
 
@@ -178,7 +178,7 @@ The next agent should preserve the repo-doc workflow used so far.
 
 Always update:
 
-- `IMPLEMENTATION_KANBAN.md`
+- `docs/agents/IMPLEMENTATION_KANBAN.md`
   - to reflect the selected next phase or state change
 
 Update when needed:

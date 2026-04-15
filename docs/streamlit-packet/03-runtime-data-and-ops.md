@@ -1,212 +1,227 @@
-# Runtime, Data, And Operations
+# Streamlit Runtime, State, And Editing Notes
 
-## What Must Exist For The App To Work
+This file focuses on practical Streamlit behavior you will run into while editing this app.
 
-The app needs four categories of things:
+## How To Run The Page
 
-1. Python dependencies
-2. SEC filing corpus and retrieval artifacts
-3. an answer backend
-4. optional local runtime support if using Ollama
-
-## Dependencies
-
-The project depends on:
-
-- `streamlit` for the UI
-- `lancedb` for local retrieval tables
-- `sentence-transformers` and related model tooling for embeddings and reranking
-- `python-dotenv` for local env loading
-
-Install with:
+Install dependencies:
 
 ```bash
 uv sync
 ```
 
-Run the app with:
+Start the page:
 
 ```bash
 uv run streamlit run streamlit_app.py
 ```
 
-## Configuration Model
+The repo-root launcher is the file Streamlit should target.
 
-The app uses `get_settings()` as its single settings source.
+## What Happens When You Save A File
 
-Settings come from:
+In normal Streamlit development:
 
-1. `.env`
-2. `.env.local`
-3. the current shell environment
+- you edit the Python file
+- Streamlit detects the change
+- the app reruns
+- the browser updates
 
-Common variables include:
+That makes it very fast to iterate on layout and widget changes.
 
-- `ELIZA_RAG_LANCEDB_ARCHIVE_URL`
-- `ELIZA_RAG_LLM_PROVIDER`
-- `ELIZA_RAG_LLM_MODEL`
-- `ELIZA_RAG_OPENAI_API_KEY`
-- `ELIZA_RAG_OPENROUTER_API_KEY`
-- `ELIZA_RAG_LOCAL_LLM_BASE_URL`
-- `ELIZA_RAG_LOCAL_LLM_MODEL`
+## The Main State Contract
 
-## Retrieval Artifacts
+The app depends on these `st.session_state` keys:
 
-The UI assumes retrieval is local.
+- `run_payload`
+- `run_error`
+- `run_logs`
+- `setup_payload`
+- `setup_error`
+- `runtime_payload`
+- `runtime_error`
 
-That means the app expects:
+If you change the render flow, update the state contract carefully.
 
-- a lexical LanceDB table
-- a dense LanceDB table
-- dense index metadata
+Typical mistakes:
 
-The setup panel checks readiness with `index_status(settings)`.
+- writing a new key in one place and forgetting to initialize it
+- changing the payload shape without updating the result renderer
+- storing an object that `st.json(...)` cannot display cleanly
 
-If those artifacts are missing, the intended recovery path is:
+## What Should Go In Session State
 
-1. configure `ELIZA_RAG_LANCEDB_ARCHIVE_URL`
-2. click `Restore Archive`
+Good candidates:
 
-Under the hood, the app calls `fetch_lancedb_archive(settings)`, which:
+- the latest result payload
+- the latest error string
+- progress messages
+- compact JSON-friendly metadata
 
-- resolves a local or remote archive path
-- clears any existing local LanceDB artifacts
-- extracts the archive into the repo
-- reconstructs dense metadata if needed
+Bad candidates:
 
-## Provider Selection Logic
+- transient local formatting variables
+- objects that only matter within one helper call
+- values that can be recomputed cheaply on every rerun
 
-The app does not hardcode one provider. It computes available options based on environment state.
+Rule of thumb:
 
-The provider radio can expose:
+If the right panel needs to remember it after the click is over, store it.
 
-- `Local Ollama`
-- `Hosted OpenAI`
-- `Hosted OpenRouter`
-- `Configured Compatible API`
+## What Should Stay Local
 
-The options appear only when the required env state is available. For example:
+These should usually remain local variables:
 
-- hosted OpenAI is added if an OpenAI key exists
-- hosted OpenRouter is added if an OpenRouter key exists
-- a compatible API option is added when base settings already point to an OpenAI-compatible endpoint
+- current widget return values
+- small layout helpers
+- temporary strings used to build headers
+- per-run placeholder objects from `st.empty()`
 
-## Local Ollama Path
+Local variables are fine when they only need to exist during the current script run.
 
-When the provider is local, answer generation uses the native Ollama generate API instead of the OpenAI-compatible `/responses` API.
+## `st.empty()` Versus `st.session_state`
 
-The runtime manager is responsible for:
+These serve different purposes.
 
-- validating that the `ollama` command exists
-- checking `http://127.0.0.1:11434`
-- starting `ollama serve` if needed
-- pulling the configured model if missing
+Use `st.empty()` when:
 
-The UI offers two separate actions for good reason:
+- you want to replace a visible block during the current run
+- you are streaming or updating progress text
 
-- `Check Runtime`: inspect state without changing anything
-- `Prepare Runtime`: make the local path actually usable
+Use `st.session_state` when:
 
-## Hosted Provider Path
+- you need the next rerun to remember something
+- another part of the page should read the stored value later
 
-When using hosted providers:
+This app uses both patterns.
 
-- the app creates an `OpenAICompatibleResponsesClient`
-- the final answer call is sent to `base_url + /responses`
-- the API key is attached as a bearer token when required
+## Buttons Versus Forms
 
-This is intentionally minimal. The repo does not depend on a large SDK to do one request.
+Use a button when:
 
-## Why The App Uses One Final Answer Call
+- one click should trigger one action immediately
 
-The design keeps answer generation bounded:
+Use a form when:
 
-- retrieval happens first
-- the prompt is assembled once
-- the model is called once
-- the output is validated once
+- several inputs should be gathered together
+- the expensive work should happen only when the user explicitly submits
 
-Operationally, that means:
+This app uses plain buttons for setup/runtime actions and a form for the query path. That split is a good Streamlit pattern.
 
-- simpler debugging
-- easier demo explanation
-- fewer hidden states
-- easier saved-artifact inspection
+## Why The Renderers Read From State
 
-## Common Operational Failures
+The results panel does not try to share local variables with the click handlers.
 
-### Archive problems
+That is intentional.
 
-Symptoms:
+Benefits:
 
-- setup card says archive missing
-- answer or search calls fail due to missing lexical or dense tables
+- render code stays simple
+- action handlers stay simple
+- reruns are easier to reason about
+- state bugs are easier to debug
 
-Likely fixes:
+If you find yourself trying to thread local variables across unrelated helpers, you are probably fighting the Streamlit model.
 
-- configure `ELIZA_RAG_LANCEDB_ARCHIVE_URL`
-- restore the archive again
+## Working With Custom HTML
 
-### Ollama problems
+This app uses a lot of `st.markdown(..., unsafe_allow_html=True)`.
 
-Symptoms:
+Practical rules:
 
-- runtime says not ready
-- answer call fails for local provider
+- escape dynamic text with `html.escape(...)`
+- keep repeated HTML in helper functions
+- avoid mixing too much business logic into the HTML string building
+- remember that Streamlit markdown is still the injection point for the HTML
 
-Likely fixes:
+If you skip escaping, user input or model output can break the markup or render unsafe HTML.
 
-- install Ollama
-- run `Prepare Runtime`
-- verify the expected model name
+## Working With Custom CSS
 
-### Hosted key problems
+The theme is injected directly in `_apply_chromatic_editorial_theme()`.
 
-Symptoms:
+Benefits:
 
-- provider option is missing
-- answer generation raises missing API key errors
+- one file controls the visual system
+- no separate frontend toolchain
+- easy to iterate during Streamlit development
 
-Likely fixes:
+Tradeoffs:
 
-- add the provider-specific key to `.env.local`
-- restart the app if needed
+- the CSS can get long
+- class names are informal, not componentized
+- some selectors target Streamlit internals and may need updates when Streamlit changes
 
-### Model output problems
+When editing the CSS, prefer changing variables or helper classes before adding more one-off rules.
 
-Symptoms:
+## Common Streamlit Debugging Questions
 
-- answer call completes but the parser rejects the response
+### "Why did my variable reset?"
 
-Likely causes:
+Because the script reran and the value was only local.
 
-- model returned non-JSON output
-- model omitted required fields
-- model failed to include valid citations
+Fix:
 
-Why this is acceptable:
+- store it in `st.session_state` if it must survive reruns
 
-- parser failure is better than silently showing an ungrounded answer
+### "Why did my button logic only fire once?"
 
-## What To Validate After Changes
+Because `st.button(...)` is event-like, not stateful.
 
-If you modify the app or backend, validate these paths:
+Fix:
 
-1. app imports cleanly
-2. setup status renders
-3. provider options appear as expected
-4. search mode returns chunks
-5. answer mode returns grounded answers with citations
-6. local runtime buttons behave sensibly when Ollama is absent and when it is present
-7. errors render cleanly in the right panel
+- persist any lasting effect in session state
 
-## Operational Summary
+### "Why is my expensive code running too often?"
 
-The Streamlit app is operationally simple because it pushes complexity into reusable modules and keeps the UI layer as an orchestrator.
+Because it is outside the button/form submit branch, or tied to a widget that reruns the page.
 
-That makes the main operating model easy to remember:
+Fix:
 
-- restore data
-- choose backend
-- run query
-- inspect evidence
+- move the expensive work into a form submit or explicit button branch
+
+### "Why did the result panel stop rendering?"
+
+Common causes:
+
+- a session-state key is missing
+- the stored payload shape changed
+- the renderer expects a field that no longer exists
+
+Fix:
+
+- inspect the payload with `st.json(...)`
+- check `_init_state()`
+- check the rendering helpers that read the payload
+
+## Safe Editing Strategy
+
+When changing this Streamlit file:
+
+1. read `main()`
+2. find the state keys involved
+3. find which handler writes them
+4. find which renderer reads them
+5. make sure the payload shape still matches
+
+That approach catches most bugs faster than reading the whole file linearly.
+
+## What To Verify After Streamlit-Focused Changes
+
+If you change layout, state, or widgets, verify:
+
+1. the app still imports
+2. the page loads
+3. the left and right columns render
+4. setup buttons still update visible state
+5. form submission still updates the results panel
+6. expanders open with the expected content
+7. error messages still appear after failures
+
+## The Best Operational Summary
+
+For Streamlit work, the app is easiest to maintain if you think in three layers:
+
+- widget event handlers write state
+- render helpers read state
+- styling helpers control presentation

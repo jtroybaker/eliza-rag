@@ -36,7 +36,7 @@ Implementation tasks:
 
 - update `DECISIONS.md` with the chosen distribution mode
 - update `README.md` so the reviewer flow matches that choice exactly
-- ensure `IMPLEMENTATION_KANBAN.md` reflects the chosen portability path
+- ensure `docs/agents/IMPLEMENTATION_KANBAN.md` reflects the chosen portability path
 
 ### 2. If local build remains the supported path, tighten the setup flow
 

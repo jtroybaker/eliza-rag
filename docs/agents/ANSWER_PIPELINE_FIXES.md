@@ -137,7 +137,7 @@ Observed concern:
 
 Fix:
 
-- documented in `README.md` and `QUALITY_NOTES.md` that:
+- documented in `README.md` and `docs/agents/QUALITY_NOTES.md` that:
   - query analysis is deterministic
   - year/date inference can be fallible
   - lexical mode still mostly uses the raw question text for FTS

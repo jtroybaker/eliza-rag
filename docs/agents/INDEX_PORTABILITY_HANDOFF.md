@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This handoff records the concrete follow-up work completed from `INDEX_PORTABILITY_NEXT_STEPS.md`.
+This handoff records the concrete follow-up work completed from `docs/agents/INDEX_PORTABILITY_NEXT_STEPS.md`.
 
 The repo now treats index portability as an explicit local-build reviewer flow rather than an implied or partially documented behavior.
 
@@ -51,7 +51,7 @@ Files updated:
 
 - `README.md`
 - `DECISIONS.md`
-- `IMPLEMENTATION_KANBAN.md`
+- `docs/agents/IMPLEMENTATION_KANBAN.md`
 
 Documentation changes:
 

@@ -647,7 +647,7 @@ Current state:
 
 - the final prompt template is saved in `prompts/final_answer_prompt.txt`
 - the template requires strict JSON output, explicit uncertainty language, and chunk citation ids
-- prompt iteration notes are captured in `PROMPT_ITERATION_LOG.md`
+- prompt iteration notes are captured in `docs/agents/PROMPT_ITERATION_LOG.md`
 
 ### `done` Implement single-call answer pipeline
 
@@ -766,7 +766,7 @@ Expected output:
 
 Current state:
 
-- `PROMPT_ITERATION_LOG.md` records the first prompt version and the rationale for strict JSON plus citation rules
+- `docs/agents/PROMPT_ITERATION_LOG.md` records the first prompt version and the rationale for strict JSON plus citation rules
 
 ### `todo` Summarize evaluation findings
 

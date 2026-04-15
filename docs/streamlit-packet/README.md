@@ -1,29 +1,28 @@
-# Streamlit Educational Packet
+# Streamlit Technical Packet
 
-This packet explains how the Streamlit app works from the ground up, using the current code in this repository rather than a generic Streamlit example.
+This packet explains the Streamlit code in this repository as a Streamlit program first.
+
+It intentionally does not try to teach:
+
+- the app's RAG design
+- the retrieval pipeline
+- answer-generation behavior
+- provider-specific backend details
+
+Those systems are treated here as imported Python functions. The goal is to help a new engineer understand how the page behaves at the Streamlit layer: reruns, state, layout, forms, buttons, rendering, and custom styling.
 
 Read it in this order:
 
-1. `01-ground-up.md`: core concepts, app lifecycle, and end-to-end request flow
-2. `02-code-map.md`: file-by-file tour of the implementation
-3. `03-runtime-data-and-ops.md`: configuration, artifacts, local runtime, and failure modes
-4. `04-classroom-walkthrough.md`: a teaching script for demos, onboarding, or handoff
+1. `01-ground-up.md`: the Streamlit execution model used by this app
+2. `02-code-map.md`: where each Streamlit concern lives in the code
+3. `03-runtime-data-and-ops.md`: practical Streamlit debugging, state, and editing notes
+4. `04-classroom-walkthrough.md`: a teaching script focused on Streamlit mechanics
 
-## What The App Is
+## Primary Files
 
-The app is a thin Streamlit frontend over the repo's existing RAG pipeline:
-
-- setup and restore the local LanceDB retrieval artifacts
-- check or prepare the local Ollama runtime
-- choose a hosted or local answer provider
-- run retrieval-only search or the full grounded answer flow
-- inspect citations, chunk text, metadata, and pipeline status
-
-## Primary Entry Points
-
-- `streamlit_app.py`: root launcher used by `streamlit run`
-- `src/eliza_rag/streamlit_app.py`: the actual app implementation
+- `streamlit_app.py`: the repo-root launcher used by `streamlit run streamlit_app.py`
+- `src/eliza_rag/streamlit_app.py`: the actual Streamlit implementation
 
 ## One-Sentence Mental Model
 
-The page itself does very little "AI" work. It mostly collects user choices, calls the repo's retrieval and answer functions, and renders their outputs in a reviewer-friendly format.
+This app is a single Streamlit script that reruns from top to bottom on each interaction, using `st.session_state` to preserve the data the results panel needs.

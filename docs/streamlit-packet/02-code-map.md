@@ -1,221 +1,186 @@
-# Code Map
+# Streamlit Code Map
 
-This section maps each important file to its role in the Streamlit app.
+This file maps the code by Streamlit responsibility rather than by product behavior.
 
-## Entry Points
-
-### `streamlit_app.py`
+## `streamlit_app.py`
 
 Purpose:
 
-- root launcher used by `streamlit run streamlit_app.py`
+- acts as the Streamlit CLI entrypoint
 
-What it does:
+What to notice:
 
-- imports `main` from `eliza_rag.streamlit_app`
-- calls `main()` under `if __name__ == "__main__":`
+- it is intentionally tiny
+- it imports `main` from the package
+- it keeps `streamlit run streamlit_app.py` simple
 
-Why it exists:
+Why this pattern is useful:
 
-- keeps the Streamlit CLI entrypoint simple while letting the real app live inside the package
+- the actual app can live in `src/`
+- import paths stay normal
+- the launcher stays easy to inspect
 
-## Frontend Module
+## `src/eliza_rag/streamlit_app.py`
 
-### `src/eliza_rag/streamlit_app.py`
+This is the real Streamlit page.
 
-Purpose:
+Think of it in five parts.
 
-- builds the full Streamlit experience
+### 1. Top-Level App Composition
+
+Key function:
+
+- `main()`
+
+Streamlit responsibilities:
+
+- configure the page with `st.set_page_config(...)`
+- apply the CSS theme
+- initialize `st.session_state`
+- create the two-column layout
+- call the render helpers in page order
+
+This is the "page assembly" layer.
+
+### 2. State Initialization
+
+Key function:
+
+- `_init_state()`
+
+Streamlit responsibility:
+
+- declare the session keys the page expects to exist
+
+Why it matters:
+
+- later render functions can safely read session state without repeated guard code
+- it makes the rerun model much easier to reason about
+
+### 3. Input And Control Rendering
 
 Key functions:
 
-- `main()`: page setup, theme injection, layout, and top-level composition
-- `_init_state()`: initializes session keys
-- `_available_provider_settings()`: computes provider options from env vars and base settings
-- `_render_setup_panel()`: archive restore and local runtime controls
-- `_render_query_controls()`: provider, retrieval mode, reranking, and advanced options
-- `_render_query_form()`: handles the actual submit event and backend calls
-- `_render_results_panel()`: selects between empty state, error, answer, or search rendering
-- `_render_answer_payload()`: renders answer, findings, uncertainty, and citations
-- `_render_search_payload()`: renders retrieval-only results
-- `_render_citation_expander()`: shows chunk text plus metadata for one citation
-- `_apply_chromatic_editorial_theme()`: injects the custom visual style
+- `_render_setup_panel()`
+- `_render_query_controls()`
+- `_render_query_form()`
 
-Important design choice:
+Streamlit responsibilities:
 
-- the file does not implement retrieval or generation algorithms itself
-- it orchestrates imported backend functions and formats their outputs for humans
+- draw buttons, radios, toggles, selectboxes, and text areas
+- decide which controls live in columns
+- group the expensive inputs inside a form
+- respond to button clicks and form submit events
 
-## Configuration
+What to notice:
 
-### `src/eliza_rag/config.py`
+- buttons are handled inline with `if st.button(...):`
+- form submission is handled with `st.form_submit_button(...)`
+- advanced options are tucked into `st.expander(...)`
 
-Purpose:
+This is the main "interaction" layer.
 
-- centralizes settings, repo paths, defaults, and environment variables
+### 4. Result Rendering
 
-Why the app depends on it:
+Key functions:
 
-- the Streamlit page needs a single source of truth for:
-  - data directories
-  - LanceDB table names
-  - archive URLs
-  - LLM provider and model settings
-  - local Ollama runtime settings
+- `_render_results_panel()`
+- `_render_answer_payload()`
+- `_render_search_payload()`
+- `_render_result_expanders()`
+- `_render_citation_expander()`
 
-Important behavior:
+Streamlit responsibilities:
 
-- `get_settings()` merges `.env`, `.env.local`, and process environment variables
-- the result is cached with `@lru_cache(maxsize=1)`
+- show empty-state UI before the first run
+- show errors after failed actions
+- render structured metadata with `st.json(...)`
+- render long result details inside expanders
+- display stored outputs from `st.session_state`
 
-Practical implication:
+What to notice:
 
-- the app reads configuration once per process and then reuses it across reruns
+- this part of the file is mostly read-only
+- it does not trigger actions
+- it turns stored Python data into visible UI
 
-## Retrieval Layer
+This is the "view" layer.
 
-### `src/eliza_rag/retrieval.py`
+### 5. HTML And Styling Helpers
 
-Purpose:
+Key functions:
 
-- query analysis, artifact readiness checks, retrieval execution, hybrid fusion, and reranking
+- `_metric_card(...)`
+- `_citation_card(...)`
+- `_paragraphs(...)`
+- `_status_banner(...)`
+- `_apply_chromatic_editorial_theme()`
 
-Key concepts:
+Streamlit responsibilities:
 
-- `StructuredQuery`: normalized query plus detected companies and date hints
-- retriever adapters: lexical, dense, hybrid, targeted hybrid
-- reranker adapters: heuristic, `bge-reranker-v2-m3`, `bge-reranker-base`
+- package repeated HTML snippets
+- safely escape text placed into HTML
+- inject CSS with `st.markdown(...)`
 
-Important functions:
+What to notice:
 
-- `analyze_query(...)`
-- `index_status(...)`
-- `retrieve(...)`
-- `retrieve_lexical(...)`
-- `retrieve_dense(...)`
-- `retrieve_hybrid(...)`
-- `retrieve_targeted_hybrid(...)`
-- `rerank_results(...)`
-- `warm_retrieval_models(...)`
+- these helpers exist because the app goes beyond Streamlit's default widget styling
+- the CSS is inline, so there is no separate frontend build system
 
-Why `targeted_hybrid` matters:
+This is the "presentation polish" layer.
 
-- it actively spreads retrieval across multiple detected target tickers when the query looks comparative
+## Streamlit Features Used In This Repo
 
-## Answer Layer
+If you are learning Streamlit, these are the concrete APIs to study in this file:
 
-### `src/eliza_rag/answer_generation.py`
+- `st.set_page_config`
+- `st.columns`
+- `st.markdown`
+- `st.radio`
+- `st.selectbox`
+- `st.toggle`
+- `st.text_area`
+- `st.form`
+- `st.form_submit_button`
+- `st.button`
+- `st.expander`
+- `st.empty`
+- `st.spinner`
+- `st.error`
+- `st.success`
+- `st.warning`
+- `st.caption`
+- `st.write`
+- `st.json`
+- `st.rerun`
+- `st.session_state`
 
-Purpose:
+## Boundaries To Keep In Mind
 
-- converts retrieved chunks into a grounded prompt, calls a backend, and validates the model output
+When reading the code, separate these two kinds of functions:
 
-Important classes:
+Streamlit-facing functions:
 
-- `OpenAICompatibleResponsesClient`
-- `LocalOllamaGenerateClient`
-- `PromptPackage`
-- `ProviderConfig`
+- create layout
+- read widget values
+- manage session state
+- display output
 
-Important functions:
+Non-Streamlit backend functions:
 
-- `resolve_provider_config(...)`
-- `build_answer_backend_client(...)`
-- `generate_answer(...)`
-- `build_prompt_package(...)`
-- `parse_model_response(...)`
+- return status data
+- perform long-running work
+- build domain-specific payloads
 
-Why it matters:
+The app is easier to understand if you keep those boundaries clean in your head.
 
-- this file is where a search result becomes a final answer
-- it also enforces the contract that answers must be valid JSON with citations
+## Best Reading Path For A New Streamlit Reader
 
-## Local Runtime Layer
+1. `streamlit_app.py`
+2. `src/eliza_rag/streamlit_app.py:main()`
+3. `_init_state()`
+4. `_render_query_form()`
+5. `_render_results_panel()`
+6. `_apply_chromatic_editorial_theme()`
 
-### `src/eliza_rag/local_runtime.py`
-
-Purpose:
-
-- manage the repo-supported local Ollama workflow
-
-Important behavior:
-
-- checks whether Ollama exists on `PATH`
-- checks whether the Ollama server is reachable
-- checks whether the configured model is already available
-- can start the server and pull the model
-
-Why the Streamlit page uses it:
-
-- the page has buttons for "Check Runtime" and "Prepare Runtime"
-- those buttons are thin wrappers around this module
-
-## Storage And Archive Restore
-
-### `src/eliza_rag/storage.py`
-
-Purpose:
-
-- LanceDB table creation, dense index building, archive packaging, and archive restore
-
-Important functions for the app:
-
-- `fetch_lancedb_archive(...)`
-- `prepare_lancedb_artifacts(...)`
-- `create_lancedb_archive(...)`
-
-Why it matters:
-
-- the Streamlit setup panel depends on this module to make the demo portable
-- reviewers do not need to rebuild indexes from scratch if the archive is published
-
-## Data Models
-
-### `src/eliza_rag/models.py`
-
-Purpose:
-
-- typed payloads for retrieval, answers, citations, and corpus inspection
-
-Why it matters:
-
-- these dataclasses define the shapes passed between backend code and the UI
-- they reduce ad hoc dict handling until the final rendering layer
-
-## Prompt File
-
-### `prompts/final_answer_prompt.txt`
-
-Purpose:
-
-- defines the final answer-generation contract
-
-Why it matters:
-
-- the app's answer path depends on the model returning exactly one JSON object
-- grounding requirements are specified here, not only in code comments
-
-## Streamlit Config
-
-### `.streamlit/config.toml`
-
-Purpose:
-
-- sets Streamlit theme defaults
-
-Why it matters:
-
-- even though the app injects custom CSS, this file still establishes the base color scheme for Streamlit-native components
-
-## Recommended Reading Path For New Engineers
-
-1. `src/eliza_rag/streamlit_app.py`
-2. `src/eliza_rag/config.py`
-3. `src/eliza_rag/retrieval.py`
-4. `src/eliza_rag/answer_generation.py`
-5. `src/eliza_rag/local_runtime.py`
-6. `src/eliza_rag/storage.py`
-7. `src/eliza_rag/models.py`
-8. `prompts/final_answer_prompt.txt`
-
-That order follows the same direction as a user request moving through the system.
+That path teaches the launcher, rerun model, state model, and rendering model with the least distraction.

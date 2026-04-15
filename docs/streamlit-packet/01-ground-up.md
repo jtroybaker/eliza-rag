@@ -1,275 +1,281 @@
-# Ground-Up Explanation
+# Ground-Up Streamlit Explanation
 
 ## Start With The Right Mental Model
 
-This app is not a standalone product with its own custom backend server. It is a Streamlit interface wrapped around plain Python functions already present in the repo.
+The Streamlit execution model used in this app:
 
-That distinction matters:
+- Streamlit runs the script from top to bottom
+- a user interaction causes another full rerun
+- widget values are reconstructed on that rerun
+- persistent values must live in `st.session_state`
 
-- Streamlit handles page rendering, widgets, and session state
-- repo modules handle retrieval, answer generation, storage, and local runtime management
-- the app stitches those layers together into one workflow
+If that model is clear, the rest of this file makes sense.
 
-## The Smallest Useful Architecture
+## What Actually Runs
 
-There are five layers:
+The launch path is:
 
-1. `streamlit run streamlit_app.py` starts the UI
-2. `streamlit_app.py` imports and calls `eliza_rag.streamlit_app.main()`
-3. the Streamlit module builds the page, tracks state, and reacts to button/form submits
-4. backend modules perform retrieval, answer generation, archive restore, and runtime preparation
-5. Streamlit renders the returned payloads as cards, expanders, evidence blocks, and metadata panes
+1. `streamlit run streamlit_app.py`
+2. the repo-root `streamlit_app.py` imports `main`
+3. `src/eliza_rag/streamlit_app.py:main()` builds the page
 
-## End-To-End Flow
+That root file is only a launcher. The real page code lives in the package module.
+
+## The Core Streamlit Lifecycle In This App
 
 ```mermaid
 flowchart TD
-    A[User opens Streamlit page] --> B[main()]
-    B --> C[set_page_config + inject CSS theme]
-    C --> D[initialize session_state keys]
-    D --> E[load Settings from env and repo paths]
-    E --> F[build provider options]
-    F --> G[render Setup panel]
-    F --> H[render Ask controls]
-    H --> I[submit form]
-    I --> J[analyze query]
-    J --> K{Run mode}
-    K -->|Search| L[retrieve evidence]
-    K -->|Answer| M[retrieve evidence]
-    M --> N[build grounded prompt]
-    N --> O[call LLM backend]
-    O --> P[validate JSON + citations]
-    L --> Q[store payload in session_state]
-    P --> Q
-    Q --> R[st.rerun()]
-    R --> S[render results panel]
+    A[Browser loads page] --> B[Streamlit runs main()]
+    B --> C[set page config]
+    C --> D[inject CSS]
+    D --> E[initialize session_state keys]
+    E --> F[render widgets and panels]
+    F --> G{User interacts?}
+    G -->|No| H[Page stays visible]
+    G -->|Yes| I[Streamlit reruns script]
+    I --> C
 ```
 
-## What Happens On Page Load
+That loop is the whole app model.
 
-When the app starts, `main()` does the following in order:
+## Why `main()` Looks Declarative
 
-1. sets Streamlit page metadata such as title, icon, layout, and sidebar state
-2. injects a custom editorial CSS theme
-3. initializes `st.session_state` keys used across reruns
-4. loads repo settings via `get_settings()`
-5. builds provider choices from environment variables
-6. renders the top banner, left-side controls, and right-side results panel
+`main()` reads like layout code because it mostly is layout code:
 
-This is standard Streamlit behavior: every interaction reruns the script from top to bottom, and persistent data is carried through `st.session_state`.
+- set page metadata
+- apply theme
+- initialize state
+- compute options for widgets
+- render left column
+- render right column
 
-## Why Session State Matters Here
+This is normal Streamlit style. Instead of a permanent server-side UI tree, you rebuild the page description on every rerun.
 
-Without session state, every button click would wipe the last run result. This app stores the important outputs in:
+## Why Session State Exists
 
-- `run_payload`: last search or answer result
-- `run_error`: last user-visible run error
-- `run_logs`: pipeline progress messages shown in the UI
-- `setup_payload`: archive restore result
-- `setup_error`: archive restore error
-- `runtime_payload`: local runtime status or prepare result
-- `runtime_error`: local runtime error
+Without `st.session_state`, the page would forget the previous result on every click.
 
-That is the core reason the app feels like a stateful workflow instead of a stateless script dump.
+This app stores these values:
 
-## The Left Column: Setup And Ask
+- `run_payload`
+- `run_error`
+- `run_logs`
+- `setup_payload`
+- `setup_error`
+- `runtime_payload`
+- `runtime_error`
 
-The left column has three jobs.
+These keys matter because the right column is rendered from stored state, not from local variables created during a single button click.
 
-### 1. Setup
+## The Most Important Pattern In The File
 
-The setup panel checks whether retrieval artifacts exist locally. It uses `index_status(settings)` to determine whether the lexical and dense LanceDB tables are present.
+The dominant pattern is:
 
-The "Restore Archive" button calls `fetch_lancedb_archive(settings)`.
+1. a button or form submit triggers work
+2. the handler stores a result or error in `st.session_state`
+3. the code calls `st.rerun()`
+4. the page redraws from the saved state
 
-What that means in practice:
+That is how the app creates the feeling of a persistent interface even though the script reruns each time.
 
-- if the repo already has the local archive and tables, the environment is ready
-- if not, the app can restore them from a configured archive source
+## Columns
 
-### 2. Local Runtime
+The page uses:
 
-The runtime panel exists for the local Ollama path.
+```python
+left_col, right_col = st.columns([1.05, 0.95], gap="large")
+```
 
-It uses `build_local_runtime_manager(settings)` and then:
+That does two things:
 
-- `status()` to inspect whether Ollama exists, is running, and has the model
-- `prepare(pull=True)` to start the server and pull the model if needed
-- `warm_retrieval_models(settings)` to preload retrieval-time models
+- creates two layout containers
+- lets the code render different UI sections inside each container with `with left_col:` and `with right_col:`
 
-This keeps the "first real query" from paying all setup costs at once.
+This is one of the most common Streamlit layout patterns.
 
-### 3. Ask
+## Buttons
 
-The query controls define how the pipeline should run:
+In Streamlit, `st.button(...)` returns `True` only on the rerun caused by that click.
 
-- provider: local Ollama, hosted OpenAI, hosted OpenRouter, or a configured compatible API
-- retrieval mode: `targeted_hybrid`, `hybrid`, `dense`, or `lexical`
-- reranking: on or off
-- reranker choice: `bge-reranker-v2-m3`, `bge-reranker-base`, or `heuristic`
-- show summary: whether to display the model-generated executive summary
-- run mode: `Answer` or `Search`
+That means code like this:
 
-The form does not do any work until the submit button is pressed.
+```python
+if st.button("Restore Archive"):
+    ...
+```
 
-## What Happens When The User Clicks Submit
+does not mean "this button is currently on." It means "the user clicked this button for this rerun."
 
-The form handler `_render_query_form(...)` is the operational center of the page.
+That is why the app immediately stores results in session state. The `True` value from the button is temporary.
 
-It does this:
+## Forms
 
-1. validates that the text box is not empty
-2. creates a `logs` list and status placeholder
-3. defines a `_progress()` callback so backend work can surface progress messages in the UI
-4. creates empty `RetrievalFilters()`
-5. runs deterministic query analysis with `analyze_query(...)`
-6. branches into either search-only retrieval or full answer generation
-7. writes the resulting payload into session state
-8. triggers `st.rerun()` so the right column redraws from stored state
+The query area uses `st.form(...)`.
 
-The split between search and answer is important:
+That matters because widgets inside a form behave differently from standalone widgets:
 
-- `Search` returns ranked chunks only
-- `Answer` returns a grounded synthesis plus citations and the underlying retrieval results
+- editing the text area does not immediately trigger the expensive pipeline
+- the form waits for `st.form_submit_button(...)`
+- only the submit action should run the expensive code path
 
-## Search Mode
+This is the correct Streamlit pattern when multiple widget inputs should be gathered and applied together.
 
-Search mode calls `retrieve(...)`.
+## Radio Buttons, Selectboxes, And Toggles
 
-Inside that path:
+The app uses a few common Streamlit input widgets:
 
-1. the query analyzer creates a `StructuredQuery`
-2. filters are merged with detected tickers or dates
-3. a retriever is selected based on mode
-4. lexical, dense, or hybrid candidates are fetched from LanceDB
-5. optional reranking reorders the candidate set
-6. normalized `RetrievalResult` objects are returned
+- `st.radio(...)`
+- `st.selectbox(...)`
+- `st.toggle(...)`
+- `st.text_area(...)`
 
-The page then stores those results and renders them as expanders with chunk text and metadata.
+These return plain Python values on each rerun. The code does not need to manually fetch them from the DOM. Streamlit reconstructs them for you.
 
-## Answer Mode
+Example:
 
-Answer mode calls `generate_answer(...)`.
+- `st.radio(...)` returns the selected label
+- `st.selectbox(...)` returns the selected option
+- `st.toggle(...)` returns `True` or `False`
 
-That function does more work:
+## Expanders
 
-1. runs retrieval using the selected retrieval mode
-2. ensures at least one retrieval result exists
-3. builds a prompt package using the final prompt template and retrieved chunk texts
-4. chooses an answer backend client based on provider settings
-5. sends one final generation request
-6. parses the model output as strict JSON
-7. validates findings, summary, uncertainty, and inline citation ids
-8. returns an `AnswerResponse`
+The app uses `st.expander(...)` for two jobs:
 
-This is deliberately single-call answer generation. The repo is not using an agent loop for the final answer step.
+- hide advanced controls until the user wants them
+- hide large result details until the user opens them
 
-## How The Prompt Is Built
+This is a strong Streamlit pattern because pages can get long quickly. Expanders keep the default view readable.
 
-The answer prompt comes from `prompts/final_answer_prompt.txt`.
+## Placeholders
 
-The code turns retrieval results into labeled context blocks:
+The form handler creates:
 
-- each chunk is assigned a citation id like `C1`, `C2`, `C3`
-- chunk metadata is included in the context header
-- the chunk text is appended below that header
-- the question and concatenated context are injected into the template
+```python
+status_placeholder = st.empty()
+```
 
-That design gives the model a strict vocabulary for evidence references and makes post-validation possible.
+`st.empty()` gives you a spot in the page that can be replaced later in the same run.
 
-## How Citations Stay Grounded
+The app uses it so the progress callback can keep updating the visible status banner while work is running.
 
-The answer parser does not trust the model blindly.
+That is different from session state:
 
-It validates that:
+- `st.empty()` is for replacing a piece of UI during a run
+- `st.session_state` is for surviving future reruns
 
-- the response is a JSON object
-- `summary`, `answer`, and `uncertainty` exist with the expected types
-- `findings` is a list of objects with statements and citations
-- the `answer` contains valid inline citations such as `[C1]`
+## Spinners
 
-If the model cites unknown ids, the parser strips those. If the answer has no valid inline citations but the findings do, the parser appends the known finding citations. If nothing valid remains, it raises an error.
+The app wraps long-running work with:
 
-That is one of the stronger parts of the implementation: the app enforces basic grounding rules after generation instead of only hoping the prompt worked.
+```python
+with st.spinner("Running the RAG flow..."):
+    ...
+```
 
-## Retrieval Modes In Plain English
+From a Streamlit perspective, the important point is simple:
 
-### `lexical`
+- the spinner gives immediate user feedback during blocking Python work
+- it does not make the work asynchronous
 
-Uses full-text search over chunk text. Good for exact language matches.
+The code is still synchronous Python running in the request.
 
-### `dense`
+## Rendering JSON
 
-Uses vector similarity over chunk embeddings. Good for semantic similarity.
+The results panel uses `st.json(...)` for metadata payloads.
 
-### `hybrid`
+That is useful because:
 
-Runs lexical and dense retrieval separately, then fuses ranks.
+- it gives a readable structured view with almost no code
+- it avoids hand-formatting nested dicts
+- it works well for session-state-backed payloads
 
-### `targeted_hybrid`
+This is a common Streamlit convenience for debug panels and developer-facing metadata.
 
-Uses hybrid retrieval, but if the query names multiple companies and appears comparative, it allocates retrieval coverage across those target tickers before falling back to general hybrid results.
+## Rendering Raw HTML
 
-This mode is why the repo is better suited for prompts like:
+The app often uses:
 
-"Compare the main risk factors facing Apple and Tesla."
+```python
+st.markdown(..., unsafe_allow_html=True)
+```
 
-It reduces the chance that one company dominates all top results.
+That tells Streamlit to render HTML inside the markdown block.
 
-## Why The UI Uses `st.rerun()`
+The app uses this for:
 
-After setup, runtime, search, or answer actions, the app stores payloads in session state and forces a rerun.
+- branded headers
+- custom cards
+- status banners
+- citation card structure
+- inline CSS theme injection
 
-That pattern gives two benefits:
+This is powerful, but it comes with a rule: if user- or model-generated text is inserted into HTML, it must be escaped. That is why the code uses `html.escape(...)`.
 
-- widget callbacks stay simple
-- rendering logic remains clean because the results panel reads from state instead of from in-flight local variables
+## Why `_paragraphs(...)` Exists
 
-In other words, the action handlers mutate state, and the results panel is a pure-ish view over that state.
+Streamlit can render plain markdown directly, but this app wants answer text inside custom card HTML.
 
-## The Right Column: Inspect
+So `_paragraphs(...)` converts plain text into escaped `<p>...</p>` blocks. That is a Streamlit/UI concern, not business logic.
 
-The results panel shows three kinds of information:
+## Why `_metric_card(...)` And `_status_banner(...)` Exist
 
-1. current status or errors
-2. run metadata such as provider, model, retrieval mode, structured query, and progress logs
-3. either a grounded answer view or a retrieval-results view
+These helpers return HTML strings for repeated UI structures.
 
-For answers, the panel renders:
+They exist because:
 
-- answer prose
-- optional summary
-- findings list
-- uncertainty note
-- evidence expanders for each citation
+- repeated `st.markdown("""...""")` blocks get noisy
+- repeated card markup is easier to maintain in one place
+- Streamlit has no built-in reusable HTML component abstraction for small cases like this
 
-For retrieval-only searches, it renders chunk expanders directly.
+## Why There Is So Much `st.rerun()`
 
-## Failure Modes
+New Streamlit readers often ask whether `st.rerun()` is redundant because Streamlit reruns anyway.
 
-The app is designed to surface operational failures clearly:
+In this app, the explicit `st.rerun()` calls are useful because:
 
-- missing archive or missing tables
-- dense index not ready
-- lexical index not ready
-- local Ollama not installed
-- local Ollama server not running
-- local Ollama model not pulled
-- hosted provider key missing
-- backend endpoint unreachable
-- model response not valid JSON
-- answer response missing valid citations
+- the handler mutates session state after the click
+- the code wants a fresh render pass driven by the new stored payload
+- it keeps the action code and display code cleanly separated
 
-Most of these become `st.error(...)` messages through the stored `*_error` state fields.
+The pattern is:
 
-## Why This App Is Reasonable Engineering
+- do work
+- save state
+- rerun
+- render from state
 
-The implementation is intentionally modest:
+## A Useful Way To Read This File
 
-- one thin frontend file
-- separate backend modules for retrieval, storage, and answer generation
-- explicit data models
-- strict answer parsing
-- portable restore-first local retrieval
+Read `src/eliza_rag/streamlit_app.py` in this order:
 
-That makes it teachable. A reader can start at the Streamlit page, follow the function calls downward, and understand the full system without needing hidden services or complex orchestration.
+1. `main()`
+2. `_init_state()`
+3. `_render_setup_panel()`
+4. `_render_query_controls()`
+5. `_render_query_form()`
+6. `_render_results_panel()`
+7. the small HTML/render helpers
+8. `_apply_chromatic_editorial_theme()`
+
+That order mirrors how the page feels to the user and how Streamlit rebuilds the interface.
+
+## What To Ignore On First Read
+
+If your goal is to learn Streamlit from this file, treat these imported functions as black boxes:
+
+- `get_settings()`
+- `index_status(...)`
+- `retrieve(...)`
+- `generate_answer(...)`
+- `fetch_lancedb_archive(...)`
+- `build_local_runtime_manager(...)`
+
+The Streamlit lesson is not what they do internally. The Streamlit lesson is how the page calls them and then renders the returned data.
+
+## The Best Short Summary
+
+This app is a standard Streamlit script with three important techniques:
+
+- use columns, forms, expanders, and placeholders to structure the page
+- use `st.session_state` to preserve results across reruns
+- use `st.markdown(..., unsafe_allow_html=True)` plus CSS to go beyond default Streamlit styling
